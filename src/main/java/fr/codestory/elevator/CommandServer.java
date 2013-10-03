@@ -3,24 +3,38 @@ package fr.codestory.elevator;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
+import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.InetSocketAddress;
+import java.util.concurrent.Executor;
 
 /**
  * @author Miguel Basire
  */
 public class CommandServer {
 
-    static ElevatorCommand groom = new EcologySuckslElevatorCommand();
+    private final static Logger LOG = Logger.getLogger(CommandServer.class);
 
     private final HttpServer httpServer;
+    private final ElevatorCommand groom;
 
-    CommandServer() throws IOException {
 
-        httpServer = HttpServer.create(new InetSocketAddress("127.0.0.1", 8881), 0);
+    CommandServer(int port, ElevatorCommand elevatorCommand) throws IOException {
+
+        this.groom = elevatorCommand;
+
+        httpServer = HttpServer.create(new InetSocketAddress("127.0.0.1", port), 0);
+
+
+        httpServer.setExecutor(new Executor() {
+            @Override
+            public void execute(Runnable command) {
+                command.run();
+            }
+        });
         answerToElevatorEvent(httpServer);
     }
 
@@ -31,41 +45,45 @@ public class CommandServer {
 
                 String elevatorEvent = exchange.getRequestURI().getPath();
 
-                System.out.println(elevatorEvent);
-
                 String nextMove = "";
+                try {
+                    switch (elevatorEvent) {
+                        case "/nextCommand":
+                            nextMove = groom.nextMove();
+                            break;
 
-                switch (elevatorEvent) {
-                    case "/nextCommand":
-                        nextMove = groom.nextMove();
-                        break;
+                        case "/go":
+                            String to = exchange.getRequestURI().getQuery().replaceFirst("floorToGo=", "");
+                            groom.go(Integer.parseInt(to));
+                            break;
 
-                    case "/go":
-                        String to = exchange.getRequestURI().getQuery().replaceFirst("floorToGo=", "");
-                        groom.go(Integer.parseInt(to));
-                        break;
+                        case "/reset":
+                            groom.reset();
+                            break;
 
-                    case "/reset":
-                        groom.reset();
-                        break;
+                        case "/userHasEntered":
+                            break;
 
-                    case "/userHasEntered":
-                        break;
+                        case "/userHasExited":
+                            break;
 
-                    case "/userHasExited":
-                        break;
+                        case "/call":
+                            String[] param = exchange.getRequestURI().getQuery().split("&");
+                            String at = param[0].replaceFirst("atFloor=", "");
 
-                    case "/call":
-                        String[] param = exchange.getRequestURI().getQuery().split("&");
-                        String at = param[0].replaceFirst("atFloor=","" );
-
-                        groom.call(Integer.parseInt(at), ElevatorCommand.Side.valueOf(param[1].replaceFirst("to=", "")));
-                        break;
+                            groom.call(Integer.parseInt(at), ElevatorCommand.Side.valueOf(param[1].replaceFirst("to=", "")));
+                            break;
+                    }
+                } catch (Exception e) {
+                    LOG.error("elevatorEvent "+elevatorEvent+""+e.getMessage(),e);
+                    nextMove = "NOTHING";
                 }
 
+                LOG.debug(elevatorEvent + ": " + nextMove);
+
                 Writer out = new OutputStreamWriter(exchange.getResponseBody());
-                exchange.sendResponseHeaders(200, nextMove.length());
                 out.write(nextMove);
+                exchange.sendResponseHeaders(200, nextMove.length());
                 out.close();
             }
         }
@@ -86,12 +104,18 @@ public class CommandServer {
 
     public static void main(String[] args) throws IOException {
 
-        CommandServer server = new CommandServer();
+        CommandServer server8881 = new CommandServer(8881, new OmnibusElevatorCommand());
+        CommandServer server8882 = new CommandServer(8882, new EcologySuckslElevatorCommand());
+        CommandServer server8883 = new CommandServer(8883, new ContinueOnItsDecisionElevatorCommand());
 
-        server.listenToElevatorEvents();
+        server8881.listenToElevatorEvents();
+        server8882.listenToElevatorEvents();
+        server8883.listenToElevatorEvents();
 
         System.in.read();
-        server.stopListening();
+        server8881.stopListening();
+        server8882.stopListening();
+        server8883.stopListening();
 
 
     }
