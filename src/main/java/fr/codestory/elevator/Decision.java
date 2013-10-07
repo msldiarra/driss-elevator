@@ -1,28 +1,32 @@
 package fr.codestory.elevator;
 
-import java.util.*;
+import com.google.common.collect.Sets;
 
+import java.util.Observable;
+
+import static fr.codestory.elevator.ElevatorCommand.Command;
+import static fr.codestory.elevator.ElevatorCommand.Side;
 import static java.lang.Math.abs;
 import static java.util.Collections.max;
 import static java.util.Collections.min;
 
 /**
-* @author Miguel Basire
-*/
+ * @author Miguel Basire
+ */
 class Decision extends Observable {
 
-    public final static Decision NONE = new Decision(ElevatorCommand.Side.UP,new ElevatorCommand.Command[]{});
+    public final static Decision NONE = new Decision(Side.UP, new Command[]{});
 
-    final ElevatorCommand.Side side;
-    private final ElevatorCommand.Command[] commands;
+    final Side side;
+    private final Command[] commands;
     private int remainingCommands;
 
     private boolean wrongSideChargingAllowed = true;
 
-    Decision(ElevatorCommand.Side side, ElevatorCommand.Command[] commands) {
+    Decision(Side side, Command[] commands) {
         this.side = side;
         this.commands = commands;
-        this.remainingCommands = commands.length ;
+        this.remainingCommands = commands.length;
     }
 
 
@@ -30,11 +34,11 @@ class Decision extends Observable {
         return wrongSideChargingAllowed;
     }
 
-    public ElevatorCommand.Command nextCommand() {
-        if(remainingCommands <= 0){
-            return ElevatorCommand.Command.NOTHING;
+    public Command nextCommand() {
+        if (remainingCommands <= 0) {
+            return Command.NOTHING;
         }
-        ElevatorCommand.Command command = commands[remainingCommands-- -1];
+        Command command = commands[remainingCommands-- - 1];
         if (remainingCommands == 0) {
             this.setChanged();
             notifyObservers();
@@ -44,58 +48,46 @@ class Decision extends Observable {
     }
 
 
-    public static Decision tryNewOne(ContinueOnItsDecisionElevatorCommand elevatorEngine) {
+    public static Decision tryNewOne(ContinueOnItsDecisionElevatorCommand engine) {
 
         // La note max est de 20
         // 20 - TickToWait/2  - TickToGo  + bestTickToGo = note
 
-        SortedMap<Integer, ElevatorCommand.Side> callsBelow = below(elevatorEngine.currentFloor(), elevatorEngine.calledFloors);
-        SortedMap<Integer, ElevatorCommand.Side> callsAbove = above(elevatorEngine.currentFloor(), elevatorEngine.calledFloors);
+        int currentFloor = engine.currentFloor();
+        Destinations<Side> callsBelow = engine.calls.below(currentFloor);
+        Destinations<Side> callsAbove = engine.calls.above(currentFloor);
 
-        SortedMap<Integer, Integer> gosBelow = below(elevatorEngine.currentFloor(), elevatorEngine.wishedFloors);
-        SortedMap<Integer, Integer> gosAbove = above(elevatorEngine.currentFloor(), elevatorEngine.wishedFloors);
+        Destinations<Integer> gosBelow = engine.wishedFloors.below(currentFloor);
+        Destinations<Integer> gosAbove = engine.wishedFloors.above(currentFloor);
 
-        int costBelow = cost(elevatorEngine.currentFloor(), gosBelow);
-        int costAbove = cost(elevatorEngine.currentFloor(), gosAbove);
+        int costBelow = cost(currentFloor, gosBelow);
+        int costAbove = cost(currentFloor, gosAbove);
 
-        if (callsBelow.size() + callsAbove.size() + costBelow + costAbove == 0) return Decision.NONE;
+        if (callsBelow.floors().size() + callsAbove.floors().size() + costBelow + costAbove == 0) return Decision.NONE;
 
         Decision decision = Decision.NONE;
 
-        if (costAbove + callsAbove.size() > costBelow + callsBelow.size()) {
+        if (costAbove + callsAbove.floors().size() < costBelow + callsBelow.floors().size()) {
 
-            List<Integer> floors = new ArrayList(floors(callsAbove));
-            floors.addAll(floors(gosAbove));
-            int distance = max(floors) - elevatorEngine.currentFloor();
-            decision = new Decision(ElevatorCommand.Side.UP, ElevatorCommand.Command.UP.times(distance));
+            int farestFloor = min(Sets.union(callsBelow.floors(),gosBelow.floors()));
+            int distance = currentFloor - farestFloor;
+            decision = new Decision(Side.DOWN, Command.DOWN.times(distance));
+
         } else {
-
-            List<Integer> floors = new ArrayList(floors(callsBelow));
-            floors.addAll(floors(gosBelow));
-            int distance = elevatorEngine.currentFloor() - min(floors);
-            decision = new Decision(ElevatorCommand.Side.DOWN, ElevatorCommand.Command.DOWN.times(distance));
+            int farestFloor = max(Sets.union(callsAbove.floors(), gosAbove.floors()));
+            int distance = farestFloor - currentFloor;
+            decision = new Decision(Side.UP, Command.UP.times(distance));
         }
         decision.wrongSideChargingAllowed = false;
-        decision.addObserver(elevatorEngine);
+        decision.addObserver(engine);
         return decision;
     }
 
-    static private <T> SortedMap<Integer, T> below(int floorToExclude, SortedMap<Integer, T> calls) {
-        return calls.headMap(floorToExclude);
-    }
 
-    static private <T> SortedMap<Integer, T> above(int floorToExclude, SortedMap<Integer, T> floors) {
-        return floors.tailMap(Math.min(floors.size() - 1, floorToExclude + 1));
-    }
-
-    private static Set<Integer> floors(SortedMap<Integer, ?> floors) {
-        return floors.keySet();
-    }
-
-    private static int cost(int from, SortedMap<Integer, Integer> peopleByFloor) {
+    private static int cost(int from, Destinations<Integer> peopleByFloor) {
         int cost = 0;
-        for (Integer floor : peopleByFloor.keySet()) {
-            cost += abs(floor - from) * peopleByFloor.get(floor);
+        for (Integer floor : peopleByFloor.floors()) {
+            cost += abs(floor - from) * peopleByFloor.at(floor);
         }
         return cost;
     }

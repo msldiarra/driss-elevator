@@ -12,7 +12,7 @@ public interface ElevatorCommand {
 
     public void call(int at, Side side);
 
-    public enum Side {UP, DOWN}
+    public enum Side {UP, DOWN, UNKOWN}
 
     public enum Command {
         UP, DOWN, NOTHING;

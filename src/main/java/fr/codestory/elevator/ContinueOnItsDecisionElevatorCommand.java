@@ -1,9 +1,6 @@
 package fr.codestory.elevator;
 
-import java.util.Observable;
-import java.util.Observer;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * @author Miguel Basire
@@ -15,8 +12,11 @@ public class ContinueOnItsDecisionElevatorCommand implements ElevatorCommand, Ob
 
     private Decision decision = Decision.NONE;
 
-    SortedMap<Integer, Side> calledFloors = new TreeMap();
-    SortedMap<Integer, Integer> wishedFloors = new TreeMap();
+
+    public static final Integer NOBODY = 0;
+
+    Destinations<Side> calls = new Destinations<>(Side.UNKOWN);
+    Destinations<Integer> wishedFloors = new Destinations<>(NOBODY);
 
 
     public ContinueOnItsDecisionElevatorCommand() {
@@ -56,11 +56,11 @@ public class ContinueOnItsDecisionElevatorCommand implements ElevatorCommand, Ob
     private boolean isSomeoneToTakeOrToLeave() {
 
         if (decision.allowWrongSideCharging()) {
-            return wishedFloors.containsKey(floor)
-                    || calledFloors.containsKey(floor);
+            return wishedFloors.contains(floor)
+                    || calls.at(floor) != Side.UNKOWN;
         } else {
-            return wishedFloors.containsKey(floor)
-                    || calledFloors.get(floor) == decision.side;
+            return wishedFloors.contains(floor)
+                    || calls.at(floor) == decision.side;
         }
 
     }
@@ -68,8 +68,8 @@ public class ContinueOnItsDecisionElevatorCommand implements ElevatorCommand, Ob
     private String openThenClose() {
         if (openedDoors) {
             openedDoors = false;
-            calledFloors.remove(floor);
-            wishedFloors.remove(floor);
+            calls.reached(floor);
+            wishedFloors.reached(floor);
             return "CLOSE";
         } else {
             openedDoors = true;
@@ -79,7 +79,7 @@ public class ContinueOnItsDecisionElevatorCommand implements ElevatorCommand, Ob
 
     @Override
     public void reset() {
-        calledFloors.clear();
+        calls.clear();
         wishedFloors.clear();
         floor = 0;
         decision = Decision.NONE;
@@ -87,16 +87,16 @@ public class ContinueOnItsDecisionElevatorCommand implements ElevatorCommand, Ob
 
     @Override
     public void go(int to) {
-        if (wishedFloors.containsKey(to)) {
-            wishedFloors.put(to, wishedFloors.get(to) + 1);
+        if (wishedFloors.contains(to)) {
+            wishedFloors.add(to, wishedFloors.at(to) + 1);
         } else {
-            wishedFloors.put(to, 1);
+            wishedFloors.add(to, 1);
         }
     }
 
     @Override
     public void call(int at, Side side) {
-        calledFloors.put(at, side);
+        calls.add(at, side);
     }
 
     int currentFloor() {
@@ -110,15 +110,3 @@ public class ContinueOnItsDecisionElevatorCommand implements ElevatorCommand, Ob
 
 }
 
-class Call{
-    private int numberOfPersons;
-
-    private final ElevatorCommand.Side side;
-
-    Call(ElevatorCommand.Side side, int numberOfPersons) {
-        this.numberOfPersons = numberOfPersons;
-        this.side = side;
-    }
-
-
-}
