@@ -5,7 +5,7 @@ import java.util.*;
 /**
  * @author Miguel Basire
  */
-public class ContinueOnItsDecisionElevatorCommand implements ElevatorCommand, Observer {
+public class ContinueOnItsDecisionElevatorCommand implements ElevatorCommand {
 
     private int floor;
     boolean openedDoors = false;
@@ -13,10 +13,8 @@ public class ContinueOnItsDecisionElevatorCommand implements ElevatorCommand, Ob
     private Decision decision = Decision.NONE;
 
 
-    public static final Integer NOBODY = 0;
-
-    Destinations<Side> calls = new Destinations<>(Side.UNKOWN);
-    Destinations<Integer> wishedFloors = new Destinations<>(NOBODY);
+    Destinations<Calls> calls = new Destinations<>(Calls.NONE);
+    Destinations<ElevatorRequest> gos = new Destinations<>(ElevatorRequest.NONE);
 
 
     public ContinueOnItsDecisionElevatorCommand() {
@@ -56,11 +54,11 @@ public class ContinueOnItsDecisionElevatorCommand implements ElevatorCommand, Ob
     private boolean isSomeoneToTakeOrToLeave() {
 
         if (decision.allowWrongSideCharging()) {
-            return wishedFloors.contains(floor)
-                    || calls.at(floor) != Side.UNKOWN;
+            return gos.contains(floor)
+                    || calls.at(floor) != Calls.NONE;
         } else {
-            return wishedFloors.contains(floor)
-                    || calls.at(floor) == decision.side;
+            return gos.contains(floor)
+                    || calls.at(floor).contains(decision.side);
         }
 
     }
@@ -69,7 +67,7 @@ public class ContinueOnItsDecisionElevatorCommand implements ElevatorCommand, Ob
         if (openedDoors) {
             openedDoors = false;
             calls.reached(floor);
-            wishedFloors.reached(floor);
+            gos.reached(floor);
             return "CLOSE";
         } else {
             openedDoors = true;
@@ -80,32 +78,46 @@ public class ContinueOnItsDecisionElevatorCommand implements ElevatorCommand, Ob
     @Override
     public void reset() {
         calls.clear();
-        wishedFloors.clear();
+        gos.clear();
         floor = 0;
         decision = Decision.NONE;
     }
 
     @Override
     public void go(int to) {
-        if (wishedFloors.contains(to)) {
-            wishedFloors.add(to, wishedFloors.at(to) + 1);
+
+        ElevatorRequest timestampedCounter = gos.at(to);
+
+        if (timestampedCounter == ElevatorRequest.NONE) {
+            gos.add(to, new ElevatorRequest());
         } else {
-            wishedFloors.add(to, 1);
+            timestampedCounter.increase();
         }
     }
 
     @Override
     public void call(int at, Side side) {
-        calls.add(at, side);
+
+        Calls callsAtFloor = calls.at(at);
+
+        if (callsAtFloor == Calls.NONE) {
+            calls.add(at, side == Side.UP ? Calls.up() : Calls.down());
+        } else {
+            callsAtFloor.increase(side);
+        }
     }
 
     int currentFloor() {
         return floor;
     }
 
-    @Override
-    public void update(Observable decision, Object arg) {
-        this.decision = Decision.NONE;
+
+    class RenewDecision implements Observer {
+
+        @Override
+        public void update(Observable decision, Object arg) {
+            ContinueOnItsDecisionElevatorCommand.this.decision = Decision.NONE;
+        }
     }
 
 }

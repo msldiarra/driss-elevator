@@ -51,7 +51,7 @@ class Destinations<T> {
        return destinations.keySet();
     }
 
-    public boolean contains(T to) {
+    public boolean contains(int to) {
         return destinations.containsKey(to);
     }
 

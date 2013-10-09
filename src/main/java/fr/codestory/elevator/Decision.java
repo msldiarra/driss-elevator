@@ -1,9 +1,8 @@
 package fr.codestory.elevator;
 
-import com.google.common.collect.Sets;
-
 import java.util.Observable;
 
+import static com.google.common.collect.Sets.union;
 import static fr.codestory.elevator.ElevatorCommand.Command;
 import static fr.codestory.elevator.ElevatorCommand.Side;
 import static java.lang.Math.abs;
@@ -52,34 +51,36 @@ class Decision extends Observable {
 
         // La note max est de 20
         // 20 - TickToWait/2  - TickToGo  + bestTickToGo = note
+        //
+        // SUM (max( 20 - TickToWait/2 - TickToGo + bestTickToGo ))
+        // max (SUM (20 - TickToWait/2 - TickToGo + bestTickToGo) )
+        //
 
         int currentFloor = engine.currentFloor();
-        Destinations<Side> callsBelow = engine.calls.below(currentFloor);
-        Destinations<Side> callsAbove = engine.calls.above(currentFloor);
+        Destinations<Calls> callsBelow = engine.calls.below(currentFloor);
+        Destinations<Calls> callsAbove = engine.calls.above(currentFloor);
 
-        Destinations<Integer> gosBelow = engine.wishedFloors.below(currentFloor);
-        Destinations<Integer> gosAbove = engine.wishedFloors.above(currentFloor);
+        Destinations<ElevatorRequest> gosBelow = engine.gos.below(currentFloor);
+        Destinations<ElevatorRequest> gosAbove = engine.gos.above(currentFloor);
 
-        int costBelow = cost(currentFloor, gosBelow);
-        int costAbove = cost(currentFloor, gosAbove);
 
-        if (callsBelow.floors().size() + callsAbove.floors().size() + costBelow + costAbove == 0) return Decision.NONE;
+        if (callsBelow.floors().size() + callsAbove.floors().size() + gosAbove.floors().size() + gosBelow.floors().size() == 0) return Decision.NONE;
 
         Decision decision = Decision.NONE;
 
-        if (costAbove + callsAbove.floors().size() < costBelow + callsBelow.floors().size()) {
+        if (gosAbove.floors().size() + callsAbove.floors().size() < gosBelow.floors().size() + callsBelow.floors().size()) {
 
-            int farestFloor = min(Sets.union(callsBelow.floors(),gosBelow.floors()));
+            int farestFloor = min(union(callsBelow.floors(), gosBelow.floors()));
             int distance = currentFloor - farestFloor;
             decision = new Decision(Side.DOWN, Command.DOWN.times(distance));
 
         } else {
-            int farestFloor = max(Sets.union(callsAbove.floors(), gosAbove.floors()));
+            int farestFloor = max(union(callsAbove.floors(), gosAbove.floors()));
             int distance = farestFloor - currentFloor;
             decision = new Decision(Side.UP, Command.UP.times(distance));
         }
         decision.wrongSideChargingAllowed = false;
-        decision.addObserver(engine);
+        decision.addObserver(engine.new RenewDecision());
         return decision;
     }
 
