@@ -10,16 +10,16 @@ class Calls {
     private ElevatorRequest up;
     private ElevatorRequest down;
 
-    Calls(ElevatorRequest up, ElevatorRequest down) {
+    private Calls(ElevatorRequest up, ElevatorRequest down) {
         this.up = up;
         this.down = down;
     }
 
-    static Calls up() {
+    public static Calls up() {
         return new Calls(new ElevatorRequest(), ElevatorRequest.NONE);
     }
 
-    static Calls down() {
+    public static Calls down() {
         return new Calls(ElevatorRequest.NONE, new ElevatorRequest());
     }
 
@@ -38,13 +38,21 @@ class Calls {
         }
     }
 
-    public boolean contains(ElevatorCommand.Side side){
+    public boolean going(ElevatorCommand.Side side){
 
         if(side == ElevatorCommand.Side.UP){
             return up != ElevatorRequest.NONE;
         }else{
             return down != ElevatorRequest.NONE;
         }
+    }
+
+    public ElevatorRequest goingUpside(){
+       return up;
+    }
+
+    public ElevatorRequest goingDownside(){
+        return down;
     }
 
 }

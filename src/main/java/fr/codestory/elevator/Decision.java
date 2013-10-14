@@ -1,44 +1,42 @@
 package fr.codestory.elevator;
 
-import java.util.Observable;
+import com.google.common.collect.Lists;
 
-import static com.google.common.collect.Sets.union;
+import java.util.*;
+
 import static fr.codestory.elevator.ElevatorCommand.Command;
+import static fr.codestory.elevator.ElevatorCommand.Command.DOWN;
+import static fr.codestory.elevator.ElevatorCommand.Command.UP;
 import static fr.codestory.elevator.ElevatorCommand.Side;
-import static java.lang.Math.abs;
-import static java.util.Collections.max;
-import static java.util.Collections.min;
 
 /**
  * @author Miguel Basire
  */
 class Decision extends Observable {
 
-    public final static Decision NONE = new Decision(Side.UP, new Command[]{});
+    public final static Decision NONE = new Decision(Side.UP, Collections.EMPTY_LIST);
 
     final Side side;
-    private final Command[] commands;
-    private int remainingCommands;
+    private final List<Command> commands;
 
-    private boolean wrongSideChargingAllowed = true;
+    private boolean twoSidesCharging = true;
 
-    Decision(Side side, Command[] commands) {
+    Decision(Side side, List<Command> commands) {
         this.side = side;
         this.commands = commands;
-        this.remainingCommands = commands.length;
     }
 
 
     public boolean allowWrongSideCharging() {
-        return wrongSideChargingAllowed;
+        return twoSidesCharging;
     }
 
     public Command nextCommand() {
-        if (remainingCommands <= 0) {
+        if (commands.isEmpty()) {
             return Command.NOTHING;
         }
-        Command command = commands[remainingCommands-- - 1];
-        if (remainingCommands == 0) {
+        Command command = commands.remove(0);
+        if (commands.isEmpty()) {
             this.setChanged();
             notifyObservers();
         }
@@ -49,48 +47,95 @@ class Decision extends Observable {
 
     public static Decision tryNewOne(ContinueOnItsDecisionElevatorCommand engine) {
 
+        Destinations<Calls> calls = engine.calls;
+        Destinations<ElevatorRequest> gos = engine.gos;
+        if (calls.isEmpty()
+                && engine.gos.isEmpty()) return Decision.NONE;
+
         // La note max est de 20
         // 20 - TickToWait/2  - TickToGo  + bestTickToGo = note
         //
         // SUM (max( 20 - TickToWait/2 - TickToGo + bestTickToGo ))
         // max (SUM (20 - TickToWait/2 - TickToGo + bestTickToGo) )
-        //
-
-        int currentFloor = engine.currentFloor();
-        Destinations<Calls> callsBelow = engine.calls.below(currentFloor);
-        Destinations<Calls> callsAbove = engine.calls.above(currentFloor);
-
-        Destinations<ElevatorRequest> gosBelow = engine.gos.below(currentFloor);
-        Destinations<ElevatorRequest> gosAbove = engine.gos.above(currentFloor);
-
-
-        if (callsBelow.floors().size() + callsAbove.floors().size() + gosAbove.floors().size() + gosBelow.floors().size() == 0) return Decision.NONE;
+        // SUM 20 - SUM min( TickToWait/2 + TickToGo ) + max SUM bestTickToGo
 
         Decision decision = Decision.NONE;
 
-        if (gosAbove.floors().size() + callsAbove.floors().size() < gosBelow.floors().size() + callsBelow.floors().size()) {
+        int currentFloor = engine.currentFloor();
 
-            int farestFloor = min(union(callsBelow.floors(), gosBelow.floors()));
-            int distance = currentFloor - farestFloor;
-            decision = new Decision(Side.DOWN, Command.DOWN.times(distance));
+        Destinations<Calls> callsAbove = calls.above(currentFloor);
+        Destinations<Calls> callsBelow = calls.below(currentFloor);
+
+        if (gos.isEmpty()) {
+
+            if (numberOf(callsBelow) > numberOf(callsAbove))
+                decision = new Decision(Side.DOWN, Lists.newArrayList(
+                        DOWN.times(callsBelow.distanceToFarthestFloorFrom(currentFloor))));
+            else decision = new Decision(Side.UP, Lists.newArrayList(
+                    UP.times(callsAbove.distanceToFarthestFloorFrom(currentFloor))));
+
+            decision.twoSidesCharging = true;
 
         } else {
-            int farestFloor = max(union(callsAbove.floors(), gosAbove.floors()));
-            int distance = farestFloor - currentFloor;
-            decision = new Decision(Side.UP, Command.UP.times(distance));
+            Side mainDirection = Side.UNKOWN;
+            List<Command> nextCommands = Collections.EMPTY_LIST;
+            boolean allowWrongSideCharging = false;
+
+            if (sumOf(gos.above(currentFloor)) > sumOf(gos.below(currentFloor))) {
+                mainDirection = Side.UP;
+
+                int distance = gos.above(currentFloor).distanceToNearestFloorFrom(currentFloor);
+                if (calls.at(currentFloor - 1).goingUpside() !=  ElevatorRequest.NONE) {
+
+                    nextCommands = Lists.newArrayList(DOWN);
+                    nextCommands.addAll(Arrays.asList(UP.times(distance + 1)));
+
+                    allowWrongSideCharging = true;
+
+                } else {
+                    nextCommands = Lists.newArrayList(UP.times(distance));
+                }
+            } else {
+                mainDirection = Side.DOWN;
+
+                int distance = gos.below(currentFloor).distanceToNearestFloorFrom(currentFloor);
+                if (calls.at(currentFloor + 1).goingDownside() != ElevatorRequest.NONE) {
+
+                    nextCommands = Lists.newArrayList(UP);
+                    nextCommands.addAll(Arrays.asList(DOWN.times(distance + 1)));
+
+                    decision.twoSidesCharging = true;
+
+                } else {
+                    nextCommands = Lists.newArrayList(DOWN.times(distance));
+                }
+            }
+            decision = new Decision(mainDirection, nextCommands);
+            decision.twoSidesCharging = allowWrongSideCharging;
         }
-        decision.wrongSideChargingAllowed = false;
+
         decision.addObserver(engine.new RenewDecision());
         return decision;
     }
 
 
-    private static int cost(int from, Destinations<Integer> peopleByFloor) {
-        int cost = 0;
-        for (Integer floor : peopleByFloor.floors()) {
-            cost += abs(floor - from) * peopleByFloor.at(floor);
+    private static int numberOf(Destinations<Calls> destinations) {
+
+        int number = 0;
+        for (Calls calls : destinations) {
+            number += calls.goingDownside().getNumber() + calls.goingUpside().getNumber();
         }
-        return cost;
+        return number;
     }
+
+    private static int sumOf(Destinations<ElevatorRequest> destinations) {
+
+        int number = 0;
+        for (ElevatorRequest elevatorRequests : destinations) {
+            number += elevatorRequests.getNumber();
+        }
+        return number;
+    }
+
 
 }

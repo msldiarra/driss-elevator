@@ -22,7 +22,7 @@ public class ContinueOnItsDecisionElevatorCommandTest {
 
 
     @Test
-    public void should_move_on_first_call_no_go() {
+    public void should_move_on_first_call_and_stop() {
 
         ContinueOnItsDecisionElevatorCommand groom = new ContinueOnItsDecisionElevatorCommand();
 
@@ -37,7 +37,7 @@ public class ContinueOnItsDecisionElevatorCommandTest {
     }
 
     @Test
-    public void should_move_on_first_call_with_go() {
+    public void should_move_on_first_call_then_go() {
 
         ContinueOnItsDecisionElevatorCommand groom = new ContinueOnItsDecisionElevatorCommand();
 
@@ -78,7 +78,7 @@ public class ContinueOnItsDecisionElevatorCommandTest {
     }
 
     @Test
-    public void should_not_stay_between_two_floors() {
+    public void should_go_upside_first() {
 
         ContinueOnItsDecisionElevatorCommand groom = new ContinueOnItsDecisionElevatorCommand(3);
 
@@ -99,6 +99,48 @@ public class ContinueOnItsDecisionElevatorCommandTest {
         groom.go(1);
         assertThat(groom.nextMove()).isEqualTo("CLOSE");
 
+        assertThat(groom.nextMove()).isEqualTo("DOWN");
+
+        assertThat(groom.nextMove()).isEqualTo("OPEN");
+        assertThat(groom.nextMove()).isEqualTo("CLOSE");
+
+        assertThat(groom.nextMove()).isEqualTo("NOTHING");
+    }
+
+    @Test
+    public void should_take_someone_near() {
+
+        ContinueOnItsDecisionElevatorCommand groom = new ContinueOnItsDecisionElevatorCommand(1);
+        groom.go(4);
+
+        groom.call(0, ElevatorCommand.Side.UP);
+        groom.call(4, ElevatorCommand.Side.DOWN);
+
+        assertThat(groom.nextMove()).isEqualTo("DOWN");
+
+        assertThat(groom.nextMove()).isEqualTo("OPEN");
+        groom.go(3);
+        assertThat(groom.nextMove()).isEqualTo("CLOSE");
+
+        assertThat(groom.currentFloor()).isEqualTo(0);
+
+        assertThat(groom.nextMove()).isEqualTo("UP");
+        assertThat(groom.nextMove()).isEqualTo("UP");
+        assertThat(groom.nextMove()).isEqualTo("UP");
+
+        assertThat(groom.currentFloor()).isEqualTo(3);
+
+        assertThat(groom.nextMove()).isEqualTo("OPEN");
+        assertThat(groom.nextMove()).isEqualTo("CLOSE");
+
+        assertThat(groom.nextMove()).isEqualTo("UP");
+        assertThat(groom.currentFloor()).isEqualTo(4);
+        assertThat(groom.nextMove()).isEqualTo("OPEN");
+        groom.go(1);
+        assertThat(groom.nextMove()).isEqualTo("CLOSE");
+
+        assertThat(groom.nextMove()).isEqualTo("DOWN");
+        assertThat(groom.nextMove()).isEqualTo("DOWN");
         assertThat(groom.nextMove()).isEqualTo("DOWN");
 
         assertThat(groom.nextMove()).isEqualTo("OPEN");

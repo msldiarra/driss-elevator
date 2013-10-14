@@ -1,5 +1,6 @@
 package fr.codestory.elevator;
 
+import java.util.Comparator;
 import java.util.Date;
 
 /**
@@ -27,5 +28,12 @@ class ElevatorRequest {
 
     public int getNumber() {
         return number;
+    }
+
+    static class OlderFirst implements Comparator<ElevatorRequest>{
+        @Override
+        public int compare(ElevatorRequest o1, ElevatorRequest o2) {
+            return o1.timestamp.compareTo(o2.timestamp);
+        }
     }
 }

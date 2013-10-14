@@ -58,7 +58,7 @@ public class ContinueOnItsDecisionElevatorCommand implements ElevatorCommand {
                     || calls.at(floor) != Calls.NONE;
         } else {
             return gos.contains(floor)
-                    || calls.at(floor).contains(decision.side);
+                    || calls.at(floor).going(decision.side);
         }
 
     }
@@ -116,6 +116,7 @@ public class ContinueOnItsDecisionElevatorCommand implements ElevatorCommand {
 
         @Override
         public void update(Observable decision, Object arg) {
+            decision.deleteObservers();
             ContinueOnItsDecisionElevatorCommand.this.decision = Decision.NONE;
         }
     }
