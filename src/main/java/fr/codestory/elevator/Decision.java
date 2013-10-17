@@ -2,7 +2,10 @@ package fr.codestory.elevator;
 
 import com.google.common.collect.Lists;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Observable;
 
 import static fr.codestory.elevator.ElevatorCommand.Command;
 import static fr.codestory.elevator.ElevatorCommand.Command.DOWN;
@@ -18,25 +21,27 @@ class Decision extends Observable {
 
     final Side side;
     private final List<Command> commands;
+    int remainingCommands;
 
     private boolean twoSidesCharging = true;
 
     Decision(Side side, List<Command> commands) {
         this.side = side;
         this.commands = commands;
+        this.remainingCommands = commands.size();
     }
 
 
-    public boolean allowWrongSideCharging() {
+    public boolean allowsTwoSidesCharging() {
         return twoSidesCharging;
     }
 
     public Command nextCommand() {
-        if (commands.isEmpty()) {
+        if (remainingCommands <= 0) {
             return Command.NOTHING;
         }
-        Command command = commands.remove(0);
-        if (commands.isEmpty()) {
+        Command command = commands.get(commands.size() - remainingCommands-- );
+        if (remainingCommands == 0) {
             this.setChanged();
             notifyObservers();
         }
@@ -69,10 +74,10 @@ class Decision extends Observable {
         if (gos.isEmpty()) {
 
             if (numberOf(callsBelow) > numberOf(callsAbove))
-                decision = new Decision(Side.DOWN, Lists.newArrayList(
-                        DOWN.times(callsBelow.distanceToFarthestFloorFrom(currentFloor))));
-            else decision = new Decision(Side.UP, Lists.newArrayList(
-                    UP.times(callsAbove.distanceToFarthestFloorFrom(currentFloor))));
+                decision = new Decision(Side.DOWN, Arrays.asList(
+                        DOWN.times(callsBelow.distanceToNearestFloorFrom(currentFloor))));
+            else decision = new Decision(Side.UP, Arrays.asList(
+                    UP.times(callsAbove.distanceToNearestFloorFrom(currentFloor))));
 
             decision.twoSidesCharging = true;
 
@@ -84,36 +89,32 @@ class Decision extends Observable {
             if (sumOf(gos.above(currentFloor)) > sumOf(gos.below(currentFloor))) {
                 mainDirection = Side.UP;
 
-                int distance = gos.above(currentFloor).distanceToNearestFloorFrom(currentFloor);
-                if (calls.at(currentFloor - 1).goingUpside() !=  ElevatorRequest.NONE) {
+                int distance = gos.above(currentFloor).distanceToFarthestFloorFrom(currentFloor);
+                if (calls.at(currentFloor - 1).goingUpside() !=  ElevatorRequest.NONE && distance > 1) {
 
-                    nextCommands = Lists.newArrayList(DOWN);
-                    nextCommands.addAll(Arrays.asList(UP.times(distance + 1)));
-
+                    nextCommands = Lists.asList(DOWN,UP.times(distance + 1));
                     allowWrongSideCharging = true;
 
                 } else {
-                    nextCommands = Lists.newArrayList(UP.times(distance));
+                    nextCommands = Arrays.asList(UP.times(distance));
                 }
             } else {
                 mainDirection = Side.DOWN;
 
-                int distance = gos.below(currentFloor).distanceToNearestFloorFrom(currentFloor);
-                if (calls.at(currentFloor + 1).goingDownside() != ElevatorRequest.NONE) {
+                int distance = gos.below(currentFloor).distanceToFarthestFloorFrom(currentFloor);
+                if (calls.at(currentFloor + 1).goingDownside() != ElevatorRequest.NONE && distance > 1) {
 
-                    nextCommands = Lists.newArrayList(UP);
-                    nextCommands.addAll(Arrays.asList(DOWN.times(distance + 1)));
+                    nextCommands = Lists.asList(UP,DOWN.times(distance + 1));
 
-                    decision.twoSidesCharging = true;
+                    allowWrongSideCharging = true;
 
                 } else {
-                    nextCommands = Lists.newArrayList(DOWN.times(distance));
+                    nextCommands = Arrays.asList(DOWN.times(distance));
                 }
             }
             decision = new Decision(mainDirection, nextCommands);
             decision.twoSidesCharging = allowWrongSideCharging;
         }
-
         decision.addObserver(engine.new RenewDecision());
         return decision;
     }

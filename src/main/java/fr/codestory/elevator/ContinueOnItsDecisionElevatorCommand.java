@@ -1,6 +1,7 @@
 package fr.codestory.elevator;
 
-import java.util.*;
+import java.util.Observable;
+import java.util.Observer;
 
 /**
  * @author Miguel Basire
@@ -53,7 +54,7 @@ public class ContinueOnItsDecisionElevatorCommand implements ElevatorCommand {
 
     private boolean isSomeoneToTakeOrToLeave() {
 
-        if (decision.allowWrongSideCharging()) {
+        if (decision.allowsTwoSidesCharging()) {
             return gos.contains(floor)
                     || calls.at(floor) != Calls.NONE;
         } else {
