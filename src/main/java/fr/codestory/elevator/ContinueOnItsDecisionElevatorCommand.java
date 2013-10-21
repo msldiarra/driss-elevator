@@ -34,7 +34,7 @@ public class ContinueOnItsDecisionElevatorCommand implements ElevatorCommand {
         }
 
         if (decision == Decision.NONE) {
-            decision = Decision.tryNewOne(this);
+            decision = Decision.object$.tryNewOne(this);
         }
 
         Command command = decision.nextCommand();
@@ -59,7 +59,7 @@ public class ContinueOnItsDecisionElevatorCommand implements ElevatorCommand {
                     || calls.at(floor) != Calls.NONE;
         } else {
             return gos.contains(floor)
-                    || calls.at(floor).going(decision.side);
+                    || calls.at(floor).going(decision.getSide());
         }
 
     }
