@@ -5,56 +5,61 @@ import java.util.Observable
 import fr.codestory.elevator.order.Destinations
 import fr.codestory.elevator.order.ElevatorRequest
 import fr.codestory.elevator.order.Calls
-import java.util.Observer
-import fr.codestory.elevator.ContinueOnItsDecisionElevatorCommand.RenewDecision
+import fr.codestory.elevator.Decision.FollowDecision
 
-public class ContinueOnItsDecisionElevatorCommand(private var floor: Int = 0) : ElevatorCommand {
+public class ContinueOnItsDecisionElevatorCommand(public var currentFloor: Int = 0) : ElevatorCommand, FollowDecision {
+    override var decision: Decision = Decision.NONE
 
     private var openedDoors: Boolean = false
-    private var decision: Decision = Decision.NONE
     var calls: Destinations<Calls> = Destinations.init(Calls.NONE)
     var gos: Destinations<ElevatorRequest> = Destinations.init(ElevatorRequest.NONE)
 
     public override fun nextMove(): String {
-        if (isSomeoneToTakeOrToLeave())
-        {
-            return openThenClose()
-        }
+        if (isSomeoneToTakeOrToLeave()) return openThenClose()
 
-        if (decision == Decision.NONE)
-        {
-            decision = Decision.tryNewOne(this)
+        if (decision == Decision.NONE) {
+            decision = Decision.tryNewOne(this.currentFloor,this.calls,this.gos)
+            decision.addObserver { (terminatedDecision, arguments) ->
+                terminatedDecision?.deleteObservers()
+                this.noMoreDecision()
+            }
         }
 
         var command: Command = decision.nextCommand()
-        when (command) {
+        updateReachedFloorAfter(command)
+        return command.name()
+    }
+
+    private inline fun updateReachedFloorAfter(chosenCommand: Command) {
+        when (chosenCommand) {
             Command.UP -> {
-                floor++
+                currentFloor++
             }
             Command.DOWN -> {
-                floor--
+                currentFloor--
             }
             Command.NOTHING -> {
             }
         }
-        return command.name()
     }
+
+
     private fun isSomeoneToTakeOrToLeave(): Boolean {
         if (decision.allowsTwoSidesCharging())
         {
-            return gos.contains(floor) || calls.at(floor) != Calls.NONE
+            return gos.contains(currentFloor) || calls.at(currentFloor) != Calls.NONE
         }
         else
         {
-            return (gos.contains(floor)) || calls.at(floor).going(decision.side) != ElevatorRequest.NONE
+            return (gos.contains(currentFloor)) || calls.at(currentFloor).going(decision.side) != ElevatorRequest.NONE
         }
     }
     private fun openThenClose(): String {
         if (openedDoors)
         {
             openedDoors = false
-            calls.reached(floor)
-            gos.reached(floor)
+            calls.reached(currentFloor)
+            gos.reached(currentFloor)
             return "CLOSE"
         }
         else
@@ -66,7 +71,7 @@ public class ContinueOnItsDecisionElevatorCommand(private var floor: Int = 0) : 
     public override fun reset(): Unit {
         calls.clear()
         gos.clear()
-        floor = 0
+        currentFloor = 0
         decision = Decision.NONE
     }
     public override fun go(to: Int): Unit {
@@ -89,18 +94,6 @@ public class ContinueOnItsDecisionElevatorCommand(private var floor: Int = 0) : 
         else
         {
             callsAtFloor.increase(side)
-        }
-    }
-    fun currentFloor(): Int {
-        return floor
-    }
-    class RenewDecision(private val elevatorCommand: ContinueOnItsDecisionElevatorCommand) : Observer {
-
-
-        public override fun update(decision: Observable?, arg: Any?): Unit {
-            decision?.deleteObservers()
-
-            elevatorCommand.decision= Decision.NONE
         }
     }
 
@@ -128,11 +121,11 @@ class Decision(val side: Side,
         }
 
         val command: Command = commands.get(commands.size - remainingCommands--)
-        if (remainingCommands == 0) fireChanges()
+        if (remainingCommands == 0) noMoreCommand()
         return command
     }
 
-    fun fireChanges() {
+    private fun noMoreCommand() {
         this.setChanged()
         notifyObservers()
     }
@@ -144,38 +137,32 @@ class Decision(val side: Side,
     class object {
         public val NONE: Decision = Decision(Side.UP, array())
 
-        public fun tryNewOne(engine: ContinueOnItsDecisionElevatorCommand): Decision {
-            val calls = engine.calls
-            val gos = engine.gos
+        public fun tryNewOne(currentFloor: Int, calls : Destinations<Calls> , gos :Destinations<ElevatorRequest>): Decision {
 
-            if ((calls.isEmpty()) && engine.gos.isEmpty())
+            if ((calls.isEmpty()) && gos.isEmpty())
                 return NONE
 
-            val currentFloor: Int = engine.currentFloor()
+            val callsAbove = calls.above(currentFloor)
+            val callsBelow = calls.below(currentFloor)
+
 
             val decision = when {
-                gos.isEmpty() -> {
+                gos.isEmpty() && numberOf(callsBelow) > numberOf(callsAbove) -> {
 
-                    val callsAbove = calls.above(currentFloor)
-                    val callsBelow = calls.below(currentFloor)
-
-                    when {
-                        numberOf(callsBelow) > numberOf(callsAbove) -> {
-                            val distance = callsBelow.distanceToNearestFloorFrom(currentFloor)
-
-                            Decision(Side.DOWN, Command.DOWN.times(distance))
-                        }
-                        else -> {
-                            val distance: Int = callsAbove.distanceToNearestFloorFrom(currentFloor)
-                            Decision(Side.UP, Command.UP.times(distance))
-                        }
-                    }
+                    val distance = callsBelow.distanceToNearestFloorFrom(currentFloor)
+                    Decision(Side.DOWN, Command.DOWN.times(distance))
+                }
+                gos.isEmpty() && numberOf(callsBelow) <= numberOf(callsAbove) -> {
+                    val distance: Int = callsAbove.distanceToNearestFloorFrom(currentFloor)
+                    Decision(Side.UP, Command.UP.times(distance))
                 }
                 else -> {
+
                     val nextCommands: Array<Command>
                     var mainDirection: Side = Side.UNKOWN
                     val gosAbove = gos.above(currentFloor)
                     val gosBelow = gos.below(currentFloor)
+
                     when {
                         (sumOf(gosAbove)) > (sumOf(gosBelow)) -> {
                             mainDirection = Side.UP
@@ -206,8 +193,11 @@ class Decision(val side: Side,
 
                 }
             }
-            decision.addObserver(RenewDecision(engine))
             return decision
+        }
+
+        public fun listenNoMoreAction(){
+
         }
 
         private fun numberOf(destinations: Destinations<Calls>): Int {
@@ -229,11 +219,19 @@ class Decision(val side: Side,
             return number
         }
 
-        private fun invertFirst(command: Command) = {(i: Int) ->
+        inline private fun invertFirst(command: Command) = {(i: Int) ->
             when {
                 i == 0 -> command.switch()
                 else -> command
             }
+        }
+    }
+
+    trait FollowDecision{
+        var decision : Decision
+
+        fun noMoreDecision() {
+            decision = Decision.NONE
         }
     }
 }
@@ -255,9 +253,9 @@ enum class Command {
                     array<Command>(this, this, this, this),
                     array<Command>(this, this, this, this, this))
 
-    fun switch(): Command = when {
-        this == Command.DOWN -> Command.UP
-        this == Command.UP -> Command.DOWN
+    inline fun switch(): Command = when(this) {
+        Command.DOWN -> Command.UP
+        Command.UP -> Command.DOWN
         else -> Command.NOTHING }
 }
 

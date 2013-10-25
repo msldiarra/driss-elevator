@@ -14,10 +14,10 @@ public class ContinueOnItsDecisionElevatorCommandTest {
 
         ContinueOnItsDecisionElevatorCommand groom = new ContinueOnItsDecisionElevatorCommand();
 
-        assertThat(groom.currentFloor()).isEqualTo(0);
+        assertThat(groom.getCurrentFloor()).isEqualTo(0);
         assertThat(groom.nextMove()).isEqualTo("NOTHING");
         assertThat(groom.nextMove()).isEqualTo("NOTHING");
-        assertThat(groom.currentFloor()).isEqualTo(0);
+        assertThat(groom.getCurrentFloor()).isEqualTo(0);
     }
 
 
@@ -90,11 +90,11 @@ public class ContinueOnItsDecisionElevatorCommandTest {
         assertThat(groom.nextMove()).isEqualTo("OPEN");
         groom.go(1);
         assertThat(groom.nextMove()).isEqualTo("CLOSE");
-        assertThat(groom.currentFloor()).isEqualTo(4);
+        assertThat(groom.getCurrentFloor()).isEqualTo(4);
 
         assertThat(groom.nextMove()).isEqualTo("DOWN");
         assertThat(groom.nextMove()).isEqualTo("DOWN");
-        assertThat(groom.currentFloor()).isEqualTo(2);
+        assertThat(groom.getCurrentFloor()).isEqualTo(2);
         assertThat(groom.nextMove()).isEqualTo("OPEN");
         groom.go(1);
         assertThat(groom.nextMove()).isEqualTo("CLOSE");
@@ -122,19 +122,19 @@ public class ContinueOnItsDecisionElevatorCommandTest {
         groom.go(3);
         assertThat(groom.nextMove()).isEqualTo("CLOSE");
 
-        assertThat(groom.currentFloor()).isEqualTo(0);
+        assertThat(groom.getCurrentFloor()).isEqualTo(0);
 
         assertThat(groom.nextMove()).isEqualTo("UP");
         assertThat(groom.nextMove()).isEqualTo("UP");
         assertThat(groom.nextMove()).isEqualTo("UP");
 
-        assertThat(groom.currentFloor()).isEqualTo(3);
+        assertThat(groom.getCurrentFloor()).isEqualTo(3);
 
         assertThat(groom.nextMove()).isEqualTo("OPEN");
         assertThat(groom.nextMove()).isEqualTo("CLOSE");
 
         assertThat(groom.nextMove()).isEqualTo("UP");
-        assertThat(groom.currentFloor()).isEqualTo(4);
+        assertThat(groom.getCurrentFloor()).isEqualTo(4);
         assertThat(groom.nextMove()).isEqualTo("OPEN");
         groom.go(1);
         assertThat(groom.nextMove()).isEqualTo("CLOSE");

@@ -5,11 +5,13 @@ import java.util.Date
 import java.util.ArrayList
 import java.util.TreeMap
 import java.util.SortedMap
+import fr.codestory.elevator.ElevatorCommand.Side
+import org.omg.CORBA.UNKNOWN
 
 /**
  * @author Miguel Basire
  */
-class Destinations<T>(val destinations: SortedMap<Int, T>, private val noneValue: T) : Iterable<T> {
+class Destinations<T>(private val destinations: SortedMap<Int, T>, private val noneValue: T) : Iterable<T> {
 
     public fun add(floor: Int, value: T): Unit {
         destinations.put(floor, value)
@@ -64,9 +66,6 @@ class Destinations<T>(val destinations: SortedMap<Int, T>, private val noneValue
         var firstFloor = destinations.firstKey() as Int
         return Math.min(Math.abs(floor - lastFloor), Math.abs(floor - firstFloor))
     }
-    fun list(): List<T> {
-        return ArrayList<T>(destinations.values())
-    }
 
     class object {
         public open fun init<T>(noneValue: T): Destinations<T> {
@@ -74,34 +73,31 @@ class Destinations<T>(val destinations: SortedMap<Int, T>, private val noneValue
             return __
         }
     }
+
 }
 
 
+class Calls(var up: ElevatorRequest, var  down: ElevatorRequest) {
 
-class Calls(private var up: ElevatorRequest, private var  down: ElevatorRequest) {
+    public fun increase(side: ElevatorCommand.Side?): Unit {
 
-    public  fun increase(side: ElevatorCommand.Side?): Unit {
-        var sideToIncrease: ElevatorRequest? = (if (side == ElevatorCommand.Side.UP)
-            up
-        else
-            down)
-        if (sideToIncrease == ElevatorRequest.NONE)
-        {
-            if (side == ElevatorCommand.Side.UP)
-            {
-                up = ElevatorRequest()
-            }
-            else
-                if (side == ElevatorCommand.Side.DOWN)
-                {
-                    down = ElevatorRequest()
+        fun elevatorRequest(side: Side?): ElevatorRequest? {
+            when (side) {
+                Side.UP -> {
+                    if(up == ElevatorRequest.NONE) up = ElevatorRequest(0)
+                    return up
                 }
+                Side.DOWN -> {
+                    if(down == ElevatorRequest.NONE) down = ElevatorRequest(0)
+                    return down
+                }
+                Side.UNKOWN -> { return null}
+            }
         }
-        else
-        {
-            sideToIncrease?.increase()
-        }
+
+        elevatorRequest(side)?.increase()
     }
+
     public  fun going(side: ElevatorCommand.Side): ElevatorRequest {
         if (side == ElevatorCommand.Side.UP)
             return up
@@ -112,18 +108,16 @@ class Calls(private var up: ElevatorRequest, private var  down: ElevatorRequest)
     class object {
         public val NONE: Calls = Calls(ElevatorRequest.NONE, ElevatorRequest.NONE)
         public  fun goingUp(): Calls {
-            return Calls(ElevatorRequest(), ElevatorRequest.NONE)
+            return Calls(ElevatorRequest(1), ElevatorRequest.NONE)
         }
         public  fun goingDown(): Calls? {
-            return Calls(ElevatorRequest.NONE, ElevatorRequest())
+            return Calls(ElevatorRequest.NONE, ElevatorRequest(1))
         }
     }
 }
 
-
-data class ElevatorRequest(
-        public val timestamp: Date = Date(),
-        var number: Int = 1) {
+data class ElevatorRequest(var number: Int = 1,
+                           val timestamp: Date = Date()) {
 
     public fun increase(): ElevatorRequest {
         if (this == NONE)
