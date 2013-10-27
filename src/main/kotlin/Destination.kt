@@ -91,7 +91,9 @@ class Calls(var up: ElevatorRequest, var  down: ElevatorRequest) {
                     if(down == ElevatorRequest.NONE) down = ElevatorRequest(0)
                     return down
                 }
-                Side.UNKOWN -> { return null}
+                Side.UNKOWN -> {
+                    return null
+                }
             }
         }
 

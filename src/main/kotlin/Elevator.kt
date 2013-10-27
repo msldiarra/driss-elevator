@@ -95,6 +95,10 @@ public class ContinueOnItsDecisionElevatorCommand(public var currentFloor: Int =
         {
             callsAtFloor.increase(side)
         }
+
+        if(Math.abs(at - currentFloor) == 1 && decision.side == side && gos.isEmpty()){
+            decision.trySomethingelseNextTime()
+        }
     }
 
 
@@ -112,7 +116,7 @@ class Decision(val side: Side,
 
     var remainingCommands: Int = 0
 
-    public fun allowsTwoSidesCharging(): Boolean = commands.all { command -> commands[0] != command }
+    public fun allowsTwoSidesCharging(): Boolean = remainingCommands < 1 || commands.all { command -> commands[0] != command }
 
     public fun nextCommand(): Command {
         if (remainingCommands <= 0)
@@ -123,6 +127,10 @@ class Decision(val side: Side,
         val command: Command = commands.get(commands.size - remainingCommands--)
         if (remainingCommands == 0) noMoreCommand()
         return command
+    }
+
+    public fun trySomethingelseNextTime(){
+        noMoreCommand()
     }
 
     private fun noMoreCommand() {
@@ -145,7 +153,6 @@ class Decision(val side: Side,
             val callsAbove = calls.above(currentFloor)
             val callsBelow = calls.below(currentFloor)
 
-
             val decision = when {
                 gos.isEmpty() && numberOf(callsBelow) > numberOf(callsAbove) -> {
 
@@ -159,7 +166,7 @@ class Decision(val side: Side,
                 else -> {
 
                     val nextCommands: Array<Command>
-                    var mainDirection: Side = Side.UNKOWN
+                    var mainDirection: Side
                     val gosAbove = gos.above(currentFloor)
                     val gosBelow = gos.below(currentFloor)
 
@@ -194,10 +201,6 @@ class Decision(val side: Side,
                 }
             }
             return decision
-        }
-
-        public fun listenNoMoreAction(){
-
         }
 
         private fun numberOf(destinations: Destinations<Calls>): Int {
