@@ -31,12 +31,9 @@ dependencies {
     testCompile  'junit:junit:4.11'
     testCompile 'org.assertj:assertj-core:1.2.0'
 }
-
-test.testClassesDir = project.tasks.compileTestKotlin.destinationDir
+est.testClassesDir = project.tasks.compileTestKotlin.destinationDir
 
 task wrapper(type: Wrapper) {
     gradleVersion="1.4"
 }
-sourceSets {
-    main.java.srcDirs += 'src/main/kotlin'
-}
+
