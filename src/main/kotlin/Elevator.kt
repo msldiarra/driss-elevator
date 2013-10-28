@@ -1,78 +1,61 @@
 package fr.codestory.elevator
 
 import fr.codestory.elevator.ElevatorCommand.Side
-import java.util.Observable
 import fr.codestory.elevator.order.Destinations
 import fr.codestory.elevator.order.ElevatorRequest
 import fr.codestory.elevator.order.Calls
-import fr.codestory.elevator.Decision.FollowDecision
+import java.util.Enumeration
+import fr.codestory.elevator.Door.Command
 
-public class ContinueOnItsDecisionElevatorCommand(public var currentFloor: Int = 0) : ElevatorCommand, FollowDecision {
-    override var decision: Decision = Decision.NONE
+public class FollowCommandsCabin(public var currentFloor: Int = 0) : ElevatorCommand {
 
-    private var openedDoors: Boolean = false
-    var calls: Destinations<Calls> = Destinations.init(Calls.NONE)
-    var gos: Destinations<ElevatorRequest> = Destinations.init(ElevatorRequest.NONE)
+    val door = Door()
+    val calls: Destinations<Calls> = Destinations.init(Calls.NONE)
+    val gos: Destinations<ElevatorRequest> = Destinations.init(ElevatorRequest.NONE)
+
+    var commands = Commands.NONE
 
     public override fun nextMove(): String {
-        if (isSomeoneToTakeOrToLeave()) return openThenClose()
-
-        if (decision == Decision.NONE) {
-            decision = Decision.tryNewOne(this.currentFloor,this.calls,this.gos)
-            decision.addObserver { (terminatedDecision, arguments) ->
-                terminatedDecision?.deleteObservers()
-                this.noMoreDecision()
-            }
-        }
-
-        var command: Command = decision.nextCommand()
-        updateReachedFloorAfter(command)
-        return command.name()
-    }
-
-    private inline fun updateReachedFloorAfter(chosenCommand: Command) {
-        when (chosenCommand) {
-            Command.UP -> {
-                currentFloor++
-            }
-            Command.DOWN -> {
-                currentFloor--
-            }
-            Command.NOTHING -> {
-            }
-        }
-    }
-
-
-    private fun isSomeoneToTakeOrToLeave(): Boolean {
-        if (decision.allowsTwoSidesCharging())
-        {
-            return gos.contains(currentFloor) || calls.at(currentFloor) != Calls.NONE
-        }
-        else
-        {
-            return (gos.contains(currentFloor)) || calls.at(currentFloor).going(decision.side) != ElevatorRequest.NONE
-        }
-    }
-    private fun openThenClose(): String {
-        if (openedDoors)
-        {
-            openedDoors = false
+        if ( door.opened || isSomeoneToTakeOrToLeave() ) return door.toogle {
             calls.reached(currentFloor)
             gos.reached(currentFloor)
-            return "CLOSE"
+        }.name()
+
+        if( !commands.hasMoreElements()) commands = Commands.next(currentFloor, calls, gos)
+
+        return updateReachedFloorAfter(commands.nextElement())
+    }
+
+    private inline fun updateReachedFloorAfter(chosenCommand: MoveCommand): String {
+        when (chosenCommand) {
+            MoveCommand.UP -> {
+                currentFloor++
+            }
+            MoveCommand.DOWN -> {
+                currentFloor--
+            }
+            MoveCommand.NOTHING -> {
+            }
+        }
+        return chosenCommand.name()
+    }
+
+    private inline fun isSomeoneToTakeOrToLeave(): Boolean {
+        if (commands.allowsTwoSidesCharging())
+        {
+            return gos.requestedTo(currentFloor) || calls.at(currentFloor) != Calls.NONE
         }
         else
         {
-            openedDoors = true
-            return "OPEN"
+            return (gos.requestedTo(currentFloor)) || calls.at(currentFloor).going(commands.side) != ElevatorRequest.NONE
         }
     }
+
     public override fun reset(): Unit {
         calls.clear()
         gos.clear()
         currentFloor = 0
-        decision = Decision.NONE
+        commands = Commands.NONE
     }
     public override fun go(to: Int): Unit {
         var timestampedCounter: ElevatorRequest? = gos.at(to)
@@ -86,66 +69,41 @@ public class ContinueOnItsDecisionElevatorCommand(public var currentFloor: Int =
         }
     }
     public override fun call(at: Int, side: Side?): Unit {
-        var callsAtFloor: Calls = calls.at(at)
-        if (callsAtFloor == Calls.NONE)
-        {
-            calls.add(at, if (side == Side.UP) Calls.goingUp() else Calls.goingDown() as Calls)
-        }
-        else
-        {
-            callsAtFloor.increase(side)
-        }
-
-        if(Math.abs(at - currentFloor) == 1 && decision.side == side && gos.isEmpty()){
-            decision.trySomethingelseNextTime()
+        val callsAtFloor = calls.at(at)
+        when(callsAtFloor) {
+            Calls.NONE -> calls.add(at, Calls.create(side as Side))
+            else -> {
+                callsAtFloor.increase(side)
+            }
         }
     }
 
-
     class object {
-        public open fun init(): ContinueOnItsDecisionElevatorCommand {
-            val __ = ContinueOnItsDecisionElevatorCommand(0)
+        public open fun init(): FollowCommandsCabin {
+            val __ = FollowCommandsCabin(0)
             return __
         }
     }
 }
 
 
-class Decision(val side: Side,
-               private val commands: Array<Command>) : Observable() {
-
-    var remainingCommands: Int = 0
-
-    public fun allowsTwoSidesCharging(): Boolean = remainingCommands < 1 || commands.all { command -> commands[0] != command }
-
-    public fun nextCommand(): Command {
-        if (remainingCommands <= 0)
-        {
-            return Command.NOTHING
-        }
-
-        val command: Command = commands.get(commands.size - remainingCommands--)
-        if (remainingCommands == 0) noMoreCommand()
+class Commands(val side: Side,
+               private val commands: Array<MoveCommand>) : Enumeration<MoveCommand> {
+    override fun hasMoreElements() = remainingCommands > 0
+    override fun nextElement(): MoveCommand {
+        if(remainingCommands < 1) return MoveCommand.NOTHING
+        val command: MoveCommand = commands.get(commands.size - remainingCommands--)
         return command
     }
 
-    public fun trySomethingelseNextTime(){
-        noMoreCommand()
-    }
+    var remainingCommands: Int = commands.size
 
-    private fun noMoreCommand() {
-        this.setChanged()
-        notifyObservers()
-    }
-    {
-        this.remainingCommands = commands.size
-    }
-
+    public fun allowsTwoSidesCharging(): Boolean = remainingCommands < 1 || commands.all { command -> commands[0] != command }
 
     class object {
-        public val NONE: Decision = Decision(Side.UP, array())
+        public val NONE: Commands = Commands(Side.UP, array())
 
-        public fun tryNewOne(currentFloor: Int, calls : Destinations<Calls> , gos :Destinations<ElevatorRequest>): Decision {
+        public inline fun next(currentFloor: Int, calls: Destinations<Calls>, gos: Destinations<ElevatorRequest>): Commands {
 
             if ((calls.isEmpty()) && gos.isEmpty())
                 return NONE
@@ -157,15 +115,15 @@ class Decision(val side: Side,
                 gos.isEmpty() && numberOf(callsBelow) > numberOf(callsAbove) -> {
 
                     val distance = callsBelow.distanceToNearestFloorFrom(currentFloor)
-                    Decision(Side.DOWN, Command.DOWN.times(distance))
+                    Commands(Side.DOWN, MoveCommand.DOWN.times(distance))
                 }
                 gos.isEmpty() && numberOf(callsBelow) <= numberOf(callsAbove) -> {
                     val distance: Int = callsAbove.distanceToNearestFloorFrom(currentFloor)
-                    Decision(Side.UP, Command.UP.times(distance))
+                    Commands(Side.UP, MoveCommand.UP.times(distance))
                 }
                 else -> {
 
-                    val nextCommands: Array<Command>
+                    val nextCommands: Array<MoveCommand>
                     var mainDirection: Side
                     val gosAbove = gos.above(currentFloor)
                     val gosBelow = gos.below(currentFloor)
@@ -176,10 +134,10 @@ class Decision(val side: Side,
                             val distance: Int = gosAbove.distanceToFarthestFloorFrom(currentFloor)
                             when {
                                 calls.at(currentFloor - 1).going(mainDirection) != ElevatorRequest.NONE && distance > 1 -> {
-                                    nextCommands = Array(distance + 1, invertFirst(Command.UP))
+                                    nextCommands = Array(distance + 1, invertFirst(MoveCommand.UP))
                                 }
                                 else -> {
-                                    nextCommands = Command.UP.times(distance)
+                                    nextCommands = MoveCommand.UP.times(distance)
                                 }
                             }
                         }
@@ -188,78 +146,76 @@ class Decision(val side: Side,
                             val distance: Int = gosBelow.distanceToFarthestFloorFrom(currentFloor)
                             when {
                                 calls.at(currentFloor + 1).going(mainDirection) != ElevatorRequest.NONE && distance > 1 -> {
-                                    nextCommands = Array(distance + 1, invertFirst(Command.DOWN))
+                                    nextCommands = Array(distance + 1, invertFirst(MoveCommand.DOWN))
                                 }
                                 else -> {
-                                    nextCommands = Command.DOWN.times(distance)
+                                    nextCommands = MoveCommand.DOWN.times(distance)
                                 }
                             }
                         }
                     }
-                    Decision(mainDirection, nextCommands)
+                    Commands(mainDirection, nextCommands)
 
                 }
             }
             return decision
         }
 
-        private fun numberOf(destinations: Destinations<Calls>): Int {
-            var number = 0
-
-            destinations.forEach { calls ->
-                number += calls.going(Side.UP).number
-                number += calls.going(Side.DOWN).number
-            }
-
-            return number
+        private inline fun numberOf(destinations: Destinations<Calls>) = destinations.fold(0) {
+            number, calls ->
+            number + calls.going(Side.UP).number + calls.going(Side.DOWN).number
         }
 
-        private fun sumOf(destinations: Iterable<ElevatorRequest>): Int {
-            var number: Int = 0
+        private inline fun sumOf(destinations: Iterable<ElevatorRequest>) =
+                destinations.fold(0) { number, elevatorRequest -> number + elevatorRequest.number }
 
-            destinations.forEach { elevatorRequest -> number += elevatorRequest.number }
 
-            return number
-        }
-
-        inline private fun invertFirst(command: Command) = {(i: Int) ->
+        inline private fun invertFirst(command: MoveCommand) = {(i: Int) ->
             when {
                 i == 0 -> command.switch()
                 else -> command
             }
         }
     }
-
-    trait FollowDecision{
-        var decision : Decision
-
-        fun noMoreDecision() {
-            decision = Decision.NONE
-        }
-    }
 }
 
 
-enum class Command {
+class Door(var opened: Boolean = false){
+
+    enum class Command{ OPEN  CLOSE
+    }
+
+    fun toogle(onOpen: (() -> Unit)?) = if (opened) {
+        opened = false
+        Command.CLOSE
+    }
+    else {
+        opened = true
+        onOpen?.invoke()
+        Command.OPEN
+    }
+}
+
+enum class MoveCommand {
 
     UP
     DOWN
     NOTHING
-    fun times(number: Int): Array<Command> {
+    fun times(number: Int): Array<MoveCommand> {
         return times[number]
     }
-    private val times: Array<Array<Command>> =
-            array<Array<Command>>(array<Command>(),
-                    array<Command>(this),
-                    array<Command>(this, this),
-                    array<Command>(this, this, this),
-                    array<Command>(this, this, this, this),
-                    array<Command>(this, this, this, this, this))
+    private val times: Array<Array<MoveCommand>> =
+            array<Array<MoveCommand>>(array<MoveCommand>(),
+                    array<MoveCommand>(this),
+                    array<MoveCommand>(this, this),
+                    array<MoveCommand>(this, this, this),
+                    array<MoveCommand>(this, this, this, this),
+                    array<MoveCommand>(this, this, this, this, this))
 
-    inline fun switch(): Command = when(this) {
-        Command.DOWN -> Command.UP
-        Command.UP -> Command.DOWN
-        else -> Command.NOTHING }
+    inline fun switch(): MoveCommand = when(this) {
+        MoveCommand.DOWN -> MoveCommand.UP
+        MoveCommand.UP -> MoveCommand.DOWN
+        else -> MoveCommand.NOTHING }
 }
 
 

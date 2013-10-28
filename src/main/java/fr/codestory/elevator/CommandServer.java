@@ -106,7 +106,7 @@ public class CommandServer {
 
         CommandServer server8881 = new CommandServer(8881, new OmnibusElevatorCommand());
         CommandServer server8882 = new CommandServer(8882, new EcologySuckslElevatorCommand());
-        CommandServer server8883 = new CommandServer(8883, new ContinueOnItsDecisionElevatorCommand());
+        CommandServer server8883 = new CommandServer(8883, new FollowCommandsCabin());
 
         server8881.listenToElevatorEvents();
         server8882.listenToElevatorEvents();

@@ -37,7 +37,7 @@ class Destinations<T>(private val destinations: SortedMap<Int, T>, private val n
         else
             noneValue)
     }
-    public fun contains(to: Int): Boolean {
+    public fun requestedTo(to: Int): Boolean {
         return destinations.containsKey(to)
     }
     public fun isEmpty(): Boolean {
@@ -81,7 +81,7 @@ class Calls(var up: ElevatorRequest, var  down: ElevatorRequest) {
 
     public fun increase(side: ElevatorCommand.Side?): Unit {
 
-        fun elevatorRequest(side: Side?): ElevatorRequest? {
+        inline fun elevatorRequest(side: Side?): ElevatorRequest? {
             when (side) {
                 Side.UP -> {
                     if(up == ElevatorRequest.NONE) up = ElevatorRequest(0)
@@ -109,10 +109,19 @@ class Calls(var up: ElevatorRequest, var  down: ElevatorRequest) {
 
     class object {
         public val NONE: Calls = Calls(ElevatorRequest.NONE, ElevatorRequest.NONE)
-        public  fun goingUp(): Calls {
+
+        public fun create(side: Side): Calls = when(side){
+            Side.UP -> { goingUp()}
+            Side.DOWN -> { goingDown() }
+            else -> { NONE }
+
+        }
+
+
+        private  fun goingUp(): Calls {
             return Calls(ElevatorRequest(1), ElevatorRequest.NONE)
         }
-        public  fun goingDown(): Calls? {
+        private  fun goingDown(): Calls {
             return Calls(ElevatorRequest.NONE, ElevatorRequest(1))
         }
     }
@@ -130,7 +139,7 @@ data class ElevatorRequest(var number: Int = 1,
     }
 
     class object {
-        public val NONE: ElevatorRequest = ElevatorRequest()
+        public val NONE: ElevatorRequest = ElevatorRequest(0)
     }
 }
 
