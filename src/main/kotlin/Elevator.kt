@@ -16,7 +16,7 @@ public class FollowCommandsCabin(public var currentFloor: Int = 0) : ElevatorCom
     var commands = Commands.NONE
 
     public override fun nextMove(): String {
-        if ( door.opened || isSomeoneToTakeOrToLeave() ) return door.toogle {
+        if ( door.opened || isSomeoneToTakeOrToLeave() ) return door.toggle {
             calls.reached(currentFloor)
             gos.reached(currentFloor)
         }.name()
@@ -185,7 +185,7 @@ class Door(var opened: Boolean = false){
     enum class Command{ OPEN  CLOSE
     }
 
-    fun toogle(onOpen: (() -> Unit)?) = if (opened) {
+    inline fun toggle(onOpen: (() -> Unit)?) = if (opened) {
         opened = false
         Command.CLOSE
     }
