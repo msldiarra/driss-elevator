@@ -59,6 +59,12 @@
                 </executions>
                 <configuration>
                     <mainClass>fr.codestory.elevator.CommandServer</mainClass>
+                    <systemProperties>
+                        <systemProperty>
+                            <key>app.port</key>
+                            <value>8883</value>
+                        </systemProperty>
+                    </systemProperties>
                 </configuration>
             </plugin>
         </plugins>

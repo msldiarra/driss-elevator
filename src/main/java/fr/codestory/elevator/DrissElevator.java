@@ -6,7 +6,7 @@ import java.util.Observer;
 /**
  * @author Miguel Basire
  */
-public class ContinueOnItsDecisionElevatorCommand implements ElevatorCommand {
+public class DrissElevator implements ElevatorCommand {
 
     private int floor;
     boolean openedDoors = false;
@@ -18,11 +18,11 @@ public class ContinueOnItsDecisionElevatorCommand implements ElevatorCommand {
     Destinations<ElevatorRequest> gos = new Destinations<>(ElevatorRequest.NONE);
 
 
-    public ContinueOnItsDecisionElevatorCommand() {
+    public DrissElevator() {
         this(0);
     }
 
-    ContinueOnItsDecisionElevatorCommand(int initialFloor) {
+    DrissElevator(int initialFloor) {
         this.floor = initialFloor;
     }
 
@@ -118,7 +118,7 @@ public class ContinueOnItsDecisionElevatorCommand implements ElevatorCommand {
         @Override
         public void update(Observable decision, Object arg) {
             decision.deleteObservers();
-            ContinueOnItsDecisionElevatorCommand.this.decision = Decision.NONE;
+            DrissElevator.this.decision = Decision.NONE;
         }
     }
 

@@ -104,19 +104,8 @@ public class CommandServer {
 
     public static void main(String[] args) throws IOException {
 
-        CommandServer server8881 = new CommandServer(8881, new OmnibusElevatorCommand());
-        CommandServer server8882 = new CommandServer(8882, new EcologySuckslElevatorCommand());
-        CommandServer server8883 = new CommandServer(8883, new ContinueOnItsDecisionElevatorCommand());
-
-        server8881.listenToElevatorEvents();
-        server8882.listenToElevatorEvents();
-        server8883.listenToElevatorEvents();
-
-        System.in.read();
-        server8881.stopListening();
-        server8882.stopListening();
-        server8883.stopListening();
-
-
+        int port = Integer.parseInt(System.getProperty("app.port"));
+        CommandServer drissElevator = new CommandServer(port, new DrissElevator());
+        drissElevator.listenToElevatorEvents();
     }
 }

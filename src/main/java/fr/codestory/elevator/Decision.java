@@ -50,7 +50,7 @@ class Decision extends Observable {
     }
 
 
-    public static Decision tryNewOne(ContinueOnItsDecisionElevatorCommand engine) {
+    public static Decision tryNewOne(DrissElevator engine) {
 
         Destinations<Calls> calls = engine.calls;
         Destinations<ElevatorRequest> gos = engine.gos;
