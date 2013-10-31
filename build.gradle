@@ -13,7 +13,7 @@ buildscript {
 
 apply plugin: 'kotlin'
 apply plugin: "application"
-mainClassName = "fr.codestory.elevator.CommandServer"
+mainClassName = "fr.codestory.elevator.ElevatorPackage"
 
 repositories {
     mavenCentral()
