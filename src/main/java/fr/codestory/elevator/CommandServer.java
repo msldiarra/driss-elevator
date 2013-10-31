@@ -100,23 +100,4 @@ public class CommandServer {
     public void stopListening() {
         httpServer.stop(0);
     }
-
-
-    public static void main(String[] args) throws IOException {
-
-        CommandServer server8881 = new CommandServer(8881, new OmnibusElevatorCommand());
-        CommandServer server8882 = new CommandServer(8882, new EcologySuckslElevatorCommand());
-        CommandServer server8883 = new CommandServer(8883, new FollowCommandsCabin());
-
-        server8881.listenToElevatorEvents();
-        server8882.listenToElevatorEvents();
-        server8883.listenToElevatorEvents();
-
-        System.in.read();
-        server8881.stopListening();
-        server8882.stopListening();
-        server8883.stopListening();
-
-
-    }
 }
