@@ -11,7 +11,7 @@ class FollowCommandsCabinTests {
 
     test fun go_should_increment_number_of_request_at_floor(){
 
-        val cabin = FollowCommandsCabin()
+        val cabin = DrissElevator()
 
         cabin.go(1)
 
@@ -25,7 +25,7 @@ class FollowCommandsCabinTests {
 
     test fun go_should_increment_only_request_at_its_floor(){
 
-        val cabin = FollowCommandsCabin()
+        val cabin = DrissElevator()
 
         cabin.go(1)
 

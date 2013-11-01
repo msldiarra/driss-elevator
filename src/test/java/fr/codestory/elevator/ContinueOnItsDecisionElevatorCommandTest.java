@@ -12,7 +12,7 @@ public class ContinueOnItsDecisionElevatorCommandTest {
     @Test
     public void should_do_nothing_when_no_call() {
 
-        FollowCommandsCabin groom = new FollowCommandsCabin();
+        DrissElevator groom = new DrissElevator();
 
         assertThat(groom.getCurrentFloor()).isEqualTo(0);
         assertThat(groom.nextMove()).isEqualTo("NOTHING");
@@ -24,7 +24,7 @@ public class ContinueOnItsDecisionElevatorCommandTest {
     @Test
     public void should_move_on_first_call_and_stop() {
 
-        FollowCommandsCabin groom = new FollowCommandsCabin();
+        DrissElevator groom = new DrissElevator();
 
         groom.call(2, ElevatorCommand.Side.UP);
 
@@ -39,7 +39,7 @@ public class ContinueOnItsDecisionElevatorCommandTest {
     @Test
     public void should_move_on_first_call_then_go() {
 
-        FollowCommandsCabin groom = new FollowCommandsCabin();
+        DrissElevator groom = new DrissElevator();
 
         groom.call(2, ElevatorCommand.Side.UP);
 
@@ -60,7 +60,7 @@ public class ContinueOnItsDecisionElevatorCommandTest {
     @Test
     public void should_go_down_on_first_call() {
 
-        FollowCommandsCabin groom = new FollowCommandsCabin(3);
+        DrissElevator groom = new DrissElevator(3);
 
         groom.call(2, ElevatorCommand.Side.DOWN);
 
@@ -80,7 +80,7 @@ public class ContinueOnItsDecisionElevatorCommandTest {
     @Test
     public void should_go_upside_first() {
 
-        FollowCommandsCabin groom = new FollowCommandsCabin(3);
+        DrissElevator groom = new DrissElevator(3);
 
         groom.call(2, ElevatorCommand.Side.DOWN);
         groom.call(4, ElevatorCommand.Side.DOWN);
@@ -110,7 +110,7 @@ public class ContinueOnItsDecisionElevatorCommandTest {
     @Test
     public void should_take_someone_near() {
 
-        FollowCommandsCabin groom = new FollowCommandsCabin(1);
+        DrissElevator groom = new DrissElevator(1);
         groom.go(4);
 
         groom.call(0, ElevatorCommand.Side.UP);

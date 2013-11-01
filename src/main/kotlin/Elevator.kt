@@ -7,7 +7,7 @@ import fr.codestory.elevator.order.Calls
 import java.util.Enumeration
 import fr.codestory.elevator.Door.Command
 
-public class FollowCommandsCabin(public var currentFloor: Int = 0) : ElevatorCommand {
+public class DrissElevator(public var currentFloor: Int = 0) : ElevatorCommand {
 
     val door = Door()
     val calls: Destinations<Calls> = Destinations.init(Calls.NONE)
@@ -79,8 +79,8 @@ public class FollowCommandsCabin(public var currentFloor: Int = 0) : ElevatorCom
     }
 
     class object {
-        public open fun init(): FollowCommandsCabin {
-            val __ = FollowCommandsCabin(0)
+        public open fun init(): DrissElevator {
+            val __ = DrissElevator(0)
             return __
         }
     }
