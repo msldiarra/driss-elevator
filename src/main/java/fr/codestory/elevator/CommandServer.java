@@ -75,7 +75,7 @@ public class CommandServer {
                             break;
                     }
                 } catch (Exception e) {
-                    LOG.error("elevatorEvent "+elevatorEvent+""+e.getMessage(),e);
+                    LOG.error("elevatorEvent " + elevatorEvent + "" + e.getMessage(), e);
                     nextMove = "NOTHING";
                 }
 
@@ -104,8 +104,14 @@ public class CommandServer {
 
     public static void main(String[] args) throws IOException {
 
+
         int port = Integer.parseInt(System.getProperty("app.port"));
+
+        LOG.info("Starting server on port " + port);
+
+
         CommandServer drissElevator = new CommandServer(port, new DrissElevator());
         drissElevator.listenToElevatorEvents();
+
     }
 }
