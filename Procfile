@@ -1,1 +1,1 @@
-web: ./build/install/kotlin-elevator/bin/kotlin-elevator
+web:./gradlew clean install &&  ./build/install/kotlin-elevator/bin/kotlin-elevator
