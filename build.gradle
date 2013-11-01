@@ -36,6 +36,3 @@ test.testClassesDir = project.tasks.compileTestKotlin.destinationDir
 task wrapper(type: Wrapper) {
     gradleVersion="1.4"
 }
-
-task stage(dependsOn: ['clean', 'installApp'])
-
