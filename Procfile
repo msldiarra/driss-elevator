@@ -1,1 +1,1 @@
-web: build/install/kotlin-elevator/bin/kotlin-elevator
+web: build/install/kotlin-elevator/bin/*
