@@ -5,7 +5,8 @@ package fr.codestory.elevator
 
 fun main( args : Array<String> ){
 
+    val port = Integer.parseInt(args.get(0))
 
-    var server8883 : CommandServer? = CommandServer(8883, DrissElevator())
-    server8883?.listenToElevatorEvents()
+    val server  = CommandServer(port, DrissElevator())
+    server.listenToElevatorEvents()
 }
