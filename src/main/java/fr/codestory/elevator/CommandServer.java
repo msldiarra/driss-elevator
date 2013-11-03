@@ -26,7 +26,7 @@ public class CommandServer {
 
         this.groom = elevatorCommand;
 
-        httpServer = HttpServer.create(new InetSocketAddress("127.0.0.1", port), 0);
+        httpServer = HttpServer.create(new InetSocketAddress(port), 0);
 
 
         httpServer.setExecutor(new Executor() {
