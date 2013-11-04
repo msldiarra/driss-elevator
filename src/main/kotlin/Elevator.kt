@@ -202,15 +202,9 @@ enum class MoveCommand {
     DOWN
     NOTHING
     fun times(number: Int): Array<MoveCommand> {
-        return times[number]
+        return Array(number) {this}
     }
-    private val times: Array<Array<MoveCommand>> =
-            array<Array<MoveCommand>>(array<MoveCommand>(),
-                    array<MoveCommand>(this),
-                    array<MoveCommand>(this, this),
-                    array<MoveCommand>(this, this, this),
-                    array<MoveCommand>(this, this, this, this),
-                    array<MoveCommand>(this, this, this, this, this))
+
 
     inline fun switch(): MoveCommand = when(this) {
         MoveCommand.DOWN -> MoveCommand.UP
