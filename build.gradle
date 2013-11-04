@@ -5,23 +5,30 @@ buildscript {
         maven {
             url 'http://oss.sonatype.org/content/repositories/snapshots'
         }
+        maven {
+            name 'Gradle Shadow'
+            url 'http://dl.bintray.com/content/johnrengelman/gradle-plugins'
+        }
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$ext.kotlin_version"
+        classpath 'org.gradle.plugins:shadow:0.7.4'
     }
 }
 
-apply plugin: 'idea'
+version = '1.0'
+group = 'fr.driss.elevator'
+
+apply plugin: 'shadow'
 apply plugin: 'kotlin'
 apply plugin: "application"
+apply plugin: 'idea'
+
 mainClassName = "fr.codestory.elevator.ElevatorPackage"
 applicationName = "kotlin-elevator"
 
 repositories {
     mavenCentral()
-    maven {
-        url 'http://oss.sonatype.org/content/repositories/snapshots'
-    }
 }
 
 
@@ -30,7 +37,7 @@ dependencies {
     compile 'com.google.guava:guava:14.0.1'
     compile "org.jetbrains.kotlin:kotlin-stdlib:$ext.kotlin_version"
 
-    testCompile  'junit:junit:4.11'
+    testCompile 'junit:junit:4.11'
     testCompile 'org.assertj:assertj-core:1.2.0'
 }
 test.testClassesDir = project.tasks.compileTestKotlin.destinationDir
@@ -38,12 +45,11 @@ test.testClassesDir = project.tasks.compileTestKotlin.destinationDir
 task stage(dependsOn: ['clean', 'installApp'])
 
 task wrapper(type: Wrapper) {
-    gradleVersion="1.4"
+    gradleVersion = "1.8"
 }
 
 
-run{
-    args '8883','Driss'
+run {
+    args '8883', 'Driss'
 }
-
 
