@@ -3,7 +3,7 @@ package fr.codestory.elevator;
 /**
  * @author Miguel Basire
  */
-public class OmnibusElevatorCommand implements ElevatorCommand {
+public class OmnibusElevator implements ElevatorCommand {
 
     final String[] moves = new String[] {
             "OPEN","CLOSE","UP",

@@ -7,7 +7,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Miguel Basire
  */
-public class ContinueOnItsDecisionElevatorCommandTest {
+public class DrissElevatorTest {
 
     @Test
     public void should_do_nothing_when_no_call() {

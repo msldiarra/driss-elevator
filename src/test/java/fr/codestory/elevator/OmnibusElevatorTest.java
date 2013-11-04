@@ -7,12 +7,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Miguel Basire
  */
-public class OmnibusElevatorCommandTest {
+public class OmnibusElevatorTest {
 
     @Test
     public void should_go_to_the_top_then_go_down_to_the_ground() {
 
-        ElevatorCommand omnibus = new OmnibusElevatorCommand();
+        ElevatorCommand omnibus = new OmnibusElevator();
 
         for (int floor = 0; floor < 5; floor++) {
 

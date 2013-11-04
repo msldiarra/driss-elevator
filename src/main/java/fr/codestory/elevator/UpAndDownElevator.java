@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * @author Miguel Basire
  */
-public class EcologySuckslElevatorCommand implements ElevatorCommand {
+public class UpAndDownElevator implements ElevatorCommand {
 
     private final Map<Integer,Call> calls = new HashMap<>();
 

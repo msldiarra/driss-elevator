@@ -7,11 +7,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Miguel Basire
  */
-public class EcologySuckslElevatorCommandTest {
+public class UpAndDownElevatorTest {
 
     @Test
     public void should_not_stop_when_nobody_calls() {
-        EcologySuckslElevatorCommand groom = new EcologySuckslElevatorCommand();
+        UpAndDownElevator groom = new UpAndDownElevator();
 
         assertThat(groom.nextMove()).isEqualTo("UP");
         assertThat(groom.nextMove()).isEqualTo("UP");
@@ -32,7 +32,7 @@ public class EcologySuckslElevatorCommandTest {
 
     @Test
     public void should_take_some_one_on_road() {
-        ElevatorCommand groom = new EcologySuckslElevatorCommand();
+        ElevatorCommand groom = new UpAndDownElevator();
 
         assertThat(groom.nextMove()).isEqualTo("UP");
 
@@ -51,7 +51,7 @@ public class EcologySuckslElevatorCommandTest {
 
     @Test
     public void should_take_someone_on_the_other_side() {
-        ElevatorCommand groom = new EcologySuckslElevatorCommand();
+        ElevatorCommand groom = new UpAndDownElevator();
 
         assertThat(groom.nextMove()).isEqualTo("UP");
 
@@ -66,7 +66,7 @@ public class EcologySuckslElevatorCommandTest {
 
     @Test
     public void should_take_someone_on_top() {
-        EcologySuckslElevatorCommand groom = new EcologySuckslElevatorCommand();
+        UpAndDownElevator groom = new UpAndDownElevator();
 
         assertThat(groom.nextMove()).isEqualTo("UP");
 
@@ -84,7 +84,7 @@ public class EcologySuckslElevatorCommandTest {
 
     @Test
     public void should_open_then_close_the_door_after_a_call_request(){
-        EcologySuckslElevatorCommand groom = new EcologySuckslElevatorCommand();
+        UpAndDownElevator groom = new UpAndDownElevator();
         groom.call(0, ElevatorCommand.Side.UP);
 
         assertThat(groom.nextMove()).isEqualTo("OPEN");
@@ -96,7 +96,7 @@ public class EcologySuckslElevatorCommandTest {
 
     @Test
     public void should_let_people_leave(){
-        EcologySuckslElevatorCommand groom = new EcologySuckslElevatorCommand();
+        UpAndDownElevator groom = new UpAndDownElevator();
         groom.call(0, ElevatorCommand.Side.UP);
         groom.go(3);
 
