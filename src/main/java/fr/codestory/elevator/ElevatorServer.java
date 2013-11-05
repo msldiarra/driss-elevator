@@ -59,6 +59,7 @@ public class ElevatorServer {
 
                         case "/reset":
                             groom.reset();
+                            LOG.warn("A reset has been received: "+exchange.getRequestURI().getQuery());
                             break;
 
                         case "/userHasEntered":
