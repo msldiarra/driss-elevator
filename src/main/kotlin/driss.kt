@@ -23,7 +23,7 @@ public class DrissElevator(public var currentFloor: Int = 0) : Elevator {
             gos.reached(currentFloor)
         }.name()
 
-        if( !commands.hasMoreElements()) commands = groom.giveFollowingCommands(currentFloor, calls, gos)
+        if ( !commands.hasMoreElements()) commands = groom.giveFollowingCommands(currentFloor, calls, gos)
 
         return updateReachedFloorAfter(commands.nextElement())
     }
@@ -86,7 +86,7 @@ class Commands(val side: Side,
                private val commands: Array<MoveCommand>) : Enumeration<MoveCommand> {
     override fun hasMoreElements() = remainingCommands > 0
     override fun nextElement(): MoveCommand {
-        if(remainingCommands < 1) return MoveCommand.NOTHING
+        if (remainingCommands < 1) return MoveCommand.NOTHING
         val command: MoveCommand = commands.get(commands.size - remainingCommands--)
         return command
     }
@@ -108,55 +108,46 @@ class Groom {
 
         val callsAbove = calls.above(currentFloor)
         val callsBelow = calls.below(currentFloor)
+        val gosAbove = gos.above(currentFloor)
+        val gosBelow = gos.below(currentFloor)
 
-        val decision = when {
+        return when {
             gos.isEmpty() && numberOf(callsBelow) > numberOf(callsAbove) -> {
 
                 val distance = callsBelow.distanceToNearestFloorFrom(currentFloor)
                 Commands(Side.DOWN, MoveCommand.DOWN.times(distance))
             }
+
             gos.isEmpty() && numberOf(callsBelow) <= numberOf(callsAbove) -> {
                 val distance: Int = callsAbove.distanceToNearestFloorFrom(currentFloor)
                 Commands(Side.UP, MoveCommand.UP.times(distance))
             }
-            else -> {
 
-                val nextCommands: Array<MoveCommand>
-                var mainDirection: Side
-                val gosAbove = gos.above(currentFloor)
-                val gosBelow = gos.below(currentFloor)
-
+            sumOf(gosAbove) > sumOf(gosBelow) -> {
+                val mainDirection = Side.UP
+                val distance: Int = gosAbove.distanceToFarthestFloorFrom(currentFloor)
                 when {
-                    (sumOf(gosAbove)) > (sumOf(gosBelow)) -> {
-                        mainDirection = Side.UP
-                        val distance: Int = gosAbove.distanceToFarthestFloorFrom(currentFloor)
-                        when {
-                            calls.at(currentFloor - 1).going(mainDirection) != ElevatorRequest.NONE && distance > 1 -> {
-                                    nextCommands = Array(distance + 2, invertFirst(MoveCommand.UP))
-                            }
-                            else -> {
-                                nextCommands = MoveCommand.UP.times(distance)
-                            }
-                        }
+                    calls.at(currentFloor - 1).going(mainDirection) != ElevatorRequest.NONE && distance > 1 -> {
+                        Commands(mainDirection, Array(distance + 2, invertFirst(MoveCommand.UP)))
                     }
                     else -> {
-                        mainDirection = Side.DOWN
-                        val distance: Int = gosBelow.distanceToFarthestFloorFrom(currentFloor)
-                        when {
-                            calls.at(currentFloor + 1).going(mainDirection) != ElevatorRequest.NONE && distance > 1 -> {
-                                    nextCommands = Array(distance + 2, invertFirst(MoveCommand.DOWN))
-                            }
-                            else -> {
-                                nextCommands = MoveCommand.DOWN.times(distance)
-                            }
-                        }
+                        Commands(mainDirection, MoveCommand.UP.times(distance))
                     }
                 }
-                Commands(mainDirection, nextCommands)
-
+            }
+            else -> {
+                val mainDirection = Side.DOWN
+                val distance: Int = gosBelow.distanceToFarthestFloorFrom(currentFloor)
+                when {
+                    calls.at(currentFloor + 1).going(mainDirection) != ElevatorRequest.NONE && distance > 1 -> {
+                        Commands(mainDirection, Array(distance + 2, invertFirst(MoveCommand.DOWN)))
+                    }
+                    else -> {
+                        Commands(mainDirection, MoveCommand.DOWN.times(distance))
+                    }
+                }
             }
         }
-        return decision
     }
 
     private inline fun numberOf(destinations: Destinations<Calls>) = destinations.fold(0) {
@@ -199,7 +190,7 @@ enum class MoveCommand {
     DOWN
     NOTHING
     fun times(number: Int): Array<MoveCommand> {
-        return Array(number) {this}
+        return Array(number) { this }
     }
 
 
