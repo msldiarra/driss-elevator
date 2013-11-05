@@ -132,7 +132,7 @@ class Groom {
                         val distance: Int = gosAbove.distanceToFarthestFloorFrom(currentFloor)
                         when {
                             calls.at(currentFloor - 1).going(mainDirection) != ElevatorRequest.NONE && distance > 1 -> {
-                                nextCommands = Array(distance + 1, invertFirst(MoveCommand.UP))
+                                    nextCommands = Array(distance + 2, invertFirst(MoveCommand.UP))
                             }
                             else -> {
                                 nextCommands = MoveCommand.UP.times(distance)
@@ -144,7 +144,7 @@ class Groom {
                         val distance: Int = gosBelow.distanceToFarthestFloorFrom(currentFloor)
                         when {
                             calls.at(currentFloor + 1).going(mainDirection) != ElevatorRequest.NONE && distance > 1 -> {
-                                nextCommands = Array(distance + 1, invertFirst(MoveCommand.DOWN))
+                                    nextCommands = Array(distance + 2, invertFirst(MoveCommand.DOWN))
                             }
                             else -> {
                                 nextCommands = MoveCommand.DOWN.times(distance)
