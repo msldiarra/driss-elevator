@@ -1,5 +1,6 @@
-package fr.codestory.elevator;
+package fr.codestory.elevator.driss;
 
+import fr.codestory.elevator.Elevator;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,7 +27,7 @@ public class DrissElevatorTest {
 
         DrissElevator groom = new DrissElevator();
 
-        groom.call(2, ElevatorCommand.Side.UP);
+        groom.call(2, Elevator.Side.UP);
 
         assertThat(groom.nextMove()).isEqualTo("UP");
         assertThat(groom.nextMove()).isEqualTo("UP");
@@ -41,7 +42,7 @@ public class DrissElevatorTest {
 
         DrissElevator groom = new DrissElevator();
 
-        groom.call(2, ElevatorCommand.Side.UP);
+        groom.call(2, Elevator.Side.UP);
 
         assertThat(groom.nextMove()).isEqualTo("UP");
         assertThat(groom.nextMove()).isEqualTo("UP");
@@ -62,7 +63,7 @@ public class DrissElevatorTest {
 
         DrissElevator groom = new DrissElevator(3);
 
-        groom.call(2, ElevatorCommand.Side.DOWN);
+        groom.call(2, Elevator.Side.DOWN);
 
         assertThat(groom.nextMove()).isEqualTo("DOWN");
 
@@ -82,8 +83,8 @@ public class DrissElevatorTest {
 
         DrissElevator groom = new DrissElevator(3);
 
-        groom.call(2, ElevatorCommand.Side.DOWN);
-        groom.call(4, ElevatorCommand.Side.DOWN);
+        groom.call(2, Elevator.Side.DOWN);
+        groom.call(4, Elevator.Side.DOWN);
 
         assertThat(groom.nextMove()).isEqualTo("UP");
 
@@ -113,8 +114,8 @@ public class DrissElevatorTest {
         DrissElevator groom = new DrissElevator(1);
         groom.go(4);
 
-        groom.call(0, ElevatorCommand.Side.UP);
-        groom.call(4, ElevatorCommand.Side.DOWN);
+        groom.call(0, Elevator.Side.UP);
+        groom.call(4, Elevator.Side.DOWN);
 
         assertThat(groom.nextMove()).isEqualTo("DOWN");
         Commands initialCommands =groom.getCommands();

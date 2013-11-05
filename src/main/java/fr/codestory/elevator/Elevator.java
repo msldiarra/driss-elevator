@@ -3,7 +3,7 @@ package fr.codestory.elevator;
 /**
  * @author Miguel Basire
  */
-public interface ElevatorCommand {
+public interface Elevator {
     public String nextMove();
 
     public void reset();

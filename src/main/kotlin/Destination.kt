@@ -1,11 +1,11 @@
 package fr.codestory.elevator.order
 
-import fr.codestory.elevator.ElevatorCommand
+import fr.codestory.elevator.Elevator
 import java.util.Date
 import java.util.ArrayList
 import java.util.TreeMap
 import java.util.SortedMap
-import fr.codestory.elevator.ElevatorCommand.Side
+import fr.codestory.elevator.Elevator.Side
 import org.omg.CORBA.UNKNOWN
 
 /**
@@ -79,7 +79,7 @@ class Destinations<T>(private val destinations: SortedMap<Int, T>, private val n
 
 class Calls(var up: ElevatorRequest, var  down: ElevatorRequest) {
 
-    public fun increase(side: ElevatorCommand.Side?): Unit {
+    public fun increase(side: Elevator.Side?): Unit {
 
         inline fun elevatorRequest(side: Side?): ElevatorRequest? {
             when (side) {
@@ -100,8 +100,8 @@ class Calls(var up: ElevatorRequest, var  down: ElevatorRequest) {
         elevatorRequest(side)?.increase()
     }
 
-    public  fun going(side: ElevatorCommand.Side): ElevatorRequest {
-        if (side == ElevatorCommand.Side.UP)
+    public  fun going(side: Elevator.Side): ElevatorRequest {
+        if (side == Elevator.Side.UP)
             return up
         else
             return down

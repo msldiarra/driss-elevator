@@ -2,7 +2,7 @@ package fr.codestory.elevator.order
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test as test
-import fr.codestory.elevator.ElevatorCommand.Side
+import fr.codestory.elevator.Elevator.Side
 
 class CallsTests {
 

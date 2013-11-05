@@ -1,13 +1,13 @@
-package fr.codestory.elevator
+package fr.codestory.elevator.driss
 
-import fr.codestory.elevator.ElevatorCommand.Side
+import fr.codestory.elevator.Elevator.Side
 import fr.codestory.elevator.order.Destinations
 import fr.codestory.elevator.order.ElevatorRequest
 import fr.codestory.elevator.order.Calls
 import java.util.Enumeration
-import fr.codestory.elevator.Door.Command
+import fr.codestory.elevator.Elevator
 
-public class DrissElevator(public var currentFloor: Int = 0) : ElevatorCommand {
+public class DrissElevator(public var currentFloor: Int = 0) : Elevator {
 
     val groom = Groom()
     val door = Door()

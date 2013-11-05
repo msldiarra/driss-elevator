@@ -2,11 +2,10 @@
 package fr.codestory.elevator;
 
 import org.junit.Test as test
-import fr.codestory.elevator.order.ElevatorRequest
-import fr.codestory.elevator.order.Destinations
 import org.assertj.core.api.Assertions.assertThat
+import fr.codestory.elevator.driss.DrissElevator
 
-class FollowCommandsCabinTests {
+class DrissElevatorTests {
 
 
     test fun go_should_increment_number_of_request_at_floor(){

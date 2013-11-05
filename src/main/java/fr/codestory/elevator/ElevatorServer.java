@@ -14,17 +14,17 @@ import java.util.concurrent.Executor;
 /**
  * @author Miguel Basire
  */
-public class CommandServer {
+public class ElevatorServer {
 
-    private final static Logger LOG = Logger.getLogger(CommandServer.class);
+    private final static Logger LOG = Logger.getLogger(ElevatorServer.class);
 
     private final HttpServer httpServer;
-    private final ElevatorCommand groom;
+    private final Elevator groom;
 
 
-    CommandServer(int port, ElevatorCommand elevatorCommand) throws IOException {
+    ElevatorServer(int port, Elevator elevator) throws IOException {
 
-        this.groom = elevatorCommand;
+        this.groom = elevator;
 
         httpServer = HttpServer.create(new InetSocketAddress(port), 0);
 
@@ -71,7 +71,7 @@ public class CommandServer {
                             String[] param = exchange.getRequestURI().getQuery().split("&");
                             String at = param[0].replaceFirst("atFloor=", "");
 
-                            groom.call(Integer.parseInt(at), ElevatorCommand.Side.valueOf(param[1].replaceFirst("to=", "")));
+                            groom.call(Integer.parseInt(at), Elevator.Side.valueOf(param[1].replaceFirst("to=", "")));
                             break;
                     }
                 } catch (Exception e) {

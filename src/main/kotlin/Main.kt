@@ -1,6 +1,7 @@
 package fr.codestory.elevator
 
 import org.apache.log4j.Logger
+import fr.codestory.elevator.driss.DrissElevator
 
 
 enum class ElevatorAlgorithm {
@@ -10,7 +11,7 @@ enum class ElevatorAlgorithm {
 }
 
 
-fun newElevatorCommand(algo: ElevatorAlgorithm): ElevatorCommand {
+fun newElevatorCommand(algo: ElevatorAlgorithm): Elevator {
     return when(algo) {
         ElevatorAlgorithm.UPANDDOWN -> {
             UpAndDownElevator()
@@ -38,6 +39,6 @@ fun main(args: Array<String>) {
     logger?.info("Loading $algorithm algorithm on port $port")
 
     val elevator = newElevatorCommand(algorithm)
-    val server = CommandServer(port, elevator)
+    val server = ElevatorServer(port, elevator)
     server.listenToElevatorEvents()
 }

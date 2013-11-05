@@ -12,7 +12,7 @@ public class OmnibusElevatorTest {
     @Test
     public void should_go_to_the_top_then_go_down_to_the_ground() {
 
-        ElevatorCommand omnibus = new OmnibusElevator();
+        Elevator omnibus = new OmnibusElevator();
 
         for (int floor = 0; floor < 5; floor++) {
 

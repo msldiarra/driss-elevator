@@ -32,11 +32,11 @@ public class UpAndDownElevatorTest {
 
     @Test
     public void should_take_some_one_on_road() {
-        ElevatorCommand groom = new UpAndDownElevator();
+        Elevator groom = new UpAndDownElevator();
 
         assertThat(groom.nextMove()).isEqualTo("UP");
 
-        groom.call(3, ElevatorCommand.Side.UP);
+        groom.call(3, Elevator.Side.UP);
 
         assertThat(groom.nextMove()).isEqualTo("UP");
         assertThat(groom.nextMove()).isEqualTo("UP");
@@ -51,11 +51,11 @@ public class UpAndDownElevatorTest {
 
     @Test
     public void should_take_someone_on_the_other_side() {
-        ElevatorCommand groom = new UpAndDownElevator();
+        Elevator groom = new UpAndDownElevator();
 
         assertThat(groom.nextMove()).isEqualTo("UP");
 
-        groom.call(3, ElevatorCommand.Side.DOWN);
+        groom.call(3, Elevator.Side.DOWN);
 
         assertThat(groom.nextMove()).isEqualTo("UP");
         assertThat(groom.nextMove()).isEqualTo("UP");
@@ -70,7 +70,7 @@ public class UpAndDownElevatorTest {
 
         assertThat(groom.nextMove()).isEqualTo("UP");
 
-        groom.call(5, ElevatorCommand.Side.DOWN);
+        groom.call(5, Elevator.Side.DOWN);
 
         assertThat(groom.nextMove()).isEqualTo("UP");
         assertThat(groom.nextMove()).isEqualTo("UP");
@@ -85,7 +85,7 @@ public class UpAndDownElevatorTest {
     @Test
     public void should_open_then_close_the_door_after_a_call_request(){
         UpAndDownElevator groom = new UpAndDownElevator();
-        groom.call(0, ElevatorCommand.Side.UP);
+        groom.call(0, Elevator.Side.UP);
 
         assertThat(groom.nextMove()).isEqualTo("OPEN");
         assertThat(groom.nextMove()).isEqualTo("CLOSE");
@@ -97,7 +97,7 @@ public class UpAndDownElevatorTest {
     @Test
     public void should_let_people_leave(){
         UpAndDownElevator groom = new UpAndDownElevator();
-        groom.call(0, ElevatorCommand.Side.UP);
+        groom.call(0, Elevator.Side.UP);
         groom.go(3);
 
         assertThat(groom.nextMove()).isEqualTo("OPEN");
