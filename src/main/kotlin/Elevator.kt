@@ -9,11 +9,13 @@ import fr.codestory.elevator.Door.Command
 
 public class DrissElevator(public var currentFloor: Int = 0) : ElevatorCommand {
 
+    val groom = Groom()
     val door = Door()
     val calls: Destinations<Calls> = Destinations.init(Calls.NONE)
     val gos: Destinations<ElevatorRequest> = Destinations.init(ElevatorRequest.NONE)
 
     var commands = Commands.NONE
+
 
     public override fun nextMove(): String {
         if ( door.opened || isSomeoneToTakeOrToLeave() ) return door.toggle {
@@ -21,7 +23,7 @@ public class DrissElevator(public var currentFloor: Int = 0) : ElevatorCommand {
             gos.reached(currentFloor)
         }.name()
 
-        if( !commands.hasMoreElements()) commands = Commands.next(currentFloor, calls, gos)
+        if( !commands.hasMoreElements()) commands = groom.giveFollowingCommands(currentFloor, calls, gos)
 
         return updateReachedFloorAfter(commands.nextElement())
     }
@@ -41,7 +43,7 @@ public class DrissElevator(public var currentFloor: Int = 0) : ElevatorCommand {
     }
 
     private inline fun isSomeoneToTakeOrToLeave(): Boolean {
-        if (commands.allowsTwoSidesCharging())
+        if (commands.allowTwoSidesCharging())
         {
             return gos.requestedTo(currentFloor) || calls.at(currentFloor) != Calls.NONE
         }
@@ -77,13 +79,6 @@ public class DrissElevator(public var currentFloor: Int = 0) : ElevatorCommand {
             }
         }
     }
-
-    class object {
-        public open fun init(): DrissElevator {
-            val __ = DrissElevator(0)
-            return __
-        }
-    }
 }
 
 
@@ -98,83 +93,85 @@ class Commands(val side: Side,
 
     var remainingCommands: Int = commands.size
 
-    public fun allowsTwoSidesCharging(): Boolean = remainingCommands < 1 || commands.all { command -> commands[0] != command }
+    public fun allowTwoSidesCharging(): Boolean = remainingCommands < 1 || commands.all { command -> commands[0] != command }
 
     class object {
         public val NONE: Commands = Commands(Side.UP, array())
+    }
+}
 
-        public inline fun next(currentFloor: Int, calls: Destinations<Calls>, gos: Destinations<ElevatorRequest>): Commands {
+class Groom {
+    public inline fun giveFollowingCommands(currentFloor: Int, calls: Destinations<Calls>, gos: Destinations<ElevatorRequest>): Commands {
 
-            if ((calls.isEmpty()) && gos.isEmpty())
-                return NONE
+        if ((calls.isEmpty()) && gos.isEmpty())
+            return Commands.NONE
 
-            val callsAbove = calls.above(currentFloor)
-            val callsBelow = calls.below(currentFloor)
+        val callsAbove = calls.above(currentFloor)
+        val callsBelow = calls.below(currentFloor)
 
-            val decision = when {
-                gos.isEmpty() && numberOf(callsBelow) > numberOf(callsAbove) -> {
+        val decision = when {
+            gos.isEmpty() && numberOf(callsBelow) > numberOf(callsAbove) -> {
 
-                    val distance = callsBelow.distanceToNearestFloorFrom(currentFloor)
-                    Commands(Side.DOWN, MoveCommand.DOWN.times(distance))
-                }
-                gos.isEmpty() && numberOf(callsBelow) <= numberOf(callsAbove) -> {
-                    val distance: Int = callsAbove.distanceToNearestFloorFrom(currentFloor)
-                    Commands(Side.UP, MoveCommand.UP.times(distance))
-                }
-                else -> {
+                val distance = callsBelow.distanceToNearestFloorFrom(currentFloor)
+                Commands(Side.DOWN, MoveCommand.DOWN.times(distance))
+            }
+            gos.isEmpty() && numberOf(callsBelow) <= numberOf(callsAbove) -> {
+                val distance: Int = callsAbove.distanceToNearestFloorFrom(currentFloor)
+                Commands(Side.UP, MoveCommand.UP.times(distance))
+            }
+            else -> {
 
-                    val nextCommands: Array<MoveCommand>
-                    var mainDirection: Side
-                    val gosAbove = gos.above(currentFloor)
-                    val gosBelow = gos.below(currentFloor)
+                val nextCommands: Array<MoveCommand>
+                var mainDirection: Side
+                val gosAbove = gos.above(currentFloor)
+                val gosBelow = gos.below(currentFloor)
 
-                    when {
-                        (sumOf(gosAbove)) > (sumOf(gosBelow)) -> {
-                            mainDirection = Side.UP
-                            val distance: Int = gosAbove.distanceToFarthestFloorFrom(currentFloor)
-                            when {
-                                calls.at(currentFloor - 1).going(mainDirection) != ElevatorRequest.NONE && distance > 1 -> {
-                                    nextCommands = Array(distance + 1, invertFirst(MoveCommand.UP))
-                                }
-                                else -> {
-                                    nextCommands = MoveCommand.UP.times(distance)
-                                }
+                when {
+                    (sumOf(gosAbove)) > (sumOf(gosBelow)) -> {
+                        mainDirection = Side.UP
+                        val distance: Int = gosAbove.distanceToFarthestFloorFrom(currentFloor)
+                        when {
+                            calls.at(currentFloor - 1).going(mainDirection) != ElevatorRequest.NONE && distance > 1 -> {
+                                nextCommands = Array(distance + 1, invertFirst(MoveCommand.UP))
                             }
-                        }
-                        else -> {
-                            mainDirection = Side.DOWN
-                            val distance: Int = gosBelow.distanceToFarthestFloorFrom(currentFloor)
-                            when {
-                                calls.at(currentFloor + 1).going(mainDirection) != ElevatorRequest.NONE && distance > 1 -> {
-                                    nextCommands = Array(distance + 1, invertFirst(MoveCommand.DOWN))
-                                }
-                                else -> {
-                                    nextCommands = MoveCommand.DOWN.times(distance)
-                                }
+                            else -> {
+                                nextCommands = MoveCommand.UP.times(distance)
                             }
                         }
                     }
-                    Commands(mainDirection, nextCommands)
-
+                    else -> {
+                        mainDirection = Side.DOWN
+                        val distance: Int = gosBelow.distanceToFarthestFloorFrom(currentFloor)
+                        when {
+                            calls.at(currentFloor + 1).going(mainDirection) != ElevatorRequest.NONE && distance > 1 -> {
+                                nextCommands = Array(distance + 1, invertFirst(MoveCommand.DOWN))
+                            }
+                            else -> {
+                                nextCommands = MoveCommand.DOWN.times(distance)
+                            }
+                        }
+                    }
                 }
+                Commands(mainDirection, nextCommands)
+
             }
-            return decision
         }
+        return decision
+    }
 
-        private inline fun numberOf(destinations: Destinations<Calls>) = destinations.fold(0) {
-            number, calls ->
-            number + calls.going(Side.UP).number + calls.going(Side.DOWN).number
-        }
+    private inline fun numberOf(destinations: Destinations<Calls>) = destinations.fold(0) {
+        number, calls ->
+        number + calls.going(Side.UP).number + calls.going(Side.DOWN).number
+    }
 
-        private inline fun sumOf(destinations: Iterable<ElevatorRequest>) =
-                destinations.fold(0) { number, elevatorRequest -> number + elevatorRequest.number }
+    private inline fun sumOf(destinations: Iterable<ElevatorRequest>) =
+            destinations.fold(0) { number, elevatorRequest -> number + elevatorRequest.number }
 
 
-        inline private fun invertFirst(command: MoveCommand) = {(i: Int) ->
-            when {
-                i == 0 -> command.switch()
-                else -> command
-            }
+    inline private fun invertFirst(command: MoveCommand) = {(i: Int) ->
+        when {
+            i == 0 -> command.switch()
+            else -> command
         }
     }
 }
