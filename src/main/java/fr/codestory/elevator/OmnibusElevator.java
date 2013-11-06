@@ -5,6 +5,8 @@ package fr.codestory.elevator;
  */
 public class OmnibusElevator implements Elevator {
 
+    private BuildingDimension buildingDimension = new BuildingDimension(0,19);
+
     final String[] moves = new String[] {
             "OPEN","CLOSE","UP",
             "OPEN","CLOSE","UP",
@@ -22,12 +24,14 @@ public class OmnibusElevator implements Elevator {
 
     @Override
     public String nextMove() {
-        if(floor % (3*5*2) == 0) reset();
+        if(floor % (3*5*2) == 0) floor = buildingDimension.getLowerFloor();
         return moves[floor++ % (3*5*2)];
     }
 
-    public void reset(){
-        floor= 0;
+    @Override
+    public void reset(BuildingDimension buildingDimension){
+        this.buildingDimension = buildingDimension;
+        floor= buildingDimension.getLowerFloor();
     }
 
     @Override

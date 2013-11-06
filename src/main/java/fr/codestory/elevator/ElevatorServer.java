@@ -47,6 +47,8 @@ public class ElevatorServer {
 
                 String nextMove = "";
                 try {
+                    String[] params;
+
                     switch (elevatorEvent) {
                         case "/nextCommand":
                             nextMove = groom.nextMove();
@@ -58,8 +60,13 @@ public class ElevatorServer {
                             break;
 
                         case "/reset":
-                            groom.reset();
-                            LOG.warn("A reset has been received: "+exchange.getRequestURI().getQuery());
+                            params = extractParameters(exchange);
+
+                            String lowerFloor = params[0].replaceFirst("lowerFloor=", "");
+                            String higherFloor = params[1].replaceFirst("higherFloor=","");
+
+                            groom.reset(new BuildingDimension(Integer.parseInt(lowerFloor),Integer.parseInt(higherFloor)));
+                            LOG.warn("A reset has been received: " + exchange.getRequestURI().getQuery());
                             break;
 
                         case "/userHasEntered":
@@ -69,10 +76,10 @@ public class ElevatorServer {
                             break;
 
                         case "/call":
-                            String[] param = exchange.getRequestURI().getQuery().split("&");
-                            String at = param[0].replaceFirst("atFloor=", "");
+                            params = extractParameters(exchange);
+                            String at = params[0].replaceFirst("atFloor=", "");
 
-                            groom.call(Integer.parseInt(at), Elevator.Side.valueOf(param[1].replaceFirst("to=", "")));
+                            groom.call(Integer.parseInt(at), Elevator.Side.valueOf(params[1].replaceFirst("to=", "")));
                             break;
                     }
                 } catch (Exception e) {
@@ -90,6 +97,10 @@ public class ElevatorServer {
         }
 
         );
+    }
+
+    private String[] extractParameters(HttpExchange exchange) {
+        return exchange.getRequestURI().getQuery().split("&");
     }
 
 

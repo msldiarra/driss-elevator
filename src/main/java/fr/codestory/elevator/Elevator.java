@@ -6,7 +6,7 @@ package fr.codestory.elevator;
 public interface Elevator {
     public String nextMove();
 
-    public void reset();
+    public void reset(BuildingDimension buildingDimension);
 
     public void go(int to);
 

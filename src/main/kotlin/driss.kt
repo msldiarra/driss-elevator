@@ -6,6 +6,7 @@ import fr.codestory.elevator.order.ElevatorRequest
 import fr.codestory.elevator.order.Calls
 import java.util.Enumeration
 import fr.codestory.elevator.Elevator
+import fr.codestory.elevator.BuildingDimension
 
 public class DrissElevator(public var currentFloor: Int = 0) : Elevator {
 
@@ -15,6 +16,7 @@ public class DrissElevator(public var currentFloor: Int = 0) : Elevator {
     val gos: Destinations<ElevatorRequest> = Destinations.init(ElevatorRequest.NONE)
 
     var commands = Commands.NONE
+    var building = BuildingDimension(0,19)
 
 
     public override fun nextMove(): String {
@@ -53,10 +55,11 @@ public class DrissElevator(public var currentFloor: Int = 0) : Elevator {
         }
     }
 
-    public override fun reset(): Unit {
+    public override fun reset(building: BuildingDimension?): Unit {
+        this.building = building!!
         calls.clear()
         gos.clear()
-        currentFloor = 0
+        currentFloor = building.getLowerFloor()
         commands = Commands.NONE
     }
     public override fun go(to: Int): Unit {

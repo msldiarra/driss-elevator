@@ -16,6 +16,7 @@ public class UpAndDownElevator implements Elevator {
     private Side currentSide = Side.UP;
 
     private boolean[] isSomeoneLeaving = new boolean[] { false,false,false,false,false,false};
+    private BuildingDimension buildingDimension = new BuildingDimension(0,5);
 
     @Override
     public String nextMove() {
@@ -43,7 +44,7 @@ public class UpAndDownElevator implements Elevator {
 
     private boolean isSomeoneToTakeAtOrToLeaveAt(int floor) {
         return (calls.get(floor) != null  // someone to take
-                && ( (floor==0 || floor==5) || calls.get(floor).side == currentSide))
+                && ( (floor== buildingDimension.getLowerFloor() || floor== buildingDimension.getHigherFloor()) || calls.get(floor).side == currentSide))
                 || isSomeoneLeaving[floor];
     }
 
@@ -60,9 +61,10 @@ public class UpAndDownElevator implements Elevator {
     }
 
     @Override
-    public void reset() {
+    public void reset(BuildingDimension buildingDimension) {
+        this.buildingDimension = buildingDimension;
         currentSide = Side.UP;
-        floor = 0;
+        floor = buildingDimension.getLowerFloor();
     }
 
     @Override
