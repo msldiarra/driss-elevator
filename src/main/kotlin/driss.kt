@@ -53,11 +53,11 @@ public class DrissElevator(public var currentFloor: Int = 0) : Elevator {
         }
     }
 
-    public override fun reset(building: BuildingDimension?): Unit {
-        this.building = building!!
+    public override fun reset(buildingDimension: BuildingDimension?): Unit {
+        this.building = buildingDimension!!
         calls.clear()
         gos.clear()
-        currentFloor = building.getLowerFloor()
+        currentFloor = buildingDimension.getLowerFloor()
         commands = Commands.NONE
     }
     public override fun go(to: Int): Unit {
