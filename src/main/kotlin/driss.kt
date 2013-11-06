@@ -44,14 +44,12 @@ public class DrissElevator(public var currentFloor: Int = 0) : Elevator {
         return chosenCommand.name()
     }
 
-    private inline fun isSomeoneToTakeOrToLeave(): Boolean {
-        if (commands.allowTwoSidesCharging())
-        {
-            return gos.requestedTo(currentFloor) || calls.at(currentFloor) != Calls.NONE
+    private inline fun isSomeoneToTakeOrToLeave() = when {
+        commands.allowTwoSidesCharging() -> {
+            gos.requestedTo(currentFloor) || calls.at(currentFloor) != Calls.NONE
         }
-        else
-        {
-            return (gos.requestedTo(currentFloor)) || calls.at(currentFloor).going(commands.side) != ElevatorRequest.NONE
+        else -> {
+            gos.requestedTo(currentFloor) || calls.at(currentFloor).going(commands.side) != ElevatorRequest.NONE
         }
     }
 
@@ -63,7 +61,7 @@ public class DrissElevator(public var currentFloor: Int = 0) : Elevator {
         commands = Commands.NONE
     }
     public override fun go(to: Int): Unit {
-        var timestampedCounter: ElevatorRequest? = gos.at(to)
+        val timestampedCounter: ElevatorRequest? = gos.at(to)
         if (timestampedCounter == ElevatorRequest.NONE)
         {
             gos.add(to, ElevatorRequest())
