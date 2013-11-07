@@ -8,7 +8,7 @@ import java.util.Map;
  */
 public class UpAndDownElevator implements Elevator {
 
-    private final Map<Integer,Call> calls = new HashMap<>();
+    private final Map<Integer,Call> calls = new HashMap<Integer, Call>();
 
     private int floor = 0;
     private boolean doorsOpened = false;
