@@ -1,5 +1,6 @@
 package fr.codestory.elevator;
 
+import com.google.common.base.Stopwatch;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
@@ -9,7 +10,8 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.InetSocketAddress;
-import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Miguel Basire
@@ -19,22 +21,22 @@ public class ElevatorServer {
     private final static Logger LOG = Logger.getLogger(ElevatorServer.class);
 
     private final HttpServer httpServer;
-    private final Elevator groom;
+    private final Elevator elevator;
 
+    private final ThreadLocal<Stopwatch> stopWatch = new ThreadLocal<Stopwatch>(){
+        @Override
+        protected Stopwatch initialValue() {
+            return new Stopwatch();
+        }
+    };
 
     ElevatorServer(int port, Elevator elevator) throws IOException {
 
-        this.groom = elevator;
+        this.elevator = elevator;
 
         httpServer = HttpServer.create(new InetSocketAddress(port), 0);
 
-
-        httpServer.setExecutor(new Executor() {
-            @Override
-            public void execute(Runnable command) {
-                command.run();
-            }
-        });
+        httpServer.setExecutor(Executors.newSingleThreadExecutor());
         answerToElevatorEvent(httpServer);
     }
 
@@ -42,6 +44,8 @@ public class ElevatorServer {
         serverToConfigure.createContext("/", new HttpHandler() {
             @Override
             public void handle(HttpExchange exchange) throws IOException {
+
+                stopWatch.get().start();
 
                 String elevatorEvent = exchange.getRequestURI().getPath();
 
@@ -51,12 +55,12 @@ public class ElevatorServer {
 
                     switch (elevatorEvent) {
                         case "/nextCommand":
-                            nextMove = groom.nextMove();
+                            nextMove = elevator.nextMove();
                             break;
 
                         case "/go":
                             String to = exchange.getRequestURI().getQuery().replaceFirst("floorToGo=", "");
-                            groom.go(Integer.parseInt(to));
+                            elevator.go(Integer.parseInt(to));
                             break;
 
                         case "/reset":
@@ -65,7 +69,7 @@ public class ElevatorServer {
                             String lowerFloor = params[0].replaceFirst("lowerFloor=", "");
                             String higherFloor = params[1].replaceFirst("higherFloor=","");
 
-                            groom.reset(new BuildingDimension(Integer.parseInt(lowerFloor),Integer.parseInt(higherFloor)));
+                            elevator.reset(new BuildingDimension(Integer.parseInt(lowerFloor),Integer.parseInt(higherFloor)));
                             LOG.warn("A reset has been received: " + exchange.getRequestURI().getQuery());
                             break;
 
@@ -79,7 +83,7 @@ public class ElevatorServer {
                             params = extractParameters(exchange);
                             String at = params[0].replaceFirst("atFloor=", "");
 
-                            groom.call(Integer.parseInt(at), Elevator.Side.valueOf(params[1].replaceFirst("to=", "")));
+                            elevator.call(Integer.parseInt(at), Elevator.Side.valueOf(params[1].replaceFirst("to=", "")));
                             break;
                     }
                 } catch (Exception e) {
@@ -93,10 +97,15 @@ public class ElevatorServer {
                 out.write(nextMove);
                 exchange.sendResponseHeaders(200, nextMove.length());
                 out.close();
-            }
-        }
 
-        );
+                stopWatch.get().stop();
+                long elapsedTime = stopWatch.get().elapsed(TimeUnit.MILLISECONDS);
+                if(elapsedTime > 999){
+
+                    LOG.warn("elevator server has taken more than a second to answer: "+elapsedTime+" ms");
+                }
+            }
+        });
     }
 
     private String[] extractParameters(HttpExchange exchange) {
