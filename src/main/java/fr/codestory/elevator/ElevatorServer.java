@@ -104,6 +104,7 @@ public class ElevatorServer {
 
                     LOG.warn("elevator server has taken more than a second to answer: "+elapsedTime+" ms");
                 }
+                stopWatch.get().reset();
             }
         });
     }
