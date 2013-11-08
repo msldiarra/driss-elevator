@@ -43,7 +43,7 @@ public class DrissElevator(public var currentFloor: Int = 0, val dimension: Buil
     }
 
     private inline fun isSomeoneToTakeOrToLeave() = when {
-        commands.allowTwoSidesCharging() -> {
+        commands.isTwoSidesChargingAllowed() -> {
             gos.requestedTo(currentFloor) || calls.at(currentFloor) != Calls.NONE
         }
         else -> {
@@ -92,7 +92,7 @@ class Commands(val side: Side,
 
     var remainingCommands: Int = commands.size
 
-    public fun allowTwoSidesCharging(): Boolean = remainingCommands < 1 || commands.all { command -> commands[0] != command }
+    public fun isTwoSidesChargingAllowed(): Boolean = remainingCommands < 1 || commands.all { command -> commands[0] != command }
 
     class object {
         public val NONE: Commands = Commands(Side.UP, array())
