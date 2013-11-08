@@ -8,15 +8,15 @@ import java.util.Map;
  */
 public class UpAndDownElevator implements Elevator {
 
-    private final Map<Integer,Call> calls = new HashMap<>();
+    private final Map<Integer, Call> calls = new HashMap<>();
 
     private int floor = 0;
     private boolean doorsOpened = false;
 
     private Side currentSide = Side.UP;
 
-    private boolean[] isSomeoneLeaving = new boolean[] { false,false,false,false,false,false};
-    private BuildingDimension buildingDimension = new BuildingDimension(0,5);
+    private boolean[] isSomeoneLeaving = new boolean[]{false, false, false, false, false, false};
+    private BuildingDimension buildingDimension = new BuildingDimension(0, 5);
 
     @Override
     public String nextMove() {
@@ -26,8 +26,8 @@ public class UpAndDownElevator implements Elevator {
 
     private String goOn() {
 
-        if(currentFloor() == 0) currentSide = Side.UP;
-        if(currentFloor() == 5) currentSide = Side.DOWN;
+        if (currentFloor() == 0) currentSide = Side.UP;
+        if (currentFloor() == 5) currentSide = Side.DOWN;
 
         switch (currentSide) {
 
@@ -44,25 +44,24 @@ public class UpAndDownElevator implements Elevator {
 
     private boolean isSomeoneToTakeAtOrToLeaveAt(int floor) {
         return (calls.get(floor) != null  // someone to take
-                && ( (floor== buildingDimension.getLowerFloor() || floor== buildingDimension.getHigherFloor()) || calls.get(floor).side == currentSide))
+                && ((floor == buildingDimension.getLowerFloor() || floor == buildingDimension.getHigherFloor()) || calls.get(floor).side == currentSide))
                 || isSomeoneLeaving[floor];
     }
 
     private String openThenClose() {
-        if(doorsOpened){
+        if (doorsOpened) {
             doorsOpened = false;
-            calls.put(currentFloor(),null); // charging ended
+            calls.put(currentFloor(), null); // charging ended
             isSomeoneLeaving[currentFloor()] = false;
             return "CLOSE";
-        }else {
+        } else {
             doorsOpened = true;
             return "OPEN";
         }
     }
 
     @Override
-    public void reset(BuildingDimension buildingDimension) {
-        this.buildingDimension = buildingDimension;
+    public void reset() {
         currentSide = Side.UP;
         floor = buildingDimension.getLowerFloor();
     }
@@ -74,18 +73,18 @@ public class UpAndDownElevator implements Elevator {
 
     @Override
     public void call(int at, Side side) {
-        calls.put(at, new Call(at,side));
+        calls.put(at, new Call(at, side));
     }
 
-    int currentFloor(){
+    int currentFloor() {
         return floor;
     }
 
-    class Call{
+    class Call {
         private final int floor;
         private final Side side;
 
-        Call(int floor, Side side){
+        Call(int floor, Side side) {
             this.floor = floor;
             this.side = side;
         }

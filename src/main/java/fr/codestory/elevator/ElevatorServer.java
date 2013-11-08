@@ -21,18 +21,20 @@ public class ElevatorServer {
     private final static Logger LOG = Logger.getLogger(ElevatorServer.class);
 
     private final HttpServer httpServer;
-    private final Elevator elevator;
+    private final ElevatorFactory elevatorFactory;
+    private Elevator elevator;
 
-    private final ThreadLocal<Stopwatch> stopWatch = new ThreadLocal<Stopwatch>(){
+    private final ThreadLocal<Stopwatch> stopWatch = new ThreadLocal<Stopwatch>() {
         @Override
         protected Stopwatch initialValue() {
             return new Stopwatch();
         }
     };
 
-    ElevatorServer(int port, Elevator elevator) throws IOException {
+    ElevatorServer(int port, ElevatorFactory elevatorFactory) throws IOException {
 
-        this.elevator = elevator;
+        this.elevatorFactory = elevatorFactory;
+        this.elevator = elevatorFactory.newElevator(new BuildingDimension(0, 19)); // if the the first request is not a reset...
 
         httpServer = HttpServer.create(new InetSocketAddress(port), 0);
         httpServer.setExecutor(new Executor() {
@@ -45,9 +47,9 @@ public class ElevatorServer {
 
                 stopWatch.get().stop();
                 long elapsedTime = stopWatch.get().elapsed(TimeUnit.MILLISECONDS);
-                if(elapsedTime > 999){
+                if (elapsedTime > 999) {
 
-                    LOG.warn("Elevator server has taken more than a second to answer: "+elapsedTime+" ms");
+                    LOG.warn("Elevator server has taken more than a second to answer: " + elapsedTime + " ms");
                 }
                 stopWatch.get().reset();
             }
@@ -59,7 +61,6 @@ public class ElevatorServer {
         serverToConfigure.createContext("/", new HttpHandler() {
             @Override
             public void handle(HttpExchange exchange) throws IOException {
-
 
                 String elevatorEvent = exchange.getRequestURI().getPath();
 
@@ -78,13 +79,16 @@ public class ElevatorServer {
                             break;
 
                         case "/reset":
+                            LOG.warn("A reset has been received: " + exchange.getRequestURI().getQuery());
+
                             params = extractParameters(exchange);
 
                             String lowerFloor = params[0].replaceFirst("lowerFloor=", "");
-                            String higherFloor = params[1].replaceFirst("higherFloor=","");
+                            String higherFloor = params[1].replaceFirst("higherFloor=", "");
 
-                            elevator.reset(new BuildingDimension(Integer.parseInt(lowerFloor),Integer.parseInt(higherFloor)));
-                            LOG.warn("A reset has been received: " + exchange.getRequestURI().getQuery());
+                            BuildingDimension dimension = new BuildingDimension(Integer.parseInt(lowerFloor), Integer.parseInt(higherFloor));
+                            elevator = elevatorFactory.newElevator(dimension);
+
                             break;
 
                         case "/userHasEntered":
@@ -101,7 +105,7 @@ public class ElevatorServer {
                             break;
                     }
                 } catch (Exception e) {
-                    LOG.error("elevatorEvent "+elevatorEvent+""+e.getMessage(),e);
+                    LOG.error("elevatorEvent " + elevatorEvent + "" + e.getMessage(), e);
                     nextMove = "NOTHING";
                 }
 

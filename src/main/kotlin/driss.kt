@@ -8,7 +8,7 @@ import java.util.Enumeration
 import fr.codestory.elevator.Elevator
 import fr.codestory.elevator.BuildingDimension
 
-public class DrissElevator(public var currentFloor: Int = 0) : Elevator {
+public class DrissElevator(public var currentFloor: Int = 0, val dimension: BuildingDimension = BuildingDimension(0, 19)) : Elevator {
 
     val groom = Groom()
     val door = Door()
@@ -16,8 +16,6 @@ public class DrissElevator(public var currentFloor: Int = 0) : Elevator {
     val gos: Destinations<ElevatorRequest> = Destinations.init(ElevatorRequest.NONE)
 
     var commands = Commands.NONE
-    var building = BuildingDimension(0,19)
-
 
     public override fun nextMove(): String {
         if ( door.opened || isSomeoneToTakeOrToLeave() ) return door.toggle {
@@ -53,11 +51,11 @@ public class DrissElevator(public var currentFloor: Int = 0) : Elevator {
         }
     }
 
-    public override fun reset(buildingDimension: BuildingDimension?): Unit {
-        this.building = buildingDimension!!
+    public override fun reset(): Unit {
+
         calls.clear()
         gos.clear()
-        currentFloor = buildingDimension.getLowerFloor()
+        currentFloor = dimension.getLowerFloor()
         commands = Commands.NONE
     }
     public override fun go(to: Int): Unit {

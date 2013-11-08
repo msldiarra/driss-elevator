@@ -5,33 +5,32 @@ package fr.codestory.elevator;
  */
 public class OmnibusElevator implements Elevator {
 
-    private BuildingDimension buildingDimension = new BuildingDimension(0,19);
+    private BuildingDimension buildingDimension = new BuildingDimension(0, 19);
 
-    final String[] moves = new String[] {
-            "OPEN","CLOSE","UP",
-            "OPEN","CLOSE","UP",
-            "OPEN","CLOSE","UP",
-            "OPEN","CLOSE","UP",
-            "OPEN","CLOSE","UP",
-            "OPEN","CLOSE","DOWN",
-            "OPEN","CLOSE","DOWN",
-            "OPEN","CLOSE","DOWN",
-            "OPEN","CLOSE","DOWN",
-            "OPEN","CLOSE","DOWN"
+    final String[] moves = new String[]{
+            "OPEN", "CLOSE", "UP",
+            "OPEN", "CLOSE", "UP",
+            "OPEN", "CLOSE", "UP",
+            "OPEN", "CLOSE", "UP",
+            "OPEN", "CLOSE", "UP",
+            "OPEN", "CLOSE", "DOWN",
+            "OPEN", "CLOSE", "DOWN",
+            "OPEN", "CLOSE", "DOWN",
+            "OPEN", "CLOSE", "DOWN",
+            "OPEN", "CLOSE", "DOWN"
     };
 
     private int floor = 0;
 
     @Override
     public String nextMove() {
-        if(floor % (3*5*2) == 0) floor = buildingDimension.getLowerFloor();
-        return moves[floor++ % (3*5*2)];
+        if (floor % (3 * 5 * 2) == 0) floor = buildingDimension.getLowerFloor();
+        return moves[floor++ % (3 * 5 * 2)];
     }
 
     @Override
-    public void reset(BuildingDimension buildingDimension){
-        this.buildingDimension = buildingDimension;
-        floor= buildingDimension.getLowerFloor();
+    public void reset() {
+        floor = buildingDimension.getLowerFloor();
     }
 
     @Override

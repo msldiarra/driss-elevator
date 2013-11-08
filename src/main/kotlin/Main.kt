@@ -10,17 +10,18 @@ enum class ElevatorAlgorithm {
     DRISS
 }
 
-
-fun newElevatorCommand(algo: ElevatorAlgorithm): Elevator {
+fun factory(algo: ElevatorAlgorithm): ElevatorFactory {
     return when(algo) {
         ElevatorAlgorithm.UPANDDOWN -> {
-            UpAndDownElevator()
+            ElevatorFactory { UpAndDownElevator() }
         }
         ElevatorAlgorithm.OMNIBUS -> {
-            OmnibusElevator()
+            ElevatorFactory { OmnibusElevator() }
         }
         ElevatorAlgorithm.DRISS -> {
-            DrissElevator()
+            ElevatorFactory { buildingDimension ->
+                DrissElevator(dimension = buildingDimension as BuildingDimension);
+            }
         }
         else -> {
             throw IllegalArgumentException("Unknown algorithm")
@@ -34,11 +35,10 @@ fun main(args: Array<String>) {
     val logger = Logger.getLogger("MAIN")
 
     val port = Integer.parseInt(args.get(0))
-    val algorithm = ElevatorAlgorithm.valueOf( if (args.size > 1)  args.get(1).toUpperCase() else "DRISS")
+    val algorithm = ElevatorAlgorithm.valueOf(if (args.size > 1)  args.get(1).toUpperCase() else "DRISS")
 
     logger?.info("Loading $algorithm algorithm on port $port")
 
-    val elevator = newElevatorCommand(algorithm)
-    val server = ElevatorServer(port, elevator)
+    val server = ElevatorServer(port, factory(algorithm))
     server.listenToElevatorEvents()
 }
