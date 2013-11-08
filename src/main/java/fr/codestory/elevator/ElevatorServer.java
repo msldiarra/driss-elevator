@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.InetSocketAddress;
-import java.util.concurrent.Executors;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -35,8 +35,23 @@ public class ElevatorServer {
         this.elevator = elevator;
 
         httpServer = HttpServer.create(new InetSocketAddress(port), 0);
+        httpServer.setExecutor(new Executor() {
+            @Override
+            public void execute(Runnable command) {
 
-        httpServer.setExecutor(Executors.newSingleThreadExecutor());
+                stopWatch.get().start();
+
+                command.run();
+
+                stopWatch.get().stop();
+                long elapsedTime = stopWatch.get().elapsed(TimeUnit.MILLISECONDS);
+                if(elapsedTime > 999){
+
+                    LOG.warn("Elevator server has taken more than a second to answer: "+elapsedTime+" ms");
+                }
+                stopWatch.get().reset();
+            }
+        });
         answerToElevatorEvent(httpServer);
     }
 
@@ -45,7 +60,6 @@ public class ElevatorServer {
             @Override
             public void handle(HttpExchange exchange) throws IOException {
 
-                stopWatch.get().start();
 
                 String elevatorEvent = exchange.getRequestURI().getPath();
 
@@ -97,14 +111,6 @@ public class ElevatorServer {
                 out.write(nextMove);
                 exchange.sendResponseHeaders(200, nextMove.length());
                 out.close();
-
-                stopWatch.get().stop();
-                long elapsedTime = stopWatch.get().elapsed(TimeUnit.MILLISECONDS);
-                if(elapsedTime > 999){
-
-                    LOG.warn("elevator server has taken more than a second to answer: "+elapsedTime+" ms");
-                }
-                stopWatch.get().reset();
             }
         });
     }
