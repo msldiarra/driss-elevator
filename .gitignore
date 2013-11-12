@@ -1,8 +1,13 @@
 target/
 .idea/
 *.iml
+*.ipr
+*.iws
 .project
 .settings/
 .classpath
 .gradle/
 build/
+out/
+
+
