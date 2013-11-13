@@ -213,11 +213,11 @@ class Cabin(val capacity: Int, var peopleInside: Int = 0){
     public fun canAcceptSomeone(): Boolean = capacity > peopleInside
 
     public fun userHasEntered(): Unit {
-        peopleInside++
+        if (peopleInside < capacity) peopleInside++
     }
 
     public fun userHasExited() {
-        peopleInside--
+        if (peopleInside > 0) peopleInside--
     }
 
 }
