@@ -78,6 +78,14 @@ public class DrissElevator(public var currentFloor: Int = 0, val dimension: Buil
             }
         }
     }
+
+
+    override fun userHasEntered() {
+
+    }
+    override fun userHasExited() {
+
+    }
 }
 
 

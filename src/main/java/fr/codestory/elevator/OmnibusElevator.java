@@ -42,5 +42,15 @@ public class OmnibusElevator implements Elevator {
     public void call(int at, Side side) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
+
+    @Override
+    public void userHasEntered() {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public void userHasExited() {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
 }
 

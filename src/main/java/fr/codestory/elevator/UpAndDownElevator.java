@@ -8,7 +8,7 @@ import java.util.Map;
  */
 public class UpAndDownElevator implements Elevator {
 
-    private final Map<Integer,Call> calls = new HashMap<>();
+    private final Map<Integer, Call> calls = new HashMap<>();
 
     private int floor = 0;
     private boolean doorsOpened = false;
@@ -88,5 +88,15 @@ public class UpAndDownElevator implements Elevator {
             this.floor = floor;
             this.side = side;
         }
+    }
+
+    @Override
+    public void userHasEntered() {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public void userHasExited() {
+        //To change body of implemented methods use File | Settings | File Templates.
     }
 }

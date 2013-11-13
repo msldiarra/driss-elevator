@@ -93,9 +93,11 @@ public class ElevatorServer {
                             break;
 
                         case "/userHasEntered":
+                            elevator.userHasEntered();
                             break;
 
                         case "/userHasExited":
+                            elevator.userHasExited();
                             break;
 
                         case "/call":

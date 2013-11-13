@@ -12,5 +12,9 @@ public interface Elevator {
 
     public void call(int at, Side side);
 
+    void userHasEntered();
+
+    void userHasExited();
+
     public enum Side {UP, DOWN, UNKOWN}
 }
