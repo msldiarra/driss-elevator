@@ -16,18 +16,18 @@ fun factory(algo: ElevatorAlgorithm): ElevatorFactory {
 
     return when(algo) {
         ElevatorAlgorithm.UPANDDOWN -> {
-            ElevatorFactory { UpAndDownElevator() }
+            ElevatorFactory { buildingDimension, cabinSize -> UpAndDownElevator() }
         }
         ElevatorAlgorithm.OMNIBUS -> {
-            ElevatorFactory { OmnibusElevator() }
+            ElevatorFactory { buildingDimension, cabinSize -> OmnibusElevator() }
         }
         ElevatorAlgorithm.DRISS -> {
-            ElevatorFactory { buildingDimension ->
+            ElevatorFactory { buildingDimension, cabinSize ->
                 DrissElevator(dimension = buildingDimension as BuildingDimension);
             }
         }
-        ElevatorAlgorithm.HODOR-> {
-            ElevatorFactory { HodorElevator() }
+        ElevatorAlgorithm.HODOR -> {
+            ElevatorFactory { buildingDimension, cabinSize -> HodorElevator() }
         }
         else -> {
             throw IllegalArgumentException("Unknown algorithm")
@@ -41,7 +41,7 @@ fun main(args: Array<String>) {
     val logger = Logger.getLogger("MAIN")
 
     val port = Integer.parseInt(args.get(0))
-    val algorithm = ElevatorAlgorithm.valueOf( if (args.size > 1)  args.get(1).toUpperCase() else "DRISS")
+    val algorithm = ElevatorAlgorithm.valueOf(if (args.size > 1)  args.get(1).toUpperCase() else "DRISS")
 
     logger?.info("Loading $algorithm algorithm on port $port")
 

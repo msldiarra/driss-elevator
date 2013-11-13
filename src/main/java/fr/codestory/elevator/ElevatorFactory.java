@@ -5,5 +5,5 @@ package fr.codestory.elevator;
  */
 public interface ElevatorFactory {
 
-    Elevator newElevator(BuildingDimension dimension);
+    Elevator newElevator(BuildingDimension dimension, Integer cabinSize);
 }
