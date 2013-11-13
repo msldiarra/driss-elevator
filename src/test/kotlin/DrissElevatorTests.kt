@@ -1,34 +1,52 @@
-
 package fr.codestory.elevator;
 
 import org.junit.Test as test
 import org.assertj.core.api.Assertions.assertThat
 import fr.codestory.elevator.driss.DrissElevator
+import fr.codestory.elevator.driss.Cabin
+import fr.codestory.elevator.Elevator.Side
 
 class DrissElevatorTests {
 
 
-    test fun go_should_increment_number_of_request_at_floor(){
+    test fun go_should_increment_number_of_request_at_floor() {
 
-        val cabin = DrissElevator()
+        val elevator = DrissElevator()
 
-        cabin.go(1)
+        elevator.go(1)
 
-        assertThat(cabin.gos.at(1).number)!!.isEqualTo(1)
+        assertThat(elevator.gos.at(1).number)!!.isEqualTo(1)
 
-        cabin.go(1)
+        elevator.go(1)
 
-        assertThat(cabin.gos.at(1).number)!!.isEqualTo(2)
+        assertThat(elevator.gos.at(1).number)!!.isEqualTo(2)
     }
 
 
-    test fun go_should_increment_only_request_at_its_floor(){
+    test fun go_should_increment_only_request_at_its_floor() {
 
-        val cabin = DrissElevator()
+        val elevator = DrissElevator()
 
-        cabin.go(1)
+        elevator.go(1)
 
-        assertThat(cabin.gos.at(1).number)!!.isEqualTo(1)
-        assertThat(cabin.gos.at(2).number)!!.isEqualTo(0)
+        assertThat(elevator.gos.at(1).number)!!.isEqualTo(1)
+        assertThat(elevator.gos.at(2).number)!!.isEqualTo(0)
+    }
+
+    test fun go_not_take_someone_if_cabin_is_full() {
+
+        val elevator = DrissElevator(currentFloor = 0, cabin = Cabin(1, 1))
+
+        elevator.call(1, Side.UP)
+        elevator.go(2)
+
+        assertThat(elevator.nextMove())!!.isEqualTo("UP")
+        assertThat(elevator.nextMove())!!.isEqualTo("UP")
+        assertThat(elevator.nextMove())!!.isEqualTo("OPEN")
+        assertThat(elevator.nextMove())!!.isEqualTo("CLOSE")
+        elevator.userHasExited()
+        assertThat(elevator.nextMove())!!.isEqualTo("DOWN")
+        assertThat(elevator.nextMove())!!.isEqualTo("OPEN")
+        assertThat(elevator.nextMove())!!.isEqualTo("CLOSE")
     }
 }

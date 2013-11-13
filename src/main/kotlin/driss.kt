@@ -8,7 +8,7 @@ import java.util.Enumeration
 import fr.codestory.elevator.Elevator
 import fr.codestory.elevator.BuildingDimension
 
-public class DrissElevator(public var currentFloor: Int = 0, val dimension: BuildingDimension = BuildingDimension(0, 19), val cabinSize: Int = 20) : Elevator {
+public class DrissElevator(public var currentFloor: Int = 0, val dimension: BuildingDimension = BuildingDimension(0, 19), val cabin: Cabin = Cabin(20)) : Elevator {
 
     val groom = Groom()
     val door = Door()
@@ -44,10 +44,10 @@ public class DrissElevator(public var currentFloor: Int = 0, val dimension: Buil
 
     private inline fun isSomeoneToTakeOrToLeave() = when {
         commands.isTwoSidesChargingAllowed() -> {
-            gos.requestedTo(currentFloor) || calls.at(currentFloor) != Calls.NONE
+            gos.requestedTo(currentFloor) || (cabin.canAcceptSomeone() && calls.at(currentFloor) != Calls.NONE)
         }
         else -> {
-            gos.requestedTo(currentFloor) || calls.at(currentFloor).going(commands.side) != ElevatorRequest.NONE
+            gos.requestedTo(currentFloor) || (cabin.canAcceptSomeone() && calls.at(currentFloor).going(commands.side) != ElevatorRequest.NONE)
         }
     }
 
@@ -81,10 +81,10 @@ public class DrissElevator(public var currentFloor: Int = 0, val dimension: Buil
 
 
     override fun userHasEntered() {
-
+        cabin.userHasEntered()
     }
     override fun userHasExited() {
-
+        cabin.userHasExited()
     }
 }
 
@@ -207,4 +207,18 @@ enum class MoveCommand {
         else -> MoveCommand.NOTHING }
 }
 
+
+class Cabin(val capacity: Int, var peopleInside: Int = 0){
+
+    public fun canAcceptSomeone(): Boolean = capacity > peopleInside
+
+    public fun userHasEntered(): Unit {
+        peopleInside++
+    }
+
+    public fun userHasExited() {
+        peopleInside--
+    }
+
+}
 

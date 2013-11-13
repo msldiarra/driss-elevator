@@ -3,6 +3,7 @@ package fr.codestory.elevator
 import org.apache.log4j.Logger
 import fr.codestory.elevator.driss.DrissElevator
 import fr.codestory.elevator.hodor.HodorElevator
+import fr.codestory.elevator.driss.Cabin
 
 
 enum class ElevatorAlgorithm {
@@ -24,7 +25,7 @@ fun factory(algo: ElevatorAlgorithm): ElevatorFactory {
         ElevatorAlgorithm.DRISS -> {
             ElevatorFactory { buildingDimension, cabinSize ->
                 DrissElevator(dimension = buildingDimension as BuildingDimension,
-                        cabinSize = cabinSize as Int);
+                        cabin = Cabin(cabinSize as Int));
             }
         }
         ElevatorAlgorithm.HODOR -> {
