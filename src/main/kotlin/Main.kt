@@ -23,7 +23,8 @@ fun factory(algo: ElevatorAlgorithm): ElevatorFactory {
         }
         ElevatorAlgorithm.DRISS -> {
             ElevatorFactory { buildingDimension, cabinSize ->
-                DrissElevator(dimension = buildingDimension as BuildingDimension);
+                DrissElevator(dimension = buildingDimension as BuildingDimension,
+                        cabinSize = cabinSize as Int);
             }
         }
         ElevatorAlgorithm.HODOR -> {
