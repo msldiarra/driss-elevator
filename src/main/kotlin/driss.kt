@@ -43,11 +43,14 @@ public class DrissElevator(public var currentFloor: Int = 0, val dimension: Buil
     }
 
     private inline fun isSomeoneToTakeOrToLeave() = when {
+        gos.requestedTo(currentFloor) -> {
+            true
+        }
         commands.isTwoSidesChargingAllowed() -> {
-            gos.requestedTo(currentFloor) || (cabin.canAcceptSomeone() && calls.at(currentFloor) != Calls.NONE)
+            (cabin.canAcceptSomeone() && calls.at(currentFloor) != Calls.NONE)
         }
         else -> {
-            gos.requestedTo(currentFloor) || (cabin.canAcceptSomeone() && calls.at(currentFloor).going(commands.side) != ElevatorRequest.NONE)
+            (cabin.canAcceptSomeone() && calls.at(currentFloor).going(commands.side) != ElevatorRequest.NONE)
         }
     }
 
