@@ -2,7 +2,6 @@ package fr.codestory.elevator.order
 
 import fr.codestory.elevator.Elevator
 import java.util.Date
-import java.util.ArrayList
 import java.util.TreeMap
 import java.util.SortedMap
 import fr.codestory.elevator.Elevator.Side
@@ -13,7 +12,9 @@ import java.lang.Math.*
  */
 class Destinations<T>(private val destinations: SortedMap<Int, T>, private val noneValue: T) : Iterable<T> {
 
-    public fun add(floor: Int, value: T): Unit  {  destinations.put(floor, value)  }
+    public fun add(floor: Int, value: T): Unit {
+        destinations.put(floor, value)
+    }
 
     public fun clear(): Unit = destinations.clear()
 
@@ -38,6 +39,23 @@ class Destinations<T>(private val destinations: SortedMap<Int, T>, private val n
     public fun isEmpty(): Boolean = destinations.isEmpty()
 
     public override fun iterator(): Iterator<T> = destinations.values().iterator()
+
+    public fun nearestFloorFrom(here: Int): Int =
+            destinations.keySet().fold(here) { nearest, floor ->
+                val previousDistance = abs(nearest - here)
+                when {
+                    previousDistance == 0 -> {
+                        floor
+                    }
+                    previousDistance > abs(floor - here) -> {
+                        floor
+                    }
+                    else -> {
+                        nearest
+                    }
+                }
+            }
+
 
     public fun distanceToFarthestFloorFrom(floor: Int): Int =
             if (destinations.keySet().isEmpty()) 0

@@ -7,6 +7,7 @@ import fr.codestory.elevator.order.Calls
 import java.util.Enumeration
 import fr.codestory.elevator.Elevator
 import fr.codestory.elevator.BuildingDimension
+import java.lang.Math.*
 
 public class DrissElevator(public var currentFloor: Int = 0, val dimension: BuildingDimension = BuildingDimension(0, 19), val cabin: Cabin = Cabin(20)) : Elevator {
 
@@ -116,21 +117,18 @@ class Groom {
         if ((calls.isEmpty()) && gos.isEmpty())
             return Commands.NONE
 
-        val callsAbove = calls.above(currentFloor)
-        val callsBelow = calls.below(currentFloor)
         val gosAbove = gos.above(currentFloor)
         val gosBelow = gos.below(currentFloor)
 
         return when {
-            gos.isEmpty() && numberOf(callsBelow) > numberOf(callsAbove) -> {
+            gos.isEmpty() -> {
 
-                val distance = callsBelow.distanceToNearestFloorFrom(currentFloor)
-                Commands(Side.DOWN, MoveCommand.DOWN.times(distance))
-            }
+                val nearestFloor = calls.nearestFloorFrom(currentFloor)
 
-            gos.isEmpty() && numberOf(callsBelow) <= numberOf(callsAbove) -> {
-                val distance: Int = callsAbove.distanceToNearestFloorFrom(currentFloor)
-                Commands(Side.UP, MoveCommand.UP.times(distance))
+                if (currentFloor < nearestFloor)
+                    Commands(Side.UP, MoveCommand.UP.times(abs(nearestFloor - currentFloor)))
+                else
+                    Commands(Side.DOWN, MoveCommand.DOWN.times(abs(nearestFloor - currentFloor)))
             }
 
             sumOf(gosAbove) > sumOf(gosBelow) -> {

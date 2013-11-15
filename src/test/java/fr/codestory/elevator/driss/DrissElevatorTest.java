@@ -84,7 +84,7 @@ public class DrissElevatorTest {
 
         DrissElevator groom = new DrissElevator(3, new BuildingDimension(0, 19), new Cabin(5, 0));
 
-        groom.call(2, Elevator.Side.DOWN);
+        groom.call(1, Elevator.Side.DOWN);
         groom.call(4, Elevator.Side.DOWN);
 
         assertThat(groom.nextMove()).isEqualTo("UP");
@@ -96,13 +96,8 @@ public class DrissElevatorTest {
 
         assertThat(groom.nextMove()).isEqualTo("DOWN");
         assertThat(groom.nextMove()).isEqualTo("DOWN");
-        assertThat(groom.getCurrentFloor()).isEqualTo(2);
-        assertThat(groom.nextMove()).isEqualTo("OPEN");
-        groom.go(1);
-        assertThat(groom.nextMove()).isEqualTo("CLOSE");
-
         assertThat(groom.nextMove()).isEqualTo("DOWN");
-
+        assertThat(groom.getCurrentFloor()).isEqualTo(1);
         assertThat(groom.nextMove()).isEqualTo("OPEN");
         assertThat(groom.nextMove()).isEqualTo("CLOSE");
 

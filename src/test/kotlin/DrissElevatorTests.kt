@@ -49,4 +49,38 @@ class DrissElevatorTests {
         assertThat(elevator.nextMove())!!.isEqualTo("OPEN")
         assertThat(elevator.nextMove())!!.isEqualTo("CLOSE")
     }
+
+    test fun should_not_go_beyond_building_limit_on_call() {
+
+        val elevator = DrissElevator(currentFloor = 0, cabin = Cabin(1, 0), dimension = BuildingDimension(0, 1))
+
+        elevator.call(1, Side.DOWN)
+
+        assertThat(elevator.nextMove())!!.isEqualTo("UP")
+        assertThat(elevator.nextMove())!!.isEqualTo("OPEN")
+        assertThat(elevator.nextMove())!!.isEqualTo("CLOSE")
+        assertThat(elevator.nextMove())!!.isEqualTo("NOTHING")
+    }
+
+    test fun should_not_go_beyond_building_limit_on_go() {
+
+        val elevator = DrissElevator(currentFloor = 0, cabin = Cabin(1, 0), dimension = BuildingDimension(0, 1))
+
+        elevator.go(1)
+
+        assertThat(elevator.nextMove())!!.isEqualTo("UP")
+        assertThat(elevator.nextMove())!!.isEqualTo("OPEN")
+        assertThat(elevator.nextMove())!!.isEqualTo("CLOSE")
+        assertThat(elevator.nextMove())!!.isEqualTo("NOTHING")
+    }
+
+    test fun should_go_up_before_down() {
+
+        val elevator = DrissElevator(currentFloor = 0, cabin = Cabin(1, 0), dimension = BuildingDimension(-3, 8))
+
+        elevator.call(-3, Side.UP)
+        elevator.call(8, Side.DOWN)
+
+        assertThat(elevator.nextMove())!!.isEqualTo("DOWN")
+    }
 }
