@@ -32,25 +32,6 @@ class Commands (val calls: List<CallRequest> = Collections.emptyList() , val des
 
         return destinations;
     }
-}
-
-
-class Move(){
-
-    final val UP : String = "UP"
-    final val DOWN : String = "DOWN"
-    final val NOTHING : String = "NOTHING"
-    final val OPEN : String = "OPEN"
-    final val CLOSED : String = "CLOSED"
-
-    class Doors() {
-
-        fun open() {}
-        fun close() {}
-
-        fun areOpen() : Boolean  { return false}
-        fun areClosed() : Boolean  { return false}
-    }
 }*/
 
 
