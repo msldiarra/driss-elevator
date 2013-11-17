@@ -3,7 +3,7 @@ package fr.codestory.elevator
 import org.apache.log4j.Logger
 import fr.codestory.elevator.driss.DrissElevator
 import fr.codestory.elevator.hodor.HodorElevator
-import fr.codestory.elevator.driss.Cabin
+import fr.codestory.elevator.Cabin
 
 
 enum class ElevatorAlgorithm {

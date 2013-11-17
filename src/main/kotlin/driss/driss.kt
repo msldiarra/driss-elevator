@@ -10,6 +10,7 @@ import fr.codestory.elevator.BuildingDimension
 import java.lang.Math.*
 import fr.codestory.elevator.order.destinations
 import fr.codestory.elevator.order.calls
+import fr.codestory.elevator.Cabin
 
 public class DrissElevator(public var currentFloor: Int = 0, val dimension: BuildingDimension = BuildingDimension(0, 19), val cabin: Cabin = Cabin(20)) : Elevator {
 
@@ -208,20 +209,5 @@ enum class MoveCommand {
         MoveCommand.DOWN -> MoveCommand.UP
         MoveCommand.UP -> MoveCommand.DOWN
         else -> MoveCommand.NOTHING }
-}
-
-
-class Cabin(val capacity: Int, var peopleInside: Int = 0){
-
-    public fun canAcceptSomeone(): Boolean = capacity > peopleInside
-
-    public fun userHasEntered(): Unit {
-        if (peopleInside < capacity) peopleInside++
-    }
-
-    public fun userHasExited() {
-        if (peopleInside > 0) peopleInside--
-    }
-
 }
 

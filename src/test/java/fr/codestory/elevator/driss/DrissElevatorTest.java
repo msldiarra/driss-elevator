@@ -1,6 +1,7 @@
 package fr.codestory.elevator.driss;
 
 import fr.codestory.elevator.BuildingDimension;
+import fr.codestory.elevator.Cabin;
 import fr.codestory.elevator.Elevator;
 import org.junit.Test;
 

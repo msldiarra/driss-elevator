@@ -2,7 +2,7 @@ package fr.codestory.elevator
 
 
 import org.junit.Test as test
-import fr.codestory.elevator.driss.Cabin
+import fr.codestory.elevator.Cabin
 import org.assertj.core.api.Assertions.assertThat
 
 

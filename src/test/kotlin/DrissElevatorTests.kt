@@ -3,7 +3,7 @@ package fr.codestory.elevator;
 import org.junit.Test as test
 import org.assertj.core.api.Assertions.assertThat
 import fr.codestory.elevator.driss.DrissElevator
-import fr.codestory.elevator.driss.Cabin
+import fr.codestory.elevator.Cabin
 import fr.codestory.elevator.Elevator.Side
 
 class DrissElevatorTests {
