@@ -7,6 +7,9 @@ import java.util.SortedMap
 import fr.codestory.elevator.Elevator.Side
 import java.lang.Math.*
 
+
+public fun destinations<T>(noneValue: T): Destinations<T> = Destinations(TreeMap<Int, T>(), noneValue)
+
 /**
  * @author Miguel Basire
  */
@@ -74,12 +77,18 @@ class Destinations<T>(private val destinations: SortedMap<Int, T>, private val n
 
                 min(abs(floor - lastFloor), abs(floor - firstFloor))
             }
+}
 
-    class object {
-        public open fun init<T>(noneValue: T): Destinations<T> {
-            val __ = Destinations(TreeMap<Int, T>(), noneValue)
-            return __
-        }
+
+public fun calls(side: Side): Calls = when(side) {
+    Side.UP -> {
+        Calls(ElevatorRequest(1), ElevatorRequest.NONE)
+    }
+    Side.DOWN -> {
+        Calls(ElevatorRequest.NONE, ElevatorRequest(1))
+    }
+    else -> {
+        Calls.NONE
     }
 }
 
@@ -116,21 +125,6 @@ class Calls(var up: ElevatorRequest, var  down: ElevatorRequest) {
 
     class object {
         public val NONE: Calls = Calls(ElevatorRequest.NONE, ElevatorRequest.NONE)
-
-        public fun create(side: Side): Calls = when(side) {
-            Side.UP -> {
-                goingUp()
-            }
-            Side.DOWN -> {
-                goingDown()
-            }
-            else -> {
-                NONE
-            }
-        }
-
-        private  fun goingUp() = Calls(ElevatorRequest(1), ElevatorRequest.NONE)
-        private  fun goingDown() = Calls(ElevatorRequest.NONE, ElevatorRequest(1))
     }
 }
 

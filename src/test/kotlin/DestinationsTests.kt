@@ -8,7 +8,7 @@ class DestinationsTests {
 
     test public fun distanceToNearestFloor_with_two_positive_floor() {
 
-        val destinations = Destinations.init(Unit.VALUE)
+        val destinations = destinations(Unit.VALUE)
 
         destinations.add(1, Unit.VALUE)
         destinations.add(2, Unit.VALUE)
@@ -18,7 +18,7 @@ class DestinationsTests {
 
     test public fun distanceToNearestFloor_with_ont_positive_floor() {
 
-        val destinations = Destinations.init(Unit.VALUE)
+        val destinations = destinations(Unit.VALUE)
 
         destinations.add(2, Unit.VALUE)
 
@@ -27,14 +27,14 @@ class DestinationsTests {
 
     test public fun distanceToNearestFloor_with_nothing_at_any_floor() {
 
-        val destinations = Destinations.init(Unit.VALUE)
+        val destinations = destinations(Unit.VALUE)
 
         assertThat(destinations.distanceToNearestFloorFrom(0))!!.isEqualTo(0)
     }
 
     test public fun distanceToNearestFloor_with_a_negative_floor() {
 
-        val destinations = Destinations.init(Unit.VALUE)
+        val destinations = destinations(Unit.VALUE)
 
         destinations.add(-3, Unit.VALUE)
 
@@ -43,7 +43,7 @@ class DestinationsTests {
 
     test public fun distanceToNearestFloor_with_a_negative_and_positive_floors() {
 
-        val destinations = Destinations.init(Unit.VALUE)
+        val destinations = destinations(Unit.VALUE)
 
         destinations.add(-3, Unit.VALUE)
         destinations.add(8, Unit.VALUE)
@@ -54,7 +54,7 @@ class DestinationsTests {
 
     test public fun nearest_should_give_the_nearest_negative_floor() {
 
-        val destinations = Destinations.init(Unit.VALUE)
+        val destinations = destinations(Unit.VALUE)
 
         destinations.add(-3, Unit.VALUE)
         destinations.add(8, Unit.VALUE)
@@ -64,7 +64,7 @@ class DestinationsTests {
 
     test public fun nearest_should_give_the_nearest_downside_on_equality() {
 
-        val destinations = Destinations.init(Unit.VALUE)
+        val destinations = destinations(Unit.VALUE)
 
         destinations.add(1, Unit.VALUE)
         destinations.add(3, Unit.VALUE)
@@ -74,7 +74,7 @@ class DestinationsTests {
 
     test public fun nearest_should_give_the_nearest_positive_floor() {
 
-        val destinations = Destinations.init(Unit.VALUE)
+        val destinations = destinations(Unit.VALUE)
 
         destinations.add(3, Unit.VALUE)
         destinations.add(8, Unit.VALUE)
@@ -84,7 +84,7 @@ class DestinationsTests {
 
     test public fun nearest_should_give_itself_when_no_floor_registered() {
 
-        val destinations = Destinations.init(Unit.VALUE)
+        val destinations = destinations(Unit.VALUE)
 
         assertThat(destinations.nearestFloorFrom(1))!!.isEqualTo(1)
     }

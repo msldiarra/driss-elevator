@@ -8,13 +8,15 @@ import java.util.Enumeration
 import fr.codestory.elevator.Elevator
 import fr.codestory.elevator.BuildingDimension
 import java.lang.Math.*
+import fr.codestory.elevator.order.destinations
+import fr.codestory.elevator.order.calls
 
 public class DrissElevator(public var currentFloor: Int = 0, val dimension: BuildingDimension = BuildingDimension(0, 19), val cabin: Cabin = Cabin(20)) : Elevator {
 
     val groom = Groom()
     val door = Door()
-    val calls: Destinations<Calls> = Destinations.init(Calls.NONE)
-    val gos: Destinations<ElevatorRequest> = Destinations.init(ElevatorRequest.NONE)
+    val calls: Destinations<Calls> = destinations(Calls.NONE)
+    val gos: Destinations<ElevatorRequest> = destinations(ElevatorRequest.NONE)
 
     var commands = Commands.NONE
 
@@ -76,7 +78,7 @@ public class DrissElevator(public var currentFloor: Int = 0, val dimension: Buil
     public override fun call(at: Int, side: Side?): Unit {
         val callsAtFloor = calls.at(at)
         when(callsAtFloor) {
-            Calls.NONE -> calls.add(at, Calls.create(side as Side))
+            Calls.NONE -> calls.add(at, calls(side as Side))
             else -> {
                 callsAtFloor.increase(side)
             }
