@@ -385,7 +385,7 @@ class HodorElevatorTests {
         assertThat(elevator.nextMove())?.isEqualTo(Command.DOWN.name())
     }
 
-    test fun call_at_upper_floors_before_destination_should_induce_stops_when_user_exits(){
+/*    test fun call_at_upper_floors_before_destination_should_induce_stops_when_user_exits(){
 
         val elevator = HodorElevator();
 
@@ -410,6 +410,101 @@ class HodorElevatorTests {
         assertThat(elevator.nextMove())?.isEqualTo(Command.UP.name())
         assertThat(elevator.nextMove())?.isEqualTo(Command.OPEN.name())
         elevator.userHasExited()
+        assertThat(elevator.nextMove())?.isEqualTo(Command.CLOSE.name())
+    }*/
+
+    test fun do_not_stop_at_floor_when_cabin_is_full_and_no_one_is_leaving(){
+
+        val elevator = HodorElevator();
+
+        elevator.userHasEntered()
+        elevator.userHasEntered()
+
+        elevator.go(4)
+        elevator.go(5)
+        elevator.call(3, Side.UP)
+
+        assertThat(elevator.nextMove())?.isEqualTo(Command.UP.name())
+        assertThat(elevator.nextMove())?.isEqualTo(Command.UP.name())
+        assertThat(elevator.nextMove())?.isEqualTo(Command.UP.name())
+        assertThat(elevator.nextMove())?.isEqualTo(Command.UP.name())
+        assertThat(elevator.nextMove())?.isEqualTo(Command.OPEN.name())
+        elevator.userHasExited()
+        elevator.userHasEntered()
+        elevator.go(1)
+        assertThat(elevator.nextMove())?.isEqualTo(Command.CLOSE.name())
+        assertThat(elevator.nextMove())?.isEqualTo(Command.UP.name())
+        assertThat(elevator.nextMove())?.isEqualTo(Command.OPEN.name())
+        elevator.userHasExited()
+        elevator.userHasEntered()
+        elevator.go(1)
+        assertThat(elevator.nextMove())?.isEqualTo(Command.CLOSE.name())
+        assertThat(elevator.nextMove())?.isEqualTo(Command.DOWN.name())
+        assertThat(elevator.nextMove())?.isEqualTo(Command.DOWN.name())
+        assertThat(elevator.nextMove())?.isEqualTo(Command.DOWN.name())
+        assertThat(elevator.nextMove())?.isEqualTo(Command.DOWN.name())
+        assertThat(elevator.nextMove())?.isEqualTo(Command.OPEN.name())
+        elevator.userHasExited()
+        elevator.userHasExited()
+        assertThat(elevator.nextMove())?.isEqualTo(Command.CLOSE.name())
+        assertThat(elevator.nextMove())?.isEqualTo(Command.UP.name())
+        assertThat(elevator.nextMove())?.isEqualTo(Command.UP.name())
+        assertThat(elevator.nextMove())?.isEqualTo(Command.OPEN.name())
+        elevator.userHasExited()
+        assertThat(elevator.nextMove())?.isEqualTo(Command.CLOSE.name())
+
+
+
+    }
+
+/*    test fun should_not_take_when_full_and_going_down(){
+
+        val elevator = HodorElevator(5)
+
+        elevator.call(3, Side.DOWN)
+        elevator.call(4, Side.DOWN)
+
+        assertThat(elevator.nextMove())?.isEqualTo(Command.DOWN.name())
+        assertThat(elevator.nextMove())?.isEqualTo(Command.OPEN.name())
+        elevator.userHasEntered()
+        elevator.go(0)
+        assertThat(elevator.nextMove())?.isEqualTo(Command.CLOSE.name())
+        assertThat(elevator.nextMove())?.isEqualTo(Command.DOWN.name())
+        assertThat(elevator.nextMove())?.isEqualTo(Command.OPEN.name())
+        elevator.go(0)
+        elevator.call(0, Side.DOWN)
+        assertThat(elevator.nextMove())?.isEqualTo(Command.CLOSE.name())
+        assertThat(elevator.nextMove())?.isEqualTo(Command.DOWN.name())
+        assertThat(elevator.nextMove())?.isEqualTo(Command.DOWN.name())
+        assertThat(elevator.nextMove())?.isEqualTo(Command.DOWN.name())
+
+
+    }*/
+
+    test fun do_not_go_up_when_doors_are_open(){
+
+        val elevator = HodorElevator();
+
+        elevator.call(0, Side.UP)
+        elevator.call(0, Side.UP)
+        assertThat(elevator.nextMove())?.isEqualTo(Command.OPEN.name())
+        elevator.userHasEntered()
+        elevator.go(2)
+        elevator.userHasEntered()
+        elevator.go(1)
+        elevator.call(3, Side.UP)
+        assertThat(elevator.nextMove())?.isEqualTo(Command.CLOSE.name())
+        assertThat(elevator.nextMove())?.isEqualTo(Command.UP.name())
+        assertThat(elevator.nextMove())?.isEqualTo(Command.OPEN.name())
+        elevator.userHasExited()
+        assertThat(elevator.nextMove())?.isEqualTo(Command.CLOSE.name())
+        assertThat(elevator.nextMove())?.isEqualTo(Command.UP.name())
+        assertThat(elevator.nextMove())?.isEqualTo(Command.OPEN.name())
+        elevator.userHasExited()
+        assertThat(elevator.nextMove())?.isEqualTo(Command.CLOSE.name())
+        assertThat(elevator.nextMove())?.isEqualTo(Command.UP.name())
+        assertThat(elevator.nextMove())?.isEqualTo(Command.OPEN.name())
+        elevator.userHasEntered()
         assertThat(elevator.nextMove())?.isEqualTo(Command.CLOSE.name())
     }
 

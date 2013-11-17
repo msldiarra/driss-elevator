@@ -15,6 +15,7 @@ import java.util.HashMap
 import java.util.List
 import fr.codestory.elevator.BuildingDimension
 import fr.codestory.elevator.hodor.HodorElevator.Command
+import java.util.Iterator
 
 class HodorElevator(public var currentFloor: Int = 0, val dimension: BuildingDimension = BuildingDimension(0, 19), val cabinSize: Int = 2) : Elevator {
 
@@ -38,8 +39,25 @@ class HodorElevator(public var currentFloor: Int = 0, val dimension: BuildingDim
         when {
             !(gos.any { g -> to == g.floor } || calls.any { c -> to == c.floor }) -> {
                 gos.add(GoRequest(to))
-                commandsForGo(to)
-                moves.put(to, commands?.toList() as ArrayList<Command>)
+
+
+                if(usersInCabin >= cabinSize) {
+                    // remove from moves all non-go commands
+                    val callToRemove = calls.iterator().dropWhile { c -> gos.contains(c.floor) }
+                    var it = callToRemove.iterator()
+                    while (it.hasNext()){
+                        val call = it.next()
+                        if(moves.get(call.floor)?.get(0) !=  Command.CLOSE) // if doors are closing do not remove door close
+                            moves.remove(call.floor)
+                    }
+
+                }
+
+                commands = commandsForGo(to)
+
+                if(commands != null ) {
+                    moves.put(to, commands?.toList() as ArrayList<Command>?)
+                }
             }
         }
     }
@@ -52,8 +70,7 @@ class HodorElevator(public var currentFloor: Int = 0, val dimension: BuildingDim
 
                 calls.add(CallRequest(at, side))
 
-                if((someoneLivingBeforeCalledFloor(at, side) && nextCommandInSameWay(at, side)  && usersInCabin + userToEnterOnRoad <= cabinSize )
-                    || usersInCabin < cabinSize) {
+                if(( someoneLivingBeforeCalledFloor(at, side) && usersInCabin + userToEnterOnRoad <= cabinSize ) || usersInCabin < cabinSize) {
 
                     commands = commandsForCall(at, side)
                     // There is no command for floor if user is taken in current destination
@@ -69,9 +86,9 @@ class HodorElevator(public var currentFloor: Int = 0, val dimension: BuildingDim
     private fun someoneLivingBeforeCalledFloor(at: Int, side: Side?): Boolean{
 
         return (moves.entrySet().iterator().hasNext()) &&
-          ((way == Going.UP &&  side ==  Side.UP && at >= moves.entrySet().iterator().next().getKey())
+          ((way == Going.UP &&  side ==  Side.UP && at >= getNextDestinationFloor(moves))
           ||
-          (way == Going.DOWN &&  side ==  Side.DOWN && at <= moves.entrySet().iterator().next().getKey()))
+          (way == Going.DOWN &&  side ==  Side.DOWN && at <= getNextDestinationFloor(moves)))
     }
 
     private fun nextCommandInSameWay(at: Int, side: Side?) : Boolean {
@@ -81,13 +98,14 @@ class HodorElevator(public var currentFloor: Int = 0, val dimension: BuildingDim
                ((moves.entrySet().iterator().drop(1).first?.key as Int) < at && side == Side.DOWN))
     }
 
-    private fun noNextCommand() : Boolean{
+    private fun noNextCommand() : Boolean {
         return moves.entrySet().iterator().drop(1) == null;
     }
 
     override fun userHasEntered() {
 
         usersInCabin++
+
     }
 
     override fun userHasExited() {
@@ -98,7 +116,9 @@ class HodorElevator(public var currentFloor: Int = 0, val dimension: BuildingDim
 
         if(!calls.isEmpty() && moves.get(calls.get(0).floor) == null) {
             commands = commandsForCall(calls.get(0).floor, calls.get(0).side)
-            moves.put(calls.get(0).floor , commands?.toList() as ArrayList<Command>)
+            if(commands != null ) {
+                moves.put(calls.get(0).floor , commands?.toList() as ArrayList<Command>?)
+            }
         }
 
     }
@@ -140,7 +160,6 @@ class HodorElevator(public var currentFloor: Int = 0, val dimension: BuildingDim
                     // To know if all users has entered you have to register all calls at floor or count calls at one floor (maybe better)
                     Iterables.removeIf(calls, { c -> c?.floor == currentFloor}) // allow registering calls at this floor again
                     userEnteredOnRoadHasExited()
-                    usersInCabin--
                 }
             }
         }
@@ -157,9 +176,7 @@ class HodorElevator(public var currentFloor: Int = 0, val dimension: BuildingDim
 
         var commands : Array<Command>? = null
 
-        var nextDestinationFloor =  0
-
-        if(!moves.isEmpty()) nextDestinationFloor = moves.entrySet().iterator().next().getKey()
+        val nextDestinationFloor =  getNextDestinationFloor(moves)
 
         when {
 
@@ -170,12 +187,12 @@ class HodorElevator(public var currentFloor: Int = 0, val dimension: BuildingDim
                 userToEnterOnRoad++
             }
 
-            (side == Side.UP && way == Going.UP && nextDestinationFloor > currentFloor && currentFloor <= at && at >= nextDestinationFloor) -> {
+            /*(side == Side.UP && way == Going.UP && nextDestinationFloor > currentFloor && currentFloor <= at && at >= nextDestinationFloor) -> {
 
                 val floorsToGo = at - nextDestinationFloor
                 addStopAfter(at, nextDestinationFloor, floorsToGo, Command.UP)
                 userToEnterOnRoad++
-            }
+            }*/
 
             (side == Side.DOWN && way == Going.DOWN && nextDestinationFloor < currentFloor && currentFloor >= at && at >= nextDestinationFloor  ) -> {
 
@@ -184,12 +201,12 @@ class HodorElevator(public var currentFloor: Int = 0, val dimension: BuildingDim
                 userToEnterOnRoad++
             }
 
-            (side == Side.DOWN && way == Going.DOWN && nextDestinationFloor < currentFloor && currentFloor >= at && at <= nextDestinationFloor  ) -> {
+            /*(side == Side.DOWN && way == Going.DOWN && nextDestinationFloor < currentFloor && currentFloor >= at && at <= nextDestinationFloor  ) -> {
 
                 val floorsToGo = currentFloor - at
                 addStopAfter(at, nextDestinationFloor ,floorsToGo, Command.DOWN)
                 userToEnterOnRoad++
-            }
+            }*/
 
             else -> {
 
@@ -208,22 +225,89 @@ class HodorElevator(public var currentFloor: Int = 0, val dimension: BuildingDim
 
     }
 
-    private fun commandsForGo(to: Int){
+    private fun getNextDestinationFloor(moves : LinkedHashMap<Int, ArrayList<Command>?>) : Int {
 
-        var lastFloor = currentFloor
+        var nextDestinationFloor =  0
 
         if(!moves.isEmpty()) {
-            val keys = moves.keySet();
-            lastFloor = keys.reverse().first()
+
+            val it = moves.entrySet().iterator()
+            // if door is opened next destination it key 1 in map
+            val nextCommand = it.next().getValue()?.get(0) as Command
+
+            if(nextCommand ==  Command.CLOSE && moves.size() >= 2) {
+                nextDestinationFloor = it.next().getKey()
+            }
+            else {
+                // we take next commands as nextDestination key
+
+                nextDestinationFloor = moves.entrySet().iterator().next().getKey()
+            }
+
+
         }
 
-        commands = Commands(lastFloor).go(to)
+        return nextDestinationFloor as Int
+    }
+
+    private fun commandsForGo(to: Int) : Array<Command>?{
+
+        var commands : Array<Command>? = null
+
+        val nextDestinationFloor =  getNextDestinationFloor(moves)
+
+        when {
+
+            (way == Going.UP && nextDestinationFloor > currentFloor && currentFloor <= to && to <= nextDestinationFloor) -> {
+
+                val floorsToGo = to - currentFloor
+                addStopBefore(to, nextDestinationFloor, floorsToGo)
+                userToEnterOnRoad++
+            }
+
+           /* (way == Going.UP && nextDestinationFloor > currentFloor && currentFloor <= to && to >= nextDestinationFloor) -> {
+
+                val floorsToGo = to - nextDestinationFloor
+                addStopAfter(to, nextDestinationFloor, floorsToGo, Command.UP)
+                userToEnterOnRoad++
+            }*/
+
+            (way == Going.DOWN && nextDestinationFloor < currentFloor && currentFloor >= to && to >= nextDestinationFloor  ) -> {
+
+                val floorsToGo = currentFloor - to
+                addStopBefore(to, nextDestinationFloor ,floorsToGo)
+                userToEnterOnRoad++
+            }
+
+            /*(way == Going.DOWN && nextDestinationFloor < currentFloor && currentFloor >= to && to <= nextDestinationFloor  ) -> {
+
+                val floorsToGo = currentFloor - to
+                addStopAfter(to, nextDestinationFloor ,floorsToGo, Command.DOWN)
+                userToEnterOnRoad++
+            }
+*/
+
+            else -> {
+
+                var lastFloor = currentFloor
+
+                if(!moves.isEmpty()) {
+                    val keys = moves.keySet();
+                    lastFloor = keys.reverse().first()
+                }
+
+                commands = Commands(lastFloor).go(to)
+            }
+        }
+
+        return commands
     }
 
     private fun addStopBefore(at: Int, nextDestinationFloor: Int, remainingFloorsToGo: Int){
 
         // whe should calculate floors to go before introducing OPEN/CLOSE
-        val stops = moves.get(nextDestinationFloor)?.count { c -> c.name() ==  Command.OPEN.name()} as Int
+        val stops = moves.get(nextDestinationFloor)?.count { c -> c.name() ==  Command.OPEN.name() } as Int
+
         moves.get(nextDestinationFloor)?.add(remainingFloorsToGo + (stops - 1) * 2, Command.OPEN)
         moves.get(nextDestinationFloor)?.add(remainingFloorsToGo + (stops - 1) * 2 +1 , Command.CLOSE)
 
