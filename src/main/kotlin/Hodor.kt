@@ -36,29 +36,39 @@ class HodorElevator(public var currentFloor: Int = 0, val dimension: BuildingDim
     }
 
     override fun go(to: Int) {
+
+        var commandsForGo : Array<Command>? = null
+
         when {
-            !(gos.any { g -> to == g.floor } || calls.any { c -> to == c.floor }) -> {
-                gos.add(GoRequest(to))
+            ( usersInCabin < cabinSize ) -> {
 
+                if(!(gos.any { g -> to == g.floor } || calls.any { c -> to == c.floor })) gos.add(GoRequest(to))
 
-                if(usersInCabin >= cabinSize) {
-                    // remove from moves all non-go commands
-                    val callToRemove = calls.iterator().dropWhile { c -> gos.contains(c.floor) }
-                    var it = callToRemove.iterator()
-                    while (it.hasNext()){
-                        val call = it.next()
-                        if(moves.get(call.floor)?.get(0) !=  Command.CLOSE) // if doors are closing do not remove door close
-                            moves.remove(call.floor)
-                    }
-
-                }
-
-                commands = commandsForGo(to)
-
-                if(commands != null ) {
-                    moves.put(to, commands?.toList() as ArrayList<Command>?)
-                }
+                commandsForGo = commandsForGo(to)
             }
+
+            (usersInCabin >= cabinSize) -> {
+
+                if(!(gos.any { g -> to == g.floor } || calls.any { c -> to == c.floor })) gos.add(GoRequest(to))
+
+                // remove from moves all non-go commands
+                val callToRemove = calls.iterator().dropWhile { c -> gos.contains(c.floor) }
+                var it = callToRemove.iterator()
+                while (it.hasNext()){
+                    val call = it.next()
+                    if(moves.get(call.floor)?.get(0) !=  Command.CLOSE) // if doors are closing do not remove door close
+                        moves.remove(call.floor)
+                }
+
+                if(moves.get(to) != null) moves.remove(to)
+
+
+                commandsForGo = commandsForGo(to)
+            }
+        }
+
+        if(commandsForGo != null ) {
+            moves.put(to, commandsForGo?.toList() as ArrayList<Command>?)
         }
     }
 
@@ -112,8 +122,10 @@ class HodorElevator(public var currentFloor: Int = 0, val dimension: BuildingDim
 
         usersInCabin--
 
-        Iterables.removeIf(gos, { g -> g?.floor == currentFloor})
+        Iterables.removeIf(gos, { gos -> gos?.floor == currentFloor})
+        Iterables.removeIf(calls, { calls -> calls?.floor == currentFloor})
 
+        // if there is no moves left but
         if(!calls.isEmpty() && moves.get(calls.get(0).floor) == null) {
             commands = commandsForCall(calls.get(0).floor, calls.get(0).side)
             if(commands != null ) {
@@ -250,7 +262,7 @@ class HodorElevator(public var currentFloor: Int = 0, val dimension: BuildingDim
         return nextDestinationFloor as Int
     }
 
-    private fun commandsForGo(to: Int) : Array<Command>?{
+    private fun commandsForGo(to: Int) : Array<Command>? {
 
         var commands : Array<Command>? = null
 
@@ -303,13 +315,13 @@ class HodorElevator(public var currentFloor: Int = 0, val dimension: BuildingDim
         return commands
     }
 
-    private fun addStopBefore(at: Int, nextDestinationFloor: Int, remainingFloorsToGo: Int){
+    private fun addStopBefore(at: Int, nextDestinationFloor: Int, remainingFloorsToGo: Int) {
 
         // whe should calculate floors to go before introducing OPEN/CLOSE
         val stops = moves.get(nextDestinationFloor)?.count { c -> c.name() ==  Command.OPEN.name() } as Int
 
         moves.get(nextDestinationFloor)?.add(remainingFloorsToGo + (stops - 1) * 2, Command.OPEN)
-        moves.get(nextDestinationFloor)?.add(remainingFloorsToGo + (stops - 1) * 2 +1 , Command.CLOSE)
+        moves.get(nextDestinationFloor)?.add(remainingFloorsToGo + (stops - 1) * 2 + 1 , Command.CLOSE)
 
     }
 

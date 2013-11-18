@@ -118,8 +118,9 @@ class HodorElevatorTests {
         val elevator = HodorElevator(3)
         elevator.go(2)
 
-        assertThat(elevator.commands)?.hasSize(3)
-        assertThat(elevator.commands?.get(0))?.isEqualTo(elevator.Command.DOWN)
+        assertThat(elevator.nextMove())?.isEqualTo(Command.DOWN.name())
+        assertThat(elevator.nextMove())?.isEqualTo(Command.OPEN.name())  // floor 1
+        assertThat(elevator.nextMove())?.isEqualTo(Command.CLOSE.name())  // floor 1
     }
 
     test fun arriving_at_destination_floor_should_remove_related_move_in_stack(){
@@ -413,6 +414,69 @@ class HodorElevatorTests {
         assertThat(elevator.nextMove())?.isEqualTo(Command.CLOSE.name())
     }*/
 
+    test fun do_not_stop_at_floor_when_cabin_is_full(){
+
+        val elevator = HodorElevator();
+
+        elevator.userHasEntered() // A enters
+        elevator.userHasEntered() // B enters
+
+        elevator.go(4)
+        elevator.go(5)
+        elevator.call(2, Side.UP)  // C calls
+
+        assertThat(elevator.nextMove())?.isEqualTo(Command.UP.name())
+        assertThat(elevator.nextMove())?.isEqualTo(Command.UP.name())
+        assertThat(elevator.nextMove())?.isEqualTo(Command.UP.name())
+        assertThat(elevator.nextMove())?.isEqualTo(Command.UP.name())
+        assertThat(elevator.nextMove())?.isEqualTo(Command.OPEN.name()) // floor 4
+        elevator.userHasExited()  // A exits
+        elevator.userHasEntered() // D enters
+        elevator.go(1)
+        assertThat(elevator.usersInCabin)?.isEqualTo(2)
+        assertThat(elevator.nextMove())?.isEqualTo(Command.CLOSE.name())
+        assertThat(elevator.nextMove())?.isEqualTo(Command.UP.name())  // floor 5
+        assertThat(elevator.nextMove())?.isEqualTo(Command.OPEN.name())
+        elevator.userHasExited()  // B exits
+        elevator.userHasEntered() // E enters
+        assertThat(elevator.usersInCabin)?.isEqualTo(2)
+        elevator.go(1)
+        assertThat(elevator.nextMove())?.isEqualTo(Command.CLOSE.name())
+        assertThat(elevator.nextMove())?.isEqualTo(Command.DOWN.name())
+        assertThat(elevator.nextMove())?.isEqualTo(Command.DOWN.name())
+        assertThat(elevator.nextMove())?.isEqualTo(Command.DOWN.name())
+        assertThat(elevator.nextMove())?.isEqualTo(Command.DOWN.name())
+        assertThat(elevator.nextMove())?.isEqualTo(Command.OPEN.name())  // floor 1
+        elevator.userHasExited()  // D exits
+        elevator.userHasExited()  // E exits
+        assertThat(elevator.usersInCabin)?.isEqualTo(0)
+        elevator.call(2, Side.DOWN)
+        elevator.userHasEntered()  // C exits
+        assertThat(elevator.nextMove())?.isEqualTo(Command.CLOSE.name())
+        assertThat(elevator.nextMove())?.isEqualTo(Command.UP.name())
+        assertThat(elevator.nextMove())?.isEqualTo(Command.OPEN.name()) // floor 2
+        elevator.userHasExited()  // C exits
+        assertThat(elevator.usersInCabin)?.isEqualTo(0)
+        elevator.call(1, Side.DOWN)
+        elevator.userHasEntered()
+        elevator.go(-1)
+        elevator.userHasEntered()
+        elevator.go(-1)
+        assertThat(elevator.usersInCabin)?.isEqualTo(2)
+        assertThat(elevator.nextMove())?.isEqualTo(Command.CLOSE.name())
+        assertThat(elevator.nextMove())?.isEqualTo(Command.DOWN.name())
+        assertThat(elevator.nextMove())?.isEqualTo(Command.DOWN.name())
+        assertThat(elevator.nextMove())?.isEqualTo(Command.DOWN.name())
+        assertThat(elevator.nextMove())?.isEqualTo(Command.OPEN.name())
+        elevator.userHasExited()
+        elevator.userHasExited()
+        assertThat(elevator.usersInCabin)?.isEqualTo(0)
+        assertThat(elevator.nextMove())?.isEqualTo(Command.CLOSE.name())
+
+
+
+    }
+
     test fun do_not_stop_at_floor_when_cabin_is_full_and_no_one_is_leaving(){
 
         val elevator = HodorElevator();
@@ -452,8 +516,6 @@ class HodorElevatorTests {
         assertThat(elevator.nextMove())?.isEqualTo(Command.OPEN.name())
         elevator.userHasExited()
         assertThat(elevator.nextMove())?.isEqualTo(Command.CLOSE.name())
-
-
 
     }
 
