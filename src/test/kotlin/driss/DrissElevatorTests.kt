@@ -1,10 +1,10 @@
-package fr.codestory.elevator;
+package driss
 
 import org.junit.Test as test
 import org.assertj.core.api.Assertions.assertThat
-import fr.codestory.elevator.driss.DrissElevator
-import fr.codestory.elevator.Cabin
 import fr.codestory.elevator.Elevator.Side
+import fr.codestory.elevator.Cabin
+import fr.codestory.elevator.BuildingDimension
 
 class DrissElevatorTests {
 

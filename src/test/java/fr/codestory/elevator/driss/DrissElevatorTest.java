@@ -1,5 +1,6 @@
 package fr.codestory.elevator.driss;
 
+import driss.DrissElevator;
 import fr.codestory.elevator.BuildingDimension;
 import fr.codestory.elevator.Cabin;
 import fr.codestory.elevator.Elevator;
@@ -15,143 +16,138 @@ public class DrissElevatorTest {
     @Test
     public void should_do_nothing_when_no_call() {
 
-        DrissElevator groom = new DrissElevator();
+        DrissElevator elevator = new DrissElevator();
 
-        assertThat(groom.getCurrentFloor()).isEqualTo(0);
-        assertThat(groom.nextMove()).isEqualTo("NOTHING");
-        assertThat(groom.nextMove()).isEqualTo("NOTHING");
-        assertThat(groom.getCurrentFloor()).isEqualTo(0);
+        assertThat(elevator.getCurrentFloor()).isEqualTo(0);
+        assertThat(elevator.nextMove()).isEqualTo("NOTHING");
+        assertThat(elevator.nextMove()).isEqualTo("NOTHING");
+        assertThat(elevator.getCurrentFloor()).isEqualTo(0);
     }
 
 
     @Test
     public void should_move_on_first_call_and_stop() {
 
-        DrissElevator groom = new DrissElevator();
+        DrissElevator elevator = new DrissElevator();
 
-        groom.call(2, Elevator.Side.UP);
+        elevator.call(2, Elevator.Side.UP);
 
-        assertThat(groom.nextMove()).isEqualTo("UP");
-        assertThat(groom.nextMove()).isEqualTo("UP");
-        assertThat(groom.nextMove()).isEqualTo("OPEN");
-        assertThat(groom.nextMove()).isEqualTo("CLOSE");
+        assertThat(elevator.nextMove()).isEqualTo("UP");
+        assertThat(elevator.nextMove()).isEqualTo("UP");
+        assertThat(elevator.nextMove()).isEqualTo("OPEN");
+        assertThat(elevator.nextMove()).isEqualTo("CLOSE");
 
-        assertThat(groom.nextMove()).isEqualTo("NOTHING");
+        assertThat(elevator.nextMove()).isEqualTo("NOTHING");
     }
 
     @Test
     public void should_move_on_first_call_then_go() {
 
-        DrissElevator groom = new DrissElevator();
+        DrissElevator elevator = new DrissElevator();
 
-        groom.call(2, Elevator.Side.UP);
+        elevator.call(2, Elevator.Side.UP);
 
-        assertThat(groom.nextMove()).isEqualTo("UP");
-        assertThat(groom.nextMove()).isEqualTo("UP");
+        assertThat(elevator.nextMove()).isEqualTo("UP");
+        assertThat(elevator.nextMove()).isEqualTo("UP");
 
-        assertThat(groom.nextMove()).isEqualTo("OPEN");
-        groom.go(3);
-        assertThat(groom.nextMove()).isEqualTo("CLOSE");
+        assertThat(elevator.nextMove()).isEqualTo("OPEN");
+        elevator.go(3);
+        assertThat(elevator.nextMove()).isEqualTo("CLOSE");
 
-        assertThat(groom.nextMove()).isEqualTo("UP");
-        assertThat(groom.nextMove()).isEqualTo("OPEN");
-        assertThat(groom.nextMove()).isEqualTo("CLOSE");
+        assertThat(elevator.nextMove()).isEqualTo("UP");
+        assertThat(elevator.nextMove()).isEqualTo("OPEN");
+        assertThat(elevator.nextMove()).isEqualTo("CLOSE");
 
-        assertThat(groom.nextMove()).isEqualTo("NOTHING");
+        assertThat(elevator.nextMove()).isEqualTo("NOTHING");
     }
 
     @Test
     public void should_go_down_on_first_call() {
 
-        DrissElevator groom = new DrissElevator(3, new BuildingDimension(0, 19), new Cabin(5, 0));
+        DrissElevator elevator = new DrissElevator(3, new BuildingDimension(0, 19), new Cabin(5, 0));
 
-        groom.call(2, Elevator.Side.DOWN);
+        elevator.call(2, Elevator.Side.DOWN);
 
-        assertThat(groom.nextMove()).isEqualTo("DOWN");
+        assertThat(elevator.nextMove()).isEqualTo("DOWN");
 
-        assertThat(groom.nextMove()).isEqualTo("OPEN");
-        groom.go(1);
-        assertThat(groom.nextMove()).isEqualTo("CLOSE");
+        assertThat(elevator.nextMove()).isEqualTo("OPEN");
+        elevator.go(1);
+        assertThat(elevator.nextMove()).isEqualTo("CLOSE");
 
-        assertThat(groom.nextMove()).isEqualTo("DOWN");
-        assertThat(groom.nextMove()).isEqualTo("OPEN");
-        assertThat(groom.nextMove()).isEqualTo("CLOSE");
+        assertThat(elevator.nextMove()).isEqualTo("DOWN");
+        assertThat(elevator.nextMove()).isEqualTo("OPEN");
+        assertThat(elevator.nextMove()).isEqualTo("CLOSE");
 
-        assertThat(groom.nextMove()).isEqualTo("NOTHING");
+        assertThat(elevator.nextMove()).isEqualTo("NOTHING");
     }
 
     @Test
     public void should_go_upside_first() {
 
-        DrissElevator groom = new DrissElevator(3, new BuildingDimension(0, 19), new Cabin(5, 0));
+        DrissElevator elevator = new DrissElevator(3, new BuildingDimension(0, 19), new Cabin(5, 0));
 
-        groom.call(1, Elevator.Side.DOWN);
-        groom.call(4, Elevator.Side.DOWN);
+        elevator.call(1, Elevator.Side.DOWN);
+        elevator.call(4, Elevator.Side.DOWN);
 
-        assertThat(groom.nextMove()).isEqualTo("UP");
+        assertThat(elevator.nextMove()).isEqualTo("UP");
 
-        assertThat(groom.nextMove()).isEqualTo("OPEN");
-        groom.go(1);
-        assertThat(groom.nextMove()).isEqualTo("CLOSE");
-        assertThat(groom.getCurrentFloor()).isEqualTo(4);
+        assertThat(elevator.nextMove()).isEqualTo("OPEN");
+        elevator.go(1);
+        assertThat(elevator.nextMove()).isEqualTo("CLOSE");
+        assertThat(elevator.getCurrentFloor()).isEqualTo(4);
 
-        assertThat(groom.nextMove()).isEqualTo("DOWN");
-        assertThat(groom.nextMove()).isEqualTo("DOWN");
-        assertThat(groom.nextMove()).isEqualTo("DOWN");
-        assertThat(groom.getCurrentFloor()).isEqualTo(1);
-        assertThat(groom.nextMove()).isEqualTo("OPEN");
-        assertThat(groom.nextMove()).isEqualTo("CLOSE");
+        assertThat(elevator.nextMove()).isEqualTo("DOWN");
+        assertThat(elevator.nextMove()).isEqualTo("DOWN");
+        assertThat(elevator.nextMove()).isEqualTo("DOWN");
+        assertThat(elevator.getCurrentFloor()).isEqualTo(1);
+        assertThat(elevator.nextMove()).isEqualTo("OPEN");
+        assertThat(elevator.nextMove()).isEqualTo("CLOSE");
 
-        assertThat(groom.nextMove()).isEqualTo("NOTHING");
+        assertThat(elevator.nextMove()).isEqualTo("NOTHING");
     }
 
     @Test
     public void should_take_someone_near() {
 
-        DrissElevator groom = new DrissElevator(1, new BuildingDimension(0, 19), new Cabin(5, 0));
-        groom.go(4);
+        DrissElevator elevator = new DrissElevator(1, new BuildingDimension(0, 19), new Cabin(5, 0));
+        elevator.go(4);
 
-        groom.call(0, Elevator.Side.UP);
-        groom.call(4, Elevator.Side.DOWN);
+        elevator.call(0, Elevator.Side.UP);
+        elevator.call(4, Elevator.Side.DOWN);
 
-        assertThat(groom.nextMove()).isEqualTo("DOWN");
-        Commands initialCommands = groom.getCommands();
+        assertThat(elevator.nextMove()).isEqualTo("DOWN");
 
-        assertThat(groom.nextMove()).isEqualTo("OPEN");
-        groom.go(3);
-        assertThat(groom.nextMove()).isEqualTo("CLOSE");
+        assertThat(elevator.nextMove()).isEqualTo("OPEN");
+        elevator.go(3);
+        assertThat(elevator.nextMove()).isEqualTo("CLOSE");
 
-        assertThat(groom.getCurrentFloor()).isEqualTo(0);
+        assertThat(elevator.getCurrentFloor()).isEqualTo(0);
 
-        assertThat(groom.nextMove()).isEqualTo("UP");
-        assertThat(groom.nextMove()).isEqualTo("UP");
-        assertThat(groom.nextMove()).isEqualTo("UP");
+        assertThat(elevator.nextMove()).isEqualTo("UP");
+        assertThat(elevator.nextMove()).isEqualTo("UP");
+        assertThat(elevator.nextMove()).isEqualTo("UP");
 
-        assertThat(groom.getCurrentFloor()).isEqualTo(3);
+        assertThat(elevator.getCurrentFloor()).isEqualTo(3);
 
-        assertThat(groom.nextMove()).isEqualTo("OPEN");
-        assertThat(groom.nextMove()).isEqualTo("CLOSE");
-        assertThat(groom.nextMove()).isEqualTo("UP");
+        assertThat(elevator.nextMove()).isEqualTo("OPEN");
+        assertThat(elevator.nextMove()).isEqualTo("CLOSE");
+        assertThat(elevator.nextMove()).isEqualTo("UP");
 
-        assertThat(groom.getCurrentFloor()).isEqualTo(4);
-        assertThat(groom.getCommands()).isEqualTo(initialCommands);
+        assertThat(elevator.getCurrentFloor()).isEqualTo(4);
 
-        assertThat(groom.nextMove()).isEqualTo("OPEN");
-        groom.go(1);
-        assertThat(groom.nextMove()).isEqualTo("CLOSE");
+        assertThat(elevator.nextMove()).isEqualTo("OPEN");
+        elevator.go(1);
+        assertThat(elevator.nextMove()).isEqualTo("CLOSE");
 
+        assertThat(elevator.nextMove()).isEqualTo("DOWN");
 
-        assertThat(groom.nextMove()).isEqualTo("DOWN");
+        assertThat(elevator.nextMove()).isEqualTo("DOWN");
+        assertThat(elevator.nextMove()).isEqualTo("DOWN");
 
-        assertThat(groom.getCommands()).isNotEqualTo(initialCommands);
+        assertThat(elevator.nextMove()).isEqualTo("OPEN");
+        assertThat(elevator.nextMove()).isEqualTo("CLOSE");
 
-        assertThat(groom.nextMove()).isEqualTo("DOWN");
-        assertThat(groom.nextMove()).isEqualTo("DOWN");
-
-        assertThat(groom.nextMove()).isEqualTo("OPEN");
-        assertThat(groom.nextMove()).isEqualTo("CLOSE");
-
-        assertThat(groom.nextMove()).isEqualTo("NOTHING");
+        assertThat(elevator.nextMove()).isEqualTo("NOTHING");
     }
 
 }

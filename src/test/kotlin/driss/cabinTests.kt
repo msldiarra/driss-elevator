@@ -1,4 +1,4 @@
-package fr.codestory.elevator
+package driss
 
 
 import org.junit.Test as test

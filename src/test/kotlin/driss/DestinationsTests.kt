@@ -1,8 +1,9 @@
-package fr.codestory.elevator.order
+package driss
 
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test as test
+import driss.destinations
 
 class DestinationsTests {
 
