@@ -12,8 +12,8 @@ public class DrissElevator(public var currentFloor: Int = 0, val dimension: Buil
     val groom = this.Groom()
     val door = Door()
 
-    val calls: Destinations<Calls> = destinations(Calls.NONE)
-    val gos: Destinations<ElevatorRequest> = destinations(ElevatorRequest.NONE)
+    val calls: Signals<Calls> = signals(dimension, Calls.NONE)
+    val gos: Signals<ElevatorRequest> = signals(dimension, ElevatorRequest.NONE)
 
     public override fun nextMove(): String =
             when {
@@ -49,21 +49,21 @@ public class DrissElevator(public var currentFloor: Int = 0, val dimension: Buil
         gos.clear()
         currentFloor = dimension.getLowerFloor()
     }
-    public override fun go(to: Int): Unit {
-        val timestampedCounter: ElevatorRequest? = gos.at(to)
+    public override fun go(floor: Int): Unit {
+        val timestampedCounter: ElevatorRequest? = gos.at(floor)
         if (timestampedCounter == ElevatorRequest.NONE)
         {
-            gos.add(to, ElevatorRequest())
+            gos.add(floor, ElevatorRequest())
         }
         else
         {
             timestampedCounter?.increase()
         }
     }
-    public override fun call(at: Int, side: Side?): Unit {
-        val callsAtFloor = calls.at(at)
+    public override fun call(floor: Int, side: Side?): Unit {
+        val callsAtFloor = calls.at(floor)
         when(callsAtFloor) {
-            Calls.NONE -> calls.add(at, calls(side as Side))
+            Calls.NONE -> calls.add(floor, calls(side as Side))
             else -> {
                 callsAtFloor.increase(side)
             }
@@ -89,7 +89,7 @@ public class DrissElevator(public var currentFloor: Int = 0, val dimension: Buil
         }
 
         public inline fun wantsTheDoorToOpen(): Boolean = when {
-            gos.requestedTo(currentFloor) -> {
+            gos.requestedAt(currentFloor) -> {
                 true
             }
             commands.isTwoSidesChargingAllowed() -> {
@@ -100,7 +100,7 @@ public class DrissElevator(public var currentFloor: Int = 0, val dimension: Buil
             }
         }
 
-        public inline fun giveFollowingCommands(currentFloor: Int, calls: Destinations<Calls>, gos: Destinations<ElevatorRequest>): Commands {
+        public inline fun giveFollowingCommands(currentFloor: Int, calls: Signals<Calls>, gos: Signals<ElevatorRequest>): Commands {
 
             if ((calls.isEmpty()) && gos.isEmpty())
                 return Commands.NONE
@@ -146,7 +146,7 @@ public class DrissElevator(public var currentFloor: Int = 0, val dimension: Buil
             }
         }
 
-        private inline fun numberOf(destinations: Destinations<Calls>) = destinations.fold(0) {
+        private inline fun numberOf(destinations: Signals<Calls>) = destinations.fold(0) {
             number, calls ->
             number + calls.going(Side.UP).number + calls.going(Side.DOWN).number
         }

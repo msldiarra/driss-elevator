@@ -6,45 +6,55 @@ import java.util.TreeMap
 import java.util.SortedMap
 import fr.codestory.elevator.Elevator.Side
 import java.lang.Math.*
+import fr.codestory.elevator.BuildingDimension
+import com.google.common.collect.Maps
 
 
-public fun destinations<T>(noneValue: T): Destinations<T> = Destinations(TreeMap<Int, T>(), noneValue)
+public fun signals<T>(buildingDimension: BuildingDimension,
+                      noneValue: T): Signals<T> {
+
+    val floors = TreeMap<Int, T>()
+
+    with(buildingDimension) {
+        for (floor in getLowerFloor()..getHigherFloor()){
+            floors.put(floor, noneValue)
+        }
+    }
+    return Signals(floors, noneValue)
+}
 
 /**
  * @author Miguel Basire
  */
-class Destinations<T>(private val destinations: SortedMap<Int, T>, private val noneValue: T) : Iterable<T> {
+class Signals<T>(private val floors: SortedMap<Int, T>, private val noneValue: T) : Iterable<T> {
 
     public fun add(floor: Int, value: T): Unit {
-        destinations.put(floor, value)
+        floors.put(floor, value)
     }
 
-    public fun clear(): Unit = destinations.clear()
+    public fun clear(): Unit = floors.keySet().forEach { k -> floors.put(k, noneValue) }
 
-    public fun above(floor: Int): Destinations<T> =
-            if (destinations.isEmpty())
-                this
-            else
-                Destinations<T>(destinations.tailMap((min(destinations.lastKey() as Int + 1, floor + 1))), noneValue)
+    public fun above(floor: Int): Signals<out T> =
+            Signals<T>(floors.tailMap((min(floors.lastKey() as Int + 1, floor + 1))), noneValue)
 
-    public fun below(floor: Int): Destinations<T> = Destinations<T>(destinations.headMap(floor), noneValue)
+    public fun below(floor: Int): Signals<out T> = Signals<T>(floors.headMap(floor), noneValue)
 
     public fun at(floor: Int): T =
-            if (destinations.containsKey(floor))
-                destinations.get(floor) as T
+            if (floor in floors.keySet().indices)
+                floors.get(floor) as T
             else
                 noneValue
 
-    public fun reached(floor: Int): T = destinations.remove(floor) as T
+    public fun reached(floor: Int): T = floors.put(floor, noneValue) as T
 
-    public fun requestedTo(floor: Int): Boolean = destinations.containsKey(floor)
+    public fun requestedAt(floor: Int): Boolean = floors.get(floor) != noneValue
 
-    public fun isEmpty(): Boolean = destinations.isEmpty()
+    public fun isEmpty(): Boolean = floors.values().all { v -> v == noneValue }
 
-    public override fun iterator(): Iterator<T> = destinations.values().iterator()
+    public override fun iterator(): Iterator<T> = floors.values().iterator()
 
     public fun nearestFloorFrom(here: Int): Int =
-            destinations.keySet().fold(here) { nearest, floor ->
+            signaledFloors()!!.keySet().fold(here) { nearest, floor ->
                 val previousDistance = abs(nearest - here)
                 when {
                     previousDistance == 0 -> {
@@ -59,21 +69,23 @@ class Destinations<T>(private val destinations: SortedMap<Int, T>, private val n
                 }
             }
 
+    private inline fun  signaledFloors() = Maps.filterEntries(floors) { e -> e?.getValue() != noneValue }
 
     public fun distanceToFarthestFloorFrom(floor: Int): Int =
-            if (destinations.keySet().isEmpty()) 0
+            if (isEmpty()) 0
             else{
-                val lastFloor = destinations.lastKey() as Int
-                val firstFloor = destinations.firstKey() as Int
+
+                val lastFloor = signaledFloors()?.lastKey() as Int
+                val firstFloor = signaledFloors()?.firstKey() as Int
 
                 max(abs(floor - lastFloor), abs(floor - firstFloor))
             }
 
     public  fun distanceToNearestFloorFrom(floor: Int): Int =
-            if (destinations.keySet().isEmpty()) 0
+            if (isEmpty()) 0
             else {
-                val lastFloor = destinations.lastKey() as Int
-                val firstFloor = destinations.firstKey() as Int
+                val lastFloor = signaledFloors()?.lastKey() as Int
+                val firstFloor = signaledFloors()?.firstKey() as Int
 
                 min(abs(floor - lastFloor), abs(floor - firstFloor))
             }
