@@ -13,25 +13,25 @@ class CommandsTests {
 
     test fun to_upper_floor(){
 
-        assertThat(Commands().call(2, Side.UP))?.isEqualTo(array(UP, UP, OPEN, CLOSE))
-        assertThat(Commands().call(3, Side.DOWN))?.isEqualTo(array(UP, UP, UP, OPEN, CLOSE))
-        assertThat(Commands().call(4, Side.UP))?.isEqualTo(array(UP, UP, UP,UP, OPEN, CLOSE))
-        assertThat(Commands().call(0, Side.UP))?.isEqualTo(array(OPEN, CLOSE))
+        assertThat(Commands().forCall(2, Side.UP))?.isEqualTo(array(UP, UP, OPEN, CLOSE))
+        assertThat(Commands().forCall(3, Side.DOWN))?.isEqualTo(array(UP, UP, UP, OPEN, CLOSE))
+        assertThat(Commands().forCall(4, Side.UP))?.isEqualTo(array(UP, UP, UP,UP, OPEN, CLOSE))
+        assertThat(Commands().forCall(0, Side.UP))?.isEqualTo(array(OPEN, CLOSE))
 
-        assertThat(Commands().go(2))?.isEqualTo(array(UP, UP, OPEN, CLOSE))
-        assertThat(Commands().go(3))?.isEqualTo(array(UP, UP, UP, OPEN, CLOSE))
-        assertThat(Commands().go(4))?.isEqualTo(array(UP, UP, UP,UP, OPEN, CLOSE))
-        assertThat(Commands().go(0))?.isEqualTo(array(OPEN, CLOSE))
+        assertThat(Commands().forGo(2))?.isEqualTo(array(UP, UP, OPEN, CLOSE))
+        assertThat(Commands().forGo(3))?.isEqualTo(array(UP, UP, UP, OPEN, CLOSE))
+        assertThat(Commands().forGo(4))?.isEqualTo(array(UP, UP, UP,UP, OPEN, CLOSE))
+        assertThat(Commands().forGo(0))?.isEqualTo(array(OPEN, CLOSE))
     }
 
     test fun to_lower_floor(){
 
-        assertThat(Commands(7).call(5, Side.UP))?.isEqualTo(array(DOWN, DOWN, OPEN, CLOSE))
-        assertThat(Commands(7).call(4, Side.UP))?.isEqualTo(array(DOWN, DOWN, DOWN, OPEN, CLOSE))
-        assertThat(Commands(7).call(3, Side.UP))?.isEqualTo(array(DOWN, DOWN, DOWN,DOWN, OPEN, CLOSE))
+        assertThat(Commands(7).forCall(5, Side.UP))?.isEqualTo(array(DOWN, DOWN, OPEN, CLOSE))
+        assertThat(Commands(7).forCall(4, Side.UP))?.isEqualTo(array(DOWN, DOWN, DOWN, OPEN, CLOSE))
+        assertThat(Commands(7).forCall(3, Side.UP))?.isEqualTo(array(DOWN, DOWN, DOWN,DOWN, OPEN, CLOSE))
 
-        assertThat(Commands(7).go(5))?.isEqualTo(array(DOWN, DOWN, OPEN, CLOSE))
-        assertThat(Commands(7).go(4))?.isEqualTo(array(DOWN, DOWN, DOWN, OPEN, CLOSE))
-        assertThat(Commands(7).go(3))?.isEqualTo(array(DOWN, DOWN, DOWN,DOWN, OPEN, CLOSE))
+        assertThat(Commands(7).forGo(5))?.isEqualTo(array(DOWN, DOWN, OPEN, CLOSE))
+        assertThat(Commands(7).forGo(4))?.isEqualTo(array(DOWN, DOWN, DOWN, OPEN, CLOSE))
+        assertThat(Commands(7).forGo(3))?.isEqualTo(array(DOWN, DOWN, DOWN,DOWN, OPEN, CLOSE))
     }
 }

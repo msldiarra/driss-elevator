@@ -11,11 +11,11 @@ import fr.codestory.elevator.hodor.HodorElevator.Command
 
 class Commands(val currentFloor:Int = 0) {
 
-    fun call(to: Int, way: Side?): Array<Command>? {
-        return commands(to);
+    fun forCall(at: Int, going: Side?): Array<Command>? {
+        return commands(at);
     }
 
-    fun go(to: Int): Array<Command>? {
+    fun forGo(to: Int): Array<Command>? {
         return commands(to);
     }
 

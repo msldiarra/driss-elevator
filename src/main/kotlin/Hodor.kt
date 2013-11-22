@@ -17,7 +17,7 @@ import fr.codestory.elevator.BuildingDimension
 import fr.codestory.elevator.hodor.HodorElevator.Command
 import java.util.Iterator
 
-class HodorElevator(public var currentFloor: Int = 0, val dimension: BuildingDimension = BuildingDimension(0, 19), val cabinSize: Int = 2) : Elevator {
+class HodorElevator(public var currentFloor: Int = 0, val dimension: BuildingDimension = BuildingDimension(0, 24), val cabinSize: Int = 2) : Elevator {
 
     public var calls: ArrayList<CallRequest> = ArrayList<CallRequest>()
     public var gos: ArrayList<GoRequest> = ArrayList<GoRequest>()
@@ -229,7 +229,7 @@ class HodorElevator(public var currentFloor: Int = 0, val dimension: BuildingDim
                     lastFloor = keys.reverse().first()
                 }
 
-                commands = Commands(lastFloor).call(at, side)
+                commands = Commands(lastFloor).forCall(at, side)
             }
         }
 
@@ -308,7 +308,7 @@ class HodorElevator(public var currentFloor: Int = 0, val dimension: BuildingDim
                     lastFloor = keys.reverse().first()
                 }
 
-                commands = Commands(lastFloor).go(to)
+                commands = Commands(lastFloor).forGo(to)
             }
         }
 

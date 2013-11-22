@@ -3,6 +3,7 @@ package fr.codestory.elevator
 import org.apache.log4j.Logger
 import fr.codestory.elevator.driss.DrissElevator
 import fr.codestory.elevator.hodor.HodorElevator
+import fr.codestory.elevator.hodor.SandorElevator
 
 
 enum class ElevatorAlgorithm {
@@ -10,6 +11,7 @@ enum class ElevatorAlgorithm {
     OMNIBUS
     DRISS
     HODOR
+    SANDOR
 }
 
 fun factory(algo: ElevatorAlgorithm): ElevatorFactory {
@@ -30,6 +32,9 @@ fun factory(algo: ElevatorAlgorithm): ElevatorFactory {
         ElevatorAlgorithm.HODOR -> {
             ElevatorFactory { buildingDimension, cabinSize -> HodorElevator() }
         }
+        ElevatorAlgorithm.SANDOR -> {
+            ElevatorFactory { buildingDimension, cabinSize -> SandorElevator() }
+        }
         else -> {
             throw IllegalArgumentException("Unknown algorithm")
         }
@@ -41,7 +46,15 @@ fun main(args: Array<String>) {
 
     val logger = Logger.getLogger("MAIN")
 
+    lanchServer(array("8883","HODOR"), logger)
+    lanchServer(args, logger)
+
+}
+
+fun lanchServer(args: Array<String>, logger: Logger?) {
+
     val port = Integer.parseInt(args.get(0))
+
     val algorithm = ElevatorAlgorithm.valueOf(if (args.size > 1)  args.get(1).toUpperCase() else "DRISS")
 
     logger?.info("Loading $algorithm algorithm on port $port")
