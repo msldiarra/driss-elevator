@@ -50,7 +50,6 @@ task wrapper(type: Wrapper) {
 
 
 run {
-   // args '8883', 'HODOR'
     args '8883', 'SANDOR'
 }
 
