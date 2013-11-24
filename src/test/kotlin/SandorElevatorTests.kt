@@ -15,10 +15,9 @@ class SandorElevatorTests {
         elevator.call(1, Side.UP)
 
         assertThat(elevator.users)?.hasSize(1)
-        assertThat(elevator.calls)?.hasSize(1)
     }
 
-    test fun multiple_calls_should_add_same_count_to_call_list() {
+    test fun multiple_calls_should_add_same_count_user() {
 
         val elevator = SandorElevator()
         elevator.call(1, Side.UP)
@@ -27,7 +26,6 @@ class SandorElevatorTests {
         elevator.call(1, Side.UP)
 
         assertThat(elevator.users)?.hasSize(4)
-        assertThat(elevator.calls)?.hasSize(4)
     }
 
     test fun call_to_n_floor_should_result_in_n_UPs_commands_from_ground_floor(){
@@ -51,12 +49,14 @@ class SandorElevatorTests {
 
     test fun user_should_be_removed_when_at_destination(){
 
-        val user = User(0, 1);
-
         val elevator = SandorElevator()
-        elevator.users.add(user)
+        elevator.call(0, Side.UP)
 
-        elevator.nextMove()
+        assertThat(elevator.nextMove())?.isEqualTo("OPEN")
+        elevator.userHasEntered()
+        elevator.go(1)
+        assertThat(elevator.nextMove())?.isEqualTo("CLOSE")
+        assertThat(elevator.nextMove())?.isEqualTo("UP")
         assertThat(elevator.nextMove())?.isEqualTo("OPEN")
         elevator.userHasExited()
         assertThat(elevator.nextMove())?.isEqualTo("CLOSE")
@@ -95,4 +95,59 @@ class SandorElevatorTests {
         assertThat(first.travellingTicks)?.isEqualTo(3)
         assertThat(second.travellingTicks)?.isEqualTo(0)
     }
+
+    test fun next_command_should_not_keep_open_close() {
+
+        val elevator = SandorElevator(3)
+        assertThat(elevator.currentFloor)?.isEqualTo(3)
+
+        elevator.call(1, Side.UP)
+        elevator.call(1, Side.DOWN)
+        assertThat(elevator.nextMove())?.isEqualTo("DOWN")
+        assertThat(elevator.nextMove())?.isEqualTo("DOWN")
+        assertThat(elevator.nextMove())?.isEqualTo("OPEN")
+        elevator.userHasEntered()
+        elevator.go(5)
+        elevator.userHasEntered()
+        elevator.go(0)
+        assertThat(elevator.nextMove())?.isEqualTo("CLOSE")
+        assertThat(elevator.nextMove())?.isEqualTo("DOWN")
+        assertThat(elevator.nextMove())?.isEqualTo("OPEN")
+        elevator.call(0, Side.UP)
+        elevator.userHasExited()
+        assertThat(elevator.nextMove())?.isEqualTo("CLOSE")
+        assertThat(elevator.nextMove())?.isEqualTo("UP")
+        assertThat(elevator.nextMove())?.isEqualTo("UP")
+        assertThat(elevator.nextMove())?.isEqualTo("UP")
+        assertThat(elevator.nextMove())?.isEqualTo("UP")
+        assertThat(elevator.nextMove())?.isEqualTo("UP")
+        assertThat(elevator.nextMove())?.isEqualTo("OPEN")
+        elevator.userHasExited()
+        assertThat(elevator.nextMove())?.isEqualTo("CLOSE")
+        assertThat(elevator.nextMove())?.isEqualTo("DOWN")
+        assertThat(elevator.nextMove())?.isEqualTo("DOWN")
+        assertThat(elevator.nextMove())?.isEqualTo("DOWN")
+        assertThat(elevator.nextMove())?.isEqualTo("DOWN")
+        assertThat(elevator.nextMove())?.isEqualTo("DOWN")
+        assertThat(elevator.nextMove())?.isEqualTo("OPEN")
+        elevator.userHasEntered()
+        elevator.go(1)
+        assertThat(elevator.nextMove())?.isEqualTo("CLOSE")
+        assertThat(elevator.nextMove())?.isEqualTo("UP")
+        assertThat(elevator.nextMove())?.isEqualTo("OPEN")
+        elevator.userHasExited()
+        assertThat(elevator.nextMove())?.isEqualTo("CLOSE")
+        assertThat(elevator.nextMove())?.isEqualTo("NOTHING")
+
+    }
+
+    test fun first_call_should_not_return_nothing() {
+
+        val elevator = SandorElevator()
+        elevator.reset()
+        elevator.call(3, Side.DOWN)
+
+        assertThat(elevator.nextMove())?.isEqualTo("UP")
+    }
+
 }

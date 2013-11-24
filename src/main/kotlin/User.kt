@@ -12,6 +12,19 @@ class User(val callFloor:Int, var destinationFloor: Int = 1000) {
         if(travelling()) travellingTicks++
     }
 
+    fun isWaiting() : Boolean {
+        return this.state == State.WAITING
+    }
+
+    fun isTravelling() : Boolean {
+        return this.state == State.TRAVELLING
+    }
+
+    fun take(floor: Int) {
+        destinationFloor  = floor
+        state = State.TRAVELLING
+    }
+
     private fun waiting() : Boolean{
         return state == State.WAITING
     }

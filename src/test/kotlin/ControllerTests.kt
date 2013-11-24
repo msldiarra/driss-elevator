@@ -23,7 +23,7 @@ class ControllerTests {
         assertThat(controller.compute(1))?.isEqualTo(4)
     }
 
-    test fun computation_should_returned_go_floor_with_less_when_there() {
+    test fun should_returned_go_floor_with_less_ticks_when_there() {
 
         val first = User(5, 7);
         first.waitingTicks = 0
@@ -38,7 +38,20 @@ class ControllerTests {
 
         val controller = Controller(users)
 
-        assertThat(controller.compute(5))?.isEqualTo(7)
+        assertThat(controller.compute(5))?.isEqualTo(5)
+    }
+
+    test fun should_return_call_with_less_waiting_ticks_when_go_floor_provide_no_point() {
+
+        val first = User(-3, 26); first.waitingTicks = 200; first.travellingTicks = 50
+        val second = User(5);
+
+        val users = hashSetOf(first, second)
+
+        val controller = Controller(users)
+
+        assertThat(controller.compute(-2))?.isEqualTo(5)
+
     }
 
 }
