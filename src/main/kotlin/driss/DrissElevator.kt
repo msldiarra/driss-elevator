@@ -6,20 +6,23 @@ import fr.codestory.elevator.Cabin
 import fr.codestory.elevator.Elevator
 
 import java.lang.Math.*
+import java.util.HashSet
 
 public class DrissElevator(public var currentFloor: Int = 0, val dimension: BuildingDimension = BuildingDimension(0, 19), val cabin: Cabin = Cabin(20)) : Elevator {
 
     val groom = this.Groom()
     val door = Door()
 
-    val calls: Signals<Calls> = signals(dimension, Calls.NONE)
-    val gos: Signals<ElevatorRequest> = signals(dimension, ElevatorRequest.NONE)
+    val upsideCalls: Signals<Call> = signals(dimension, Call(0))
+    val downsideCalls: Signals<Call> = signals(dimension, Call(0))
+    val gos: Signals<Go> = signals(dimension, Go(0))
 
     public override fun nextMove(): String =
             when {
                 door.opened || groom.wantsTheDoorToOpen() -> {
                     door.toggle {
-                        calls.reached(currentFloor)
+                        upsideCalls.reached(currentFloor)
+                        downsideCalls.reached(currentFloor)
                         gos.reached(currentFloor)
                     }.name()
                 }
@@ -45,27 +48,31 @@ public class DrissElevator(public var currentFloor: Int = 0, val dimension: Buil
 
     public override fun reset(): Unit {
 
-        calls.clear()
+        upsideCalls.clear()
+        downsideCalls.clear()
         gos.clear()
         currentFloor = dimension.getLowerFloor()
     }
     public override fun go(floor: Int): Unit {
-        val timestampedCounter: ElevatorRequest? = gos.at(floor)
-        if (timestampedCounter == ElevatorRequest.NONE)
+        val timestampedCounter: Signal? = gos.at(floor)
+        if (timestampedCounter == gos.noneValue)
         {
-            gos.add(floor, ElevatorRequest())
+            gos.add(floor, Go(1))
         }
         else
         {
             timestampedCounter?.increase()
         }
     }
-    public override fun call(floor: Int, side: Side?): Unit {
+    public override fun call(floor: Int, side: Side): Unit {
+
+        val calls = if (side == Side.UP) upsideCalls else downsideCalls
+
         val callsAtFloor = calls.at(floor)
         when(callsAtFloor) {
-            Calls.NONE -> calls.add(floor, calls(side as Side))
+            calls.noneValue -> calls.add(floor, Call(1))
             else -> {
-                callsAtFloor.increase(side)
+                callsAtFloor.increase()
             }
         }
     }
@@ -84,7 +91,7 @@ public class DrissElevator(public var currentFloor: Int = 0, val dimension: Buil
         private var commands = Commands.NONE
 
         public inline fun giveNextMoveCommand(): MoveCommand {
-            if ( !commands.hasMoreElements()) commands = groom.giveFollowingCommands(currentFloor, calls, gos)
+            if ( !commands.hasMoreElements()) commands = groom.giveFollowingCommands()
             return commands.nextElement()
         }
 
@@ -93,16 +100,17 @@ public class DrissElevator(public var currentFloor: Int = 0, val dimension: Buil
                 true
             }
             commands.isTwoSidesChargingAllowed() -> {
-                (cabin.canAcceptSomeone() && calls.at(currentFloor) != Calls.NONE)
+                cabin.canAcceptSomeone() && (upsideCalls.requestedAt(currentFloor) || downsideCalls.requestedAt(currentFloor))
             }
             else -> {
-                (cabin.canAcceptSomeone() && calls.at(currentFloor).going(commands.side) != ElevatorRequest.NONE)
+                cabin.canAcceptSomeone() &&
+                (if (commands.side == Side.UP) upsideCalls else downsideCalls).requestedAt(currentFloor)
             }
         }
 
-        public inline fun giveFollowingCommands(currentFloor: Int, calls: Signals<Calls>, gos: Signals<ElevatorRequest>): Commands {
+        public inline fun giveFollowingCommands(): Commands {
 
-            if ((calls.isEmpty()) && gos.isEmpty())
+            if ( upsideCalls.isEmpty() && downsideCalls.isEmpty() && gos.isEmpty() )
                 return Commands.NONE
 
             val gosAbove = gos.above(currentFloor)
@@ -111,7 +119,10 @@ public class DrissElevator(public var currentFloor: Int = 0, val dimension: Buil
             return when {
                 gos.isEmpty() -> {
 
-                    val nearestFloor = calls.nearestFloorFrom(currentFloor)
+                    val calledFloors = HashSet<Int>(downsideCalls.signaledFloors())
+                    calledFloors.addAll(upsideCalls.signaledFloors())
+
+                    val nearestFloor = nearestFloorFrom(currentFloor, calledFloors)
 
                     if (currentFloor < nearestFloor)
                         Commands(Side.UP, MoveCommand.UP.times(abs(nearestFloor - currentFloor)))
@@ -123,7 +134,7 @@ public class DrissElevator(public var currentFloor: Int = 0, val dimension: Buil
                     val mainDirection = Side.UP
                     val distance: Int = gosAbove.distanceToFarthestFloorFrom(currentFloor)
                     when {
-                        calls.at(currentFloor - 1).going(mainDirection) != ElevatorRequest.NONE && distance > 1 -> {
+                        upsideCalls.requestedAt(currentFloor - 1) && distance > 1 -> {
                             Commands(mainDirection, Array(distance + 2, invertFirst(MoveCommand.UP)))
                         }
                         else -> {
@@ -135,7 +146,7 @@ public class DrissElevator(public var currentFloor: Int = 0, val dimension: Buil
                     val mainDirection = Side.DOWN
                     val distance: Int = gosBelow.distanceToFarthestFloorFrom(currentFloor)
                     when {
-                        calls.at(currentFloor + 1).going(mainDirection) != ElevatorRequest.NONE && distance > 1 -> {
+                        downsideCalls.requestedAt(currentFloor + 1) && distance > 1 -> {
                             Commands(mainDirection, Array(distance + 2, invertFirst(MoveCommand.DOWN)))
                         }
                         else -> {
@@ -146,12 +157,7 @@ public class DrissElevator(public var currentFloor: Int = 0, val dimension: Buil
             }
         }
 
-        private inline fun numberOf(destinations: Signals<Calls>) = destinations.fold(0) {
-            number, calls ->
-            number + calls.going(Side.UP).number + calls.going(Side.DOWN).number
-        }
-
-        private inline fun sumOf(destinations: Iterable<ElevatorRequest>) =
+        private inline fun sumOf(destinations: Iterable<Signal>) =
                 destinations.fold(0) { number, elevatorRequest -> number + elevatorRequest.number }
 
 

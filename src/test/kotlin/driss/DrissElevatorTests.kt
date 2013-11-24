@@ -33,7 +33,7 @@ class DrissElevatorTests {
         assertThat(elevator.gos.at(2).number)!!.isEqualTo(0)
     }
 
-    test fun go_not_take_someone_if_cabin_is_full() {
+    test fun go_should_not_take_someone_if_cabin_is_full() {
 
         val elevator = DrissElevator(currentFloor = 0, cabin = Cabin(1, 1))
 
@@ -74,7 +74,7 @@ class DrissElevatorTests {
         assertThat(elevator.nextMove())!!.isEqualTo("NOTHING")
     }
 
-    test fun should_go_up_before_down() {
+    test fun should_move_down_before_down() {
 
         val elevator = DrissElevator(currentFloor = 0, cabin = Cabin(1, 0), dimension = BuildingDimension(-3, 8))
 

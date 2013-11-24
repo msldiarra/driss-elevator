@@ -29,24 +29,24 @@ class HodorElevator(public var currentFloor: Int = 0) : Elevator {
         moves.clear()
     }
 
-    override fun go(to: Int) {
+    override fun go(floor: Int) {
         when {
-            !(gos.any { g -> to == g.floor } || calls.any { c -> to == c.floor }) -> {
-                gos.add(GoRequest(to))
-                commandsForGo(to)
-                moves.put(to, commands.toList() as ArrayList<Command>)
+            !(gos.any { g -> floor == g.floor } || calls.any { c -> floor == c.floor }) -> {
+                gos.add(GoRequest(floor))
+                commandsForGo(floor)
+                moves.put(floor, commands.toList() as ArrayList<Command>)
             }
         }
     }
 
-    override fun call(at: Int, side: Elevator.Side?) {
+    override fun call(floor: Int, side: Elevator.Side) {
 
         when {
 
-            !(calls.any { c -> at == c.floor } || gos.any { g -> at == g.floor }) -> {
-                calls.add(CallRequest(at, side))
-                commandsForCall(at)
-                moves.put(at, commands.toList() as ArrayList<Command>)
+            !(calls.any { c -> floor == c.floor } || gos.any { g -> floor == g.floor }) -> {
+                calls.add(CallRequest(floor, side))
+                commandsForCall(floor)
+                moves.put(floor, commands.toList() as ArrayList<Command>)
             }
         }
     }

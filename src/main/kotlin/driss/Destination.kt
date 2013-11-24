@@ -1,17 +1,14 @@
 package driss
 
-import fr.codestory.elevator.Elevator
 import java.util.Date
 import java.util.TreeMap
 import java.util.SortedMap
-import fr.codestory.elevator.Elevator.Side
 import java.lang.Math.*
 import fr.codestory.elevator.BuildingDimension
-import com.google.common.collect.Maps
 
 
 public fun signals<T>(buildingDimension: BuildingDimension,
-                      noneValue: T): Signals<T> {
+                      noneValue: T): Signals<T> where T : Signal {
 
     val floors = TreeMap<Int, T>()
 
@@ -23,10 +20,7 @@ public fun signals<T>(buildingDimension: BuildingDimension,
     return Signals(floors, noneValue)
 }
 
-/**
- * @author Miguel Basire
- */
-class Signals<T>(private val floors: SortedMap<Int, T>, private val noneValue: T) : Iterable<T> {
+class Signals<T>(private val floors: SortedMap<Int, T>, val noneValue: T) : Iterable<T> where T : Signal{
 
     public fun add(floor: Int, value: T): Unit {
         floors.put(floor, value)
@@ -47,36 +41,20 @@ class Signals<T>(private val floors: SortedMap<Int, T>, private val noneValue: T
 
     public fun reached(floor: Int): T = floors.put(floor, noneValue) as T
 
-    public fun requestedAt(floor: Int): Boolean = floors.get(floor) != noneValue
+    public fun requestedAt(floor: Int): Boolean = floors.getOrElse(floor) { noneValue } != noneValue
 
     public fun isEmpty(): Boolean = floors.values().all { v -> v == noneValue }
 
     public override fun iterator(): Iterator<T> = floors.values().iterator()
 
-    public fun nearestFloorFrom(here: Int): Int =
-            signaledFloors()!!.keySet().fold(here) { nearest, floor ->
-                val previousDistance = abs(nearest - here)
-                when {
-                    previousDistance == 0 -> {
-                        floor
-                    }
-                    previousDistance > abs(floor - here) -> {
-                        floor
-                    }
-                    else -> {
-                        nearest
-                    }
-                }
-            }
-
-    private inline fun  signaledFloors() = Maps.filterEntries(floors) { e -> e?.getValue() != noneValue }
+    public inline fun  signaledFloors(): List<Int> = floors.keySet().filter { floors.get(it) != noneValue }
 
     public fun distanceToFarthestFloorFrom(floor: Int): Int =
             if (isEmpty()) 0
             else{
 
-                val lastFloor = signaledFloors()?.lastKey() as Int
-                val firstFloor = signaledFloors()?.firstKey() as Int
+                val lastFloor = signaledFloors().first as Int
+                val firstFloor = signaledFloors().last as Int
 
                 max(abs(floor - lastFloor), abs(floor - firstFloor))
             }
@@ -84,75 +62,50 @@ class Signals<T>(private val floors: SortedMap<Int, T>, private val noneValue: T
     public  fun distanceToNearestFloorFrom(floor: Int): Int =
             if (isEmpty()) 0
             else {
-                val lastFloor = signaledFloors()?.lastKey() as Int
-                val firstFloor = signaledFloors()?.firstKey() as Int
+
+                val lastFloor = signaledFloors().first as Int
+                val firstFloor = signaledFloors().last as Int
 
                 min(abs(floor - lastFloor), abs(floor - firstFloor))
             }
 }
 
 
-public fun calls(side: Side): Calls = when(side) {
-    Side.UP -> {
-        Calls(ElevatorRequest(1), ElevatorRequest.NONE)
-    }
-    Side.DOWN -> {
-        Calls(ElevatorRequest.NONE, ElevatorRequest(1))
-    }
-    else -> {
-        Calls.NONE
-    }
-}
-
-
-class Calls(var up: ElevatorRequest, var  down: ElevatorRequest) {
-
-    public fun increase(side: Elevator.Side?): Unit {
-
-        inline fun elevatorRequest(side: Side?): ElevatorRequest? {
-            when (side) {
-                Side.UP -> {
-                    if (up == ElevatorRequest.NONE) up = ElevatorRequest(0)
-                    return up
+public fun nearestFloorFrom(here: Int, floors: Set<Int>): Int =
+        floors.fold(here) { nearest, floor ->
+            val previousDistance = abs(nearest - here)
+            when {
+                previousDistance == 0 -> {
+                    floor
                 }
-                Side.DOWN -> {
-                    if (down == ElevatorRequest.NONE) down = ElevatorRequest(0)
-                    return down
+                previousDistance > abs(floor - here) -> {
+                    floor
                 }
-                Side.UNKOWN -> {
-                    return null
+                else -> {
+                    nearest
                 }
             }
         }
 
-        elevatorRequest(side)?.increase()
-    }
 
-    public  fun going(side: Elevator.Side): ElevatorRequest =
-            if (side == Elevator.Side.UP)
-                up
-            else
-                down
+trait Signal {
 
+    var number: Int
+    var timestamp: Date
 
-    class object {
-        public val NONE: Calls = Calls(ElevatorRequest.NONE, ElevatorRequest.NONE)
-    }
-}
-
-data class ElevatorRequest(var number: Int = 1,
-                           val timestamp: Date = Date()) {
-
-    public fun increase(): ElevatorRequest {
-        if (this == NONE)
-            throw IllegalStateException("You can not increase ElevatorRequest.None")
-
+    public fun increase(): Signal {
         number++
         return this
     }
-
-    class object {
-        public val NONE: ElevatorRequest = ElevatorRequest(0)
-    }
 }
+
+class Go(number: Int = 1) : Signal {
+    override var number = number
+    override var timestamp = Date()
+}
+class Call(number: Int = 1) : Signal {
+    override var number: Int = number
+    override var timestamp: Date = Date()
+}
+
 
