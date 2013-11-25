@@ -14,8 +14,8 @@ class Controller(val users: Set<User> = hashSetOf<User>()) {
         val floorToGo =  when {
 
             users.filterNot{  u -> u.isWaiting() || u.destinationFloor == 1000 }.count { u ->  Score().isPositiveForGo(u, currentFloor)  } > 0 ->
-                 users.filterNot {  u -> u.isWaiting() }.sortBy { u -> u.waitingTicks + abs(currentFloor - u.destinationFloor)}
-                 .first().destinationFloor
+                 users.filterNot {  u -> u.isWaiting() }.sortBy { u -> Score().scoreForUser(u, currentFloor)}
+                 .last().destinationFloor
 
             else -> users.sortBy { u -> u.waitingTicks + 2 * abs(currentFloor - u.callFloor) }.first().callFloor
         }
@@ -31,6 +31,10 @@ class Score {
 
         val under =  22 + abs(u.callFloor - u.destinationFloor) > u.waitingTicks/2 + abs(currentFloor - u.destinationFloor)
         return under
+    }
+
+    fun scoreForUser(u: User, currentFloor: Int) : Int {
+        return 22 + abs(u.callFloor - u.destinationFloor) - u.waitingTicks/2 + abs(currentFloor - u.destinationFloor)
     }
 
 }
