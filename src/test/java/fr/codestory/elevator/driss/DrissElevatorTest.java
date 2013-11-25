@@ -35,6 +35,7 @@ public class DrissElevatorTest {
         assertThat(elevator.nextMove()).isEqualTo("UP");
         assertThat(elevator.nextMove()).isEqualTo("UP");
         assertThat(elevator.nextMove()).isEqualTo("OPEN");
+        elevator.userHasEntered();
         assertThat(elevator.nextMove()).isEqualTo("CLOSE");
 
         assertThat(elevator.nextMove()).isEqualTo("NOTHING");
@@ -51,6 +52,7 @@ public class DrissElevatorTest {
         assertThat(elevator.nextMove()).isEqualTo("UP");
 
         assertThat(elevator.nextMove()).isEqualTo("OPEN");
+        elevator.userHasEntered();
         elevator.go(3);
         assertThat(elevator.nextMove()).isEqualTo("CLOSE");
 
@@ -71,6 +73,7 @@ public class DrissElevatorTest {
         assertThat(elevator.nextMove()).isEqualTo("DOWN");
 
         assertThat(elevator.nextMove()).isEqualTo("OPEN");
+        elevator.userHasEntered();
         elevator.go(1);
         assertThat(elevator.nextMove()).isEqualTo("CLOSE");
 
@@ -92,6 +95,7 @@ public class DrissElevatorTest {
         assertThat(elevator.nextMove()).isEqualTo("UP");
 
         assertThat(elevator.nextMove()).isEqualTo("OPEN");
+        elevator.userHasEntered();
         elevator.go(1);
         assertThat(elevator.nextMove()).isEqualTo("CLOSE");
         assertThat(elevator.getCurrentFloor()).isEqualTo(4);
@@ -101,6 +105,7 @@ public class DrissElevatorTest {
         assertThat(elevator.nextMove()).isEqualTo("DOWN");
         assertThat(elevator.getCurrentFloor()).isEqualTo(1);
         assertThat(elevator.nextMove()).isEqualTo("OPEN");
+        elevator.userHasEntered();
         assertThat(elevator.nextMove()).isEqualTo("CLOSE");
 
         assertThat(elevator.nextMove()).isEqualTo("NOTHING");
@@ -118,6 +123,7 @@ public class DrissElevatorTest {
         assertThat(elevator.nextMove()).isEqualTo("DOWN");
 
         assertThat(elevator.nextMove()).isEqualTo("OPEN");
+        elevator.userHasEntered();
         elevator.go(3);
         assertThat(elevator.nextMove()).isEqualTo("CLOSE");
 
@@ -136,6 +142,7 @@ public class DrissElevatorTest {
         assertThat(elevator.getCurrentFloor()).isEqualTo(4);
 
         assertThat(elevator.nextMove()).isEqualTo("OPEN");
+        elevator.userHasEntered();
         elevator.go(1);
         assertThat(elevator.nextMove()).isEqualTo("CLOSE");
 

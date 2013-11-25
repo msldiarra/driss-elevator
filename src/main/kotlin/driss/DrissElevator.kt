@@ -13,16 +13,13 @@ public class DrissElevator(public var currentFloor: Int = 0, val dimension: Buil
     val groom = this.Groom()
     val door = Door()
 
-    val upsideCalls: Signals<Call> = signals(dimension, Call(0))
-    val downsideCalls: Signals<Call> = signals(dimension, Call(0))
+    val calls = signals(dimension, emptyImmutableArrayList as MutableList<Call>)
     val gos: Signals<Go> = signals(dimension, Go(0))
 
     public override fun nextMove(): String =
             when {
                 door.opened || groom.wantsTheDoorToOpen() -> {
                     door.toggle {
-                        upsideCalls.reached(currentFloor)
-                        downsideCalls.reached(currentFloor)
                         gos.reached(currentFloor)
                     }.name()
                 }
@@ -48,8 +45,7 @@ public class DrissElevator(public var currentFloor: Int = 0, val dimension: Buil
 
     public override fun reset(): Unit {
 
-        upsideCalls.clear()
-        downsideCalls.clear()
+        calls.clear()
         gos.clear()
         currentFloor = dimension.getLowerFloor()
     }
@@ -66,13 +62,11 @@ public class DrissElevator(public var currentFloor: Int = 0, val dimension: Buil
     }
     public override fun call(floor: Int, side: Side): Unit {
 
-        val calls = if (side == Side.UP) upsideCalls else downsideCalls
-
         val callsAtFloor = calls.at(floor)
         when(callsAtFloor) {
-            calls.noneValue -> calls.add(floor, Call(1))
+            calls.noneValue -> calls.add(floor, arrayListOf(Call(side, 1)))
             else -> {
-                callsAtFloor.increase()
+                callsAtFloor.add(Call(side, 1))
             }
         }
     }
@@ -80,6 +74,7 @@ public class DrissElevator(public var currentFloor: Int = 0, val dimension: Buil
 
     override fun userHasEntered() {
         cabin.userHasEntered()
+        if (calls.requestedAt(currentFloor)) calls.at(currentFloor).remove(0)
     }
     override fun userHasExited() {
         cabin.userHasExited()
@@ -100,17 +95,17 @@ public class DrissElevator(public var currentFloor: Int = 0, val dimension: Buil
                 true
             }
             commands.isTwoSidesChargingAllowed() -> {
-                cabin.canAcceptSomeone() && (upsideCalls.requestedAt(currentFloor) || downsideCalls.requestedAt(currentFloor))
+                cabin.canAcceptSomeone() && (calls.requestedAt(currentFloor))
             }
             else -> {
                 cabin.canAcceptSomeone() &&
-                (if (commands.side == Side.UP) upsideCalls else downsideCalls).requestedAt(currentFloor)
+                calls.at(currentFloor).going(commands.side).count() > 0
             }
         }
 
         public inline fun giveFollowingCommands(): Commands {
 
-            if ( upsideCalls.isEmpty() && downsideCalls.isEmpty() && gos.isEmpty() )
+            if ( calls.isEmpty() && gos.isEmpty() )
                 return Commands.NONE
 
             val gosAbove = gos.above(currentFloor)
@@ -119,10 +114,7 @@ public class DrissElevator(public var currentFloor: Int = 0, val dimension: Buil
             return when {
                 gos.isEmpty() -> {
 
-                    val calledFloors = HashSet<Int>(downsideCalls.signaledFloors())
-                    calledFloors.addAll(upsideCalls.signaledFloors())
-
-                    val nearestFloor = nearestFloorFrom(currentFloor, calledFloors)
+                    val nearestFloor = nearestFloorFrom(currentFloor, calls.signaledFloors())
 
                     if (currentFloor < nearestFloor)
                         Commands(Side.UP, MoveCommand.UP.times(abs(nearestFloor - currentFloor)))
@@ -134,7 +126,7 @@ public class DrissElevator(public var currentFloor: Int = 0, val dimension: Buil
                     val mainDirection = Side.UP
                     val distance: Int = gosAbove.distanceToFarthestFloorFrom(currentFloor)
                     when {
-                        upsideCalls.requestedAt(currentFloor - 1) && distance > 1 -> {
+                        calls.at(currentFloor - 1).going(mainDirection).size > 0 && distance > 1 -> {
                             Commands(mainDirection, Array(distance + 2, invertFirst(MoveCommand.UP)))
                         }
                         else -> {
@@ -146,7 +138,7 @@ public class DrissElevator(public var currentFloor: Int = 0, val dimension: Buil
                     val mainDirection = Side.DOWN
                     val distance: Int = gosBelow.distanceToFarthestFloorFrom(currentFloor)
                     when {
-                        downsideCalls.requestedAt(currentFloor + 1) && distance > 1 -> {
+                        calls.at(currentFloor + 1).going(mainDirection).size > 0 && distance > 1 -> {
                             Commands(mainDirection, Array(distance + 2, invertFirst(MoveCommand.DOWN)))
                         }
                         else -> {

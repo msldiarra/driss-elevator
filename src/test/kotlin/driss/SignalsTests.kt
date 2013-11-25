@@ -55,21 +55,21 @@ class SignalsTests {
 
     test public fun nearest_should_give_the_nearest_negative_floor() {
 
-        assertThat(nearestFloorFrom(1, setOf(-3, 8)))!!.isEqualTo(-3)
+        assertThat(nearestFloorFrom(1, listOf(-3, 8)))!!.isEqualTo(-3)
     }
 
     test public fun nearest_should_give_the_nearest_downside_on_equality() {
 
-        assertThat(nearestFloorFrom(2, setOf(1, 3)))!!.isEqualTo(1)
+        assertThat(nearestFloorFrom(2, listOf(1, 3)))!!.isEqualTo(1)
     }
 
     test public fun nearest_should_give_the_nearest_positive_floor() {
 
-        assertThat(nearestFloorFrom(1, setOf(3, 8)))!!.isEqualTo(3)
+        assertThat(nearestFloorFrom(1, listOf(3, 8)))!!.isEqualTo(3)
     }
 
     test public fun nearest_should_give_itself_when_no_floor_registered() {
 
-        assertThat(nearestFloorFrom(1, setOf()))!!.isEqualTo(1)
+        assertThat(nearestFloorFrom(1, listOf()))!!.isEqualTo(1)
     }
 }

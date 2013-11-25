@@ -5,10 +5,11 @@ import java.util.TreeMap
 import java.util.SortedMap
 import java.lang.Math.*
 import fr.codestory.elevator.BuildingDimension
+import fr.codestory.elevator.Elevator.Side
 
 
 public fun signals<T>(buildingDimension: BuildingDimension,
-                      noneValue: T): Signals<T> where T : Signal {
+                      noneValue: T): Signals<T> {
 
     val floors = TreeMap<Int, T>()
 
@@ -20,7 +21,7 @@ public fun signals<T>(buildingDimension: BuildingDimension,
     return Signals(floors, noneValue)
 }
 
-class Signals<T>(private val floors: SortedMap<Int, T>, val noneValue: T) : Iterable<T> where T : Signal{
+class Signals<T>(private val floors: SortedMap<Int, T>, val noneValue: T) : Iterable<T>{
 
     public fun add(floor: Int, value: T): Unit {
         floors.put(floor, value)
@@ -71,7 +72,7 @@ class Signals<T>(private val floors: SortedMap<Int, T>, val noneValue: T) : Iter
 }
 
 
-public fun nearestFloorFrom(here: Int, floors: Set<Int>): Int =
+public fun nearestFloorFrom(here: Int, floors: List<Int>): Int =
         floors.fold(here) { nearest, floor ->
             val previousDistance = abs(nearest - here)
             when {
@@ -103,9 +104,10 @@ class Go(number: Int = 1) : Signal {
     override var number = number
     override var timestamp = Date()
 }
-class Call(number: Int = 1) : Signal {
+class Call(val side: Side = Side.UNKOWN, number: Int = 1) : Signal {
     override var number: Int = number
     override var timestamp: Date = Date()
 }
 
+public fun List<Call>.going(side: Side): List<Call> = this.filter { it.side == side }
 
