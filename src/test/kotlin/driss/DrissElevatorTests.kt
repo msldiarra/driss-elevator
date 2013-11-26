@@ -37,14 +37,11 @@ class DrissElevatorTests {
             call(1, Side.UP)
             go(2)
 
-            assertThat(nextMove())!!.isEqualTo("UP")
-            assertThat(nextMove())!!.isEqualTo("UP")
-            assertThat(nextMove())!!.isEqualTo("OPEN")
-            assertThat(nextMove())!!.isEqualTo("CLOSE")
-            userHasExited()
-            assertThat(nextMove())!!.isEqualTo("DOWN")
-            assertThat(nextMove())!!.isEqualTo("OPEN")
-            assertThat(nextMove())!!.isEqualTo("CLOSE")
+            up()
+            up()
+            open_then_close { userHasExited() }
+            down()
+            open_then_close { userHasEntered() }
         }
     }
 
@@ -53,12 +50,9 @@ class DrissElevatorTests {
         with(DrissElevator(currentFloor = 0, cabin = Cabin(1, 0), dimension = BuildingDimension(0, 1))) {
             call(1, Side.DOWN)
 
-            assertThat(nextMove())!!.isEqualTo("UP")
-            assertThat(nextMove())!!.isEqualTo("OPEN")
-            userHasEntered()
-            assertThat(nextMove())!!.isEqualTo("CLOSE")
-
-            assertThat(nextMove())!!.isEqualTo("NOTHING")
+            up()
+            open_then_close { userHasEntered() }
+            nothing()
         }
     }
 
@@ -67,10 +61,9 @@ class DrissElevatorTests {
         with(DrissElevator(currentFloor = 0, cabin = Cabin(1, 0), dimension = BuildingDimension(0, 1))) {
             go(1)
 
-            assertThat(nextMove())!!.isEqualTo("UP")
-            assertThat(nextMove())!!.isEqualTo("OPEN")
-            assertThat(nextMove())!!.isEqualTo("CLOSE")
-            assertThat(nextMove())!!.isEqualTo("NOTHING")
+            up()
+            open_then_close { userHasExited() }
+            nothing()
         }
     }
 
@@ -80,34 +73,64 @@ class DrissElevatorTests {
             call(-3, Side.UP)
             call(8, Side.DOWN)
 
-            assertThat(nextMove())!!.isEqualTo("DOWN")
+            down()
         }
     }
 
-    test fun should_not_forget_someone_is_calling() {
+    test fun should_not_forget_someone_is_waiting() {
 
-        with(DrissElevator(currentFloor = 0, cabin = Cabin(1, 0), dimension = BuildingDimension(0, 1))) {
-            call(0, Side.UP)
-            call(0, Side.UP)
+        with(DrissElevator(currentFloor = 1, cabin = Cabin(1, 0), dimension = BuildingDimension(0, 2))) {
+            call(1, Side.UP)
+            call(1, Side.DOWN)
 
-            assertThat(nextMove())!!.isEqualTo("OPEN")
-            userHasEntered()
-            go(1)
+            open_then_close {
+                goTo(2)
+            }
             assertThat(cabin.canAcceptSomeone())!!.isFalse()
-            assertThat(nextMove())!!.isEqualTo("CLOSE")
-            assertThat(nextMove())!!.isEqualTo("UP")
 
-            assertThat(nextMove())!!.isEqualTo("OPEN")
-            userHasExited()
+            up()
+
+            open_then_close {
+                userHasExited()
+            }
+
             assertThat(cabin.canAcceptSomeone())!!.isTrue()
-            assertThat(nextMove())!!.isEqualTo("CLOSE")
 
-            assertThat(nextMove())!!.isEqualTo("DOWN")
+            down()
 
-            assertThat(nextMove())!!.isEqualTo("OPEN")
-            userHasEntered()
-            assertThat(nextMove())!!.isEqualTo("CLOSE")
-            assertThat(nextMove())!!.isEqualTo("NOTHING")
+            open_then_close {
+                goTo(0)
+            }
+
+            down()
+            open_then_close { }
         }
+    }
+
+    private inline fun DrissElevator.open_then_close <T>  (enclosed: () -> T): Unit {
+        assertThat(nextMove())!!.isEqualTo("OPEN")
+
+        enclosed.invoke()
+
+        assertThat(nextMove())!!.isEqualTo("CLOSE")
+        this
+    }
+
+    private inline fun DrissElevator.goTo(floor: Int) {
+        userHasEntered()
+        go(floor)
+        this
+    }
+
+    private inline fun DrissElevator.up() {
+        assertThat(nextMove())!!.isEqualTo("UP")
+    }
+
+    private inline fun DrissElevator.down() {
+        assertThat(nextMove())!!.isEqualTo("DOWN")
+    }
+
+    private inline fun DrissElevator.nothing() {
+        assertThat(nextMove())!!.isEqualTo("NOTHING")
     }
 }
