@@ -81,7 +81,7 @@ public class ElevatorServer {
                             params = extractParameters(exchange);
                             //String to = exchange.getRequestURI().getQuery().replaceFirst("floorToGo=", "");
                             String cabin = params[0].replaceFirst("cabin=", "");
-                            String to = params[1];
+                            String to = params[1].replaceFirst("floorToGo=", "");
                             elevator.go(Integer.parseInt(to));
                             break;
 
