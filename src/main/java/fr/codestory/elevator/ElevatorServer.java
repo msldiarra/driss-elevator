@@ -78,7 +78,10 @@ public class ElevatorServer {
                             break;
 
                         case "/go":
-                            String to = exchange.getRequestURI().getQuery().replaceFirst("floorToGo=", "");
+                            params = extractParameters(exchange);
+                            //String to = exchange.getRequestURI().getQuery().replaceFirst("floorToGo=", "");
+                            String cabin = params[0].replaceFirst("cabin=", "");
+                            String to = params[1];
                             elevator.go(Integer.parseInt(to));
                             break;
 
