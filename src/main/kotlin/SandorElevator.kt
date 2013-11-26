@@ -26,9 +26,9 @@ class SandorElevator(public var currentFloor: Int = 0, val dimension: BuildingDi
 
         users.forEach { u -> u.tick() }
 
-        if(users.isEmpty() && door.state == State.OPEN) return door.close().name()
+        if(users.isEmpty() && door.state == State.OPEN) return door.close().name() + "\nNOTHING\n"
 
-        if(users.isEmpty() && door.state == State.CLOSED) return  Command.NOTHING.name()
+        if(users.isEmpty() && door.state == State.CLOSED) return  Command.NOTHING.name() + "\nNOTHING\n"
 
 
         floorToGo = controller.compute(currentFloor)
@@ -37,15 +37,15 @@ class SandorElevator(public var currentFloor: Int = 0, val dimension: BuildingDi
 
         return  when {
 
-            door.state == State.OPEN ->   door.close().name()
+            door.state == State.OPEN ->   door.close().name() + "\nNOTHING\n"
 
-            currentFloor.isAbove(floorToGo) -> { currentFloor--;Command.DOWN.name() }
+            currentFloor.isAbove(floorToGo) -> { currentFloor--;Command.DOWN.name() + "\nNOTHING\n" }
 
-            currentFloor.isUnder(floorToGo) -> { currentFloor++;  Command.UP.name() }
+            currentFloor.isUnder(floorToGo) -> { currentFloor++;  Command.UP.name() + "\nNOTHING\n" }
 
-            currentFloor.isSameAs(floorToGo) ->   door.open().name()
+            currentFloor.isSameAs(floorToGo) ->   door.open().name() + "\nNOTHING\n"
 
-            else ->  Command.NOTHING.name()
+            else ->  Command.NOTHING.name() + "\nNOTHING\n"
         }
 
     }
