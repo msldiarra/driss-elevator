@@ -14,7 +14,7 @@ class Controller(val users: Set<User> = hashSetOf<User>()) {
         val floorToGo =  when {
 
             users.filterNot{  u -> u.isWaiting() || u.destinationFloor == 1000 }.count { u ->  Score().isPositiveForGo(u, currentFloor)  } > 0 ->
-                users.filterNot {  u -> u.isWaiting() }.sortBy { u -> u.waitingTicks + abs(currentFloor - u.destinationFloor)}
+                users.filterNot {  u -> u.isWaiting() && !Score().isPositiveForGo(u, currentFloor) }.sortBy { u -> (u.waitingTicks + 2 * abs(currentFloor - u.destinationFloor)) as Int}
                         .first().destinationFloor
 
             else -> users.sortBy { u -> u.waitingTicks + 2 * abs(currentFloor - u.callFloor) }.first().callFloor

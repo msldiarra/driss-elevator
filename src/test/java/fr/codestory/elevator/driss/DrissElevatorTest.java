@@ -62,7 +62,7 @@ public class DrissElevatorTest {
     @Test
     public void should_go_down_on_first_call() {
 
-        DrissElevator groom = new DrissElevator(3, new BuildingDimension(0, 19), 5);
+        DrissElevator groom = new DrissElevator(3, new BuildingDimension(0, 19), 5,1);
 
         groom.call(2, Elevator.Side.DOWN);
 
@@ -82,7 +82,7 @@ public class DrissElevatorTest {
     @Test
     public void should_go_upside_first() {
 
-        DrissElevator groom = new DrissElevator(3, new BuildingDimension(0, 19), 5);
+        DrissElevator groom = new DrissElevator(3, new BuildingDimension(0, 19), 5,1);
 
         groom.call(2, Elevator.Side.DOWN);
         groom.call(4, Elevator.Side.DOWN);
@@ -112,7 +112,7 @@ public class DrissElevatorTest {
     @Test
     public void should_take_someone_near() {
 
-        DrissElevator groom = new DrissElevator(1, new BuildingDimension(0, 19), 5);
+        DrissElevator groom = new DrissElevator(1, new BuildingDimension(0, 19), 5, 1);
         groom.go(4);
 
         groom.call(0, Elevator.Side.UP);
