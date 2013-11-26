@@ -8,7 +8,7 @@ import java.util.Enumeration
 import fr.codestory.elevator.Elevator
 import fr.codestory.elevator.BuildingDimension
 
-public class DrissElevator(public var currentFloor: Int = 0, val dimension: BuildingDimension = BuildingDimension(0, 19), val cabinSize: Int = 20) : Elevator {
+public class DrissElevator(public var currentFloor: Int = 0, val dimension: BuildingDimension = BuildingDimension(0, 19), val cabinSize: Int = 20, val cabinCount: Int = 1) : Elevator {
 
     val groom = Groom()
     val door = Door()

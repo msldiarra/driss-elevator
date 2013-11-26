@@ -17,28 +17,11 @@ enum class ElevatorAlgorithm {
 fun factory(algo: ElevatorAlgorithm): ElevatorFactory {
 
     return when(algo) {
-        ElevatorAlgorithm.UPANDDOWN -> {
-            ElevatorFactory { buildingDimension, cabinSize -> UpAndDownElevator() }
-        }
-        ElevatorAlgorithm.OMNIBUS -> {
-            ElevatorFactory { buildingDimension, cabinSize -> OmnibusElevator() }
-        }
-        ElevatorAlgorithm.DRISS -> {
-            ElevatorFactory { buildingDimension, cabinSize ->
-                DrissElevator(dimension = buildingDimension as BuildingDimension,
-                        cabinSize = cabinSize as Int);
-            }
-        }
-        ElevatorAlgorithm.HODOR -> {
-            ElevatorFactory { buildingDimension, cabinSize ->
-                HodorElevator(dimension = buildingDimension as BuildingDimension,
-                        cabinSize = cabinSize as Int);
-            }
-        }
+
         ElevatorAlgorithm.SANDOR -> {
-            ElevatorFactory { buildingDimension, cabinSize ->
+            ElevatorFactory { buildingDimension, cabinSize, cabinCount ->
                 SandorElevator(dimension = buildingDimension as BuildingDimension,
-                        cabinSize = cabinSize as Int);
+                        cabinSize = cabinSize as Int, cabinCount = cabinCount as Int);
             }
         }
         else -> {
