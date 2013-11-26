@@ -34,7 +34,7 @@ public class ElevatorServer {
     ElevatorServer(int port, ElevatorFactory elevatorFactory) throws IOException {
 
         this.elevatorFactory = elevatorFactory;
-        this.elevator = elevatorFactory.newElevator(new BuildingDimension(0, 19), 30); // if the the first request is not a reset...
+        this.elevator = elevatorFactory.newElevator(new BuildingDimension(0, 19), 30, 1); // if the the first request is not a reset...
 
         httpServer = HttpServer.create(new InetSocketAddress(port), 0);
         httpServer.setExecutor(new Executor() {
@@ -69,6 +69,10 @@ public class ElevatorServer {
                     String[] params;
 
                     switch (elevatorEvent) {
+                        case "/nextCommands":
+                            nextMove = elevator.nextMove();
+                            break;
+
                         case "/nextCommand":
                             nextMove = elevator.nextMove();
                             break;
@@ -86,9 +90,10 @@ public class ElevatorServer {
                             String lowerFloor = params[0].replaceFirst("lowerFloor=", "");
                             String higherFloor = params[1].replaceFirst("higherFloor=", "");
                             String cabinSize = params[2].replaceFirst("cabinSize=", "");
+                            String cabinCount = params[3].replaceFirst("cabinCount=", "");
 
                             BuildingDimension dimension = new BuildingDimension(Integer.parseInt(lowerFloor), Integer.parseInt(higherFloor));
-                            elevator = elevatorFactory.newElevator(dimension, Integer.parseInt(cabinSize));
+                            elevator = elevatorFactory.newElevator(dimension, Integer.parseInt(cabinSize), Integer.parseInt(cabinCount));
 
                             break;
 

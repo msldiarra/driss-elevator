@@ -10,7 +10,7 @@ import fr.codestory.elevator.hodor.Door.State
 import fr.codestory.elevator.ElevatorServer
 import org.apache.log4j.Logger
 
-class SandorElevator(public var currentFloor: Int = 0, val dimension: BuildingDimension = BuildingDimension(0, 24), val cabinSize: Int = 2) : Elevator {
+class SandorElevator(public var currentFloor: Int = 0, val dimension: BuildingDimension = BuildingDimension(0, 24), val cabinSize: Int = 2, val cabinCount: Int = 1) : Elevator {
 
     private val LOG: Logger = Logger.getLogger(javaClass<SandorElevator>()) as Logger
 
