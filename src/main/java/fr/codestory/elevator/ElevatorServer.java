@@ -88,7 +88,7 @@ public class ElevatorServer {
                             String lowerFloor = params[0].replaceFirst("lowerFloor=", "");
                             String higherFloor = params[1].replaceFirst("higherFloor=", "");
                             String cabinSize = params[2].replaceFirst("cabinSize=", "");
-                            String cabinCount = params[3].replaceFirst("cabinSize=", "");
+                            String cabinCount = params[3].replaceFirst("cabinCount=", "");
 
                             BuildingDimension dimension = new BuildingDimension(Integer.parseInt(lowerFloor), Integer.parseInt(higherFloor));
                             elevator = elevatorFactory.newElevator(dimension, Integer.parseInt(cabinSize), Integer.parseInt(cabinCount));
