@@ -99,4 +99,19 @@ public class UpAndDownElevator implements Elevator {
     public void userHasExited() {
         //To change body of implemented methods use File | Settings | File Templates.
     }
+
+    @Override
+    public void go(int cabinNumber, int floor) {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public void userHasEntered(int cabin) {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public void userHasExited(int cabin) {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
 }

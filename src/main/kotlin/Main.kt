@@ -16,19 +16,19 @@ fun factory(algo: ElevatorAlgorithm): ElevatorFactory {
 
     return when(algo) {
         ElevatorAlgorithm.UPANDDOWN -> {
-            ElevatorFactory { buildingDimension, cabinSize -> UpAndDownElevator() }
+            ElevatorFactory { buildingDimension, cabinSize, numberOfCabin -> UpAndDownElevator() }
         }
         ElevatorAlgorithm.OMNIBUS -> {
-            ElevatorFactory { buildingDimension, cabinSize -> OmnibusElevator() }
+            ElevatorFactory { buildingDimension, cabinSize, numberOfCabin -> OmnibusElevator() }
         }
         ElevatorAlgorithm.DRISS -> {
-            ElevatorFactory { buildingDimension, cabinSize ->
+            ElevatorFactory { buildingDimension, cabinSize, numberOfCabin ->
                 DrissElevator(dimension = buildingDimension as BuildingDimension,
-                        cabin = Cabin(cabinSize as Int));
+                        cabinSize = cabinSize!!, cabinNumber = numberOfCabin!!);
             }
         }
         ElevatorAlgorithm.HODOR -> {
-            ElevatorFactory { buildingDimension, cabinSize -> HodorElevator() }
+            ElevatorFactory { buildingDimension, cabinSize, numberOfCabin -> HodorElevator() }
         }
         else -> {
             throw IllegalArgumentException("Unknown algorithm")

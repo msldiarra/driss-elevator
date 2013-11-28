@@ -2,34 +2,36 @@ package driss
 
 import fr.codestory.elevator.Elevator.Side
 import fr.codestory.elevator.BuildingDimension
-import fr.codestory.elevator.Cabin
 import fr.codestory.elevator.Elevator
+import java.util.ArrayList
 
-import java.lang.Math.*
-import java.util.HashSet
+public class DrissElevator(initialFloor: Int = 0,
+                           val dimension: BuildingDimension = BuildingDimension(0, 19),
+                           cabinSize: Int,
+                           cabinNumber: Int) : Elevator {
 
-public class DrissElevator(public var currentFloor: Int = 0, val dimension: BuildingDimension = BuildingDimension(0, 19), val cabin: Cabin = Cabin(20)) : Elevator {
 
-    val groom = this.Groom()
-    val door = Door()
+    val calls = signals(dimension, ArrayList<Call>() : MutableList<Call>)
 
-    val calls = signals(dimension, emptyImmutableArrayList as MutableList<Call>)
-    val gos: Signals<Go> = signals(dimension, Go(0))
+    val cabins = Array(cabinNumber) {
+        Cabin(signals(dimension, Go(0)), cabinSize, initialFloor)
+    }
 
-    public override fun nextMove(): String =
+    public override fun nextMove(): String = cabins.map {
+        with(it) {
             when {
-                door.opened || groom.wantsTheDoorToOpen() -> {
+                door.opened || groom.wantsTheDoorToOpen(calls) -> {
                     door.toggle {
                         gos.reached(currentFloor)
                     }.name()
                 }
-                else -> {
-                    updateReachedFloorAfter(groom.giveNextMoveCommand())
-                }
+                else -> updateReachedFloorAfter(groom.giveNextMoveCommand(calls))
             }
+        }
+    }.fold("") { commands, command -> command + "\\n" + commands }
 
 
-    private inline fun updateReachedFloorAfter(chosenCommand: MoveCommand): String {
+    private inline fun Cabin.updateReachedFloorAfter(chosenCommand: MoveCommand): String {
         when (chosenCommand) {
             MoveCommand.UP -> {
                 currentFloor++
@@ -46,14 +48,13 @@ public class DrissElevator(public var currentFloor: Int = 0, val dimension: Buil
     public override fun reset(): Unit {
 
         calls.clear()
-        gos.clear()
-        currentFloor = dimension.getLowerFloor()
+        cabins.forEach { it.gos.clear() }
     }
-    public override fun go(floor: Int): Unit {
-        val timestampedCounter: Signal? = gos.at(floor)
-        if (timestampedCounter == gos.noneValue)
+    public override fun go(cabinNumber: Int, floor: Int): Unit {
+        val timestampedCounter: Signal? = cabins[cabinNumber].gos.at(floor)
+        if (timestampedCounter == cabins[cabinNumber].gos.noneValue)
         {
-            gos.add(floor, Go(1))
+            cabins[cabinNumber].gos.add(floor, Go(1))
         }
         else
         {
@@ -71,94 +72,25 @@ public class DrissElevator(public var currentFloor: Int = 0, val dimension: Buil
         }
     }
 
+    override fun userHasEntered(cabinNumber: Int) {
+        with(cabins[cabinNumber]) {
+            userHasEntered()
+            if (calls.requestedAt(currentFloor)) calls.at(currentFloor).remove(0)
+        }
+    }
+    override fun userHasExited(cabinNumber: Int) {
+        cabins[cabinNumber].userHasExited()
+    }
 
+
+    override fun go(floor: Int) {
+        throw UnsupportedOperationException()
+    }
     override fun userHasEntered() {
-        cabin.userHasEntered()
-        if (calls.requestedAt(currentFloor)) calls.at(currentFloor).remove(0)
+        throw UnsupportedOperationException()
     }
     override fun userHasExited() {
-        cabin.userHasExited()
-    }
-
-
-    inner class Groom {
-
-        private var commands = Commands.NONE
-
-        public inline fun giveNextMoveCommand(): MoveCommand {
-            if ( !commands.hasMoreElements()) commands = groom.giveFollowingCommands()
-            return commands.nextElement()
-        }
-
-        public inline fun wantsTheDoorToOpen(): Boolean = when {
-            gos.requestedAt(currentFloor) -> {
-                true
-            }
-            commands.isTwoSidesChargingAllowed() -> {
-                cabin.canAcceptSomeone() && (calls.requestedAt(currentFloor))
-            }
-            else -> {
-                cabin.canAcceptSomeone() &&
-                calls.at(currentFloor).going(commands.side).count() > 0
-            }
-        }
-
-        public inline fun giveFollowingCommands(): Commands {
-
-            if ( calls.isEmpty() && gos.isEmpty() )
-                return Commands.NONE
-
-            val gosAbove = gos.above(currentFloor)
-            val gosBelow = gos.below(currentFloor)
-
-            return when {
-                gos.isEmpty() -> {
-
-                    val nearestFloor = nearestFloorFrom(currentFloor, calls.signaledFloors())
-
-                    if (currentFloor < nearestFloor)
-                        Commands(Side.UP, MoveCommand.UP.times(abs(nearestFloor - currentFloor)))
-                    else
-                        Commands(Side.DOWN, MoveCommand.DOWN.times(abs(nearestFloor - currentFloor)))
-                }
-
-                sumOf(gosAbove) > sumOf(gosBelow) -> {
-                    val mainDirection = Side.UP
-                    val distance: Int = gosAbove.distanceToFarthestFloorFrom(currentFloor)
-                    when {
-                        calls.at(currentFloor - 1).going(mainDirection).size > 0 && distance > 1 -> {
-                            Commands(mainDirection, Array(distance + 2, invertFirst(MoveCommand.UP)))
-                        }
-                        else -> {
-                            Commands(mainDirection, MoveCommand.UP.times(distance))
-                        }
-                    }
-                }
-                else -> {
-                    val mainDirection = Side.DOWN
-                    val distance: Int = gosBelow.distanceToFarthestFloorFrom(currentFloor)
-                    when {
-                        calls.at(currentFloor + 1).going(mainDirection).size > 0 && distance > 1 -> {
-                            Commands(mainDirection, Array(distance + 2, invertFirst(MoveCommand.DOWN)))
-                        }
-                        else -> {
-                            Commands(mainDirection, MoveCommand.DOWN.times(distance))
-                        }
-                    }
-                }
-            }
-        }
-
-        private inline fun sumOf(destinations: Iterable<Signal>) =
-                destinations.fold(0) { number, elevatorRequest -> number + elevatorRequest.number }
-
-
-        inline private fun invertFirst(command: MoveCommand) = {(i: Int) ->
-            when {
-                i == 0 -> command.switch()
-                else -> command
-            }
-        }
+        throw UnsupportedOperationException()
     }
 
     enum class MoveCommand {

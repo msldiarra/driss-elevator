@@ -146,6 +146,17 @@ class HodorElevator(public var currentFloor: Int = 0) : Elevator {
         commands.set(Math.abs(way) + 1, Command.CLOSE)
     }
 
+
+    override fun go(cabinNumber: Int, floor: Int) {
+        throw UnsupportedOperationException()
+    }
+    override fun userHasEntered(cabinNumber: Int) {
+        throw UnsupportedOperationException()
+    }
+    override fun userHasExited(cabinNumber: Int) {
+        throw UnsupportedOperationException()
+    }
+
     enum class Command {
         UP
         DOWN

@@ -34,7 +34,7 @@ public class ElevatorServer {
     ElevatorServer(int port, ElevatorFactory elevatorFactory) throws IOException {
 
         this.elevatorFactory = elevatorFactory;
-        this.elevator = elevatorFactory.newElevator(new BuildingDimension(0, 19), 30); // if the the first request is not a reset...
+        this.elevator = elevatorFactory.newElevator(new BuildingDimension(0, 19), 30, 2); // if the the first request is not a reset...
 
         httpServer = HttpServer.create(new InetSocketAddress(port), 0);
         httpServer.setExecutor(new Executor() {
@@ -69,13 +69,15 @@ public class ElevatorServer {
                     String[] params;
 
                     switch (elevatorEvent) {
-                        case "/nextCommand":
+                        case "/nextCommands":
                             nextMove = elevator.nextMove();
                             break;
 
                         case "/go":
-                            String to = exchange.getRequestURI().getQuery().replaceFirst("floorToGo=", "");
-                            elevator.go(Integer.parseInt(to));
+                            params = extractParameters(exchange);
+
+                            String to = params[1].replaceFirst("floorToGo=", "");
+                            elevator.go(cabin(params), Integer.parseInt(to));
                             break;
 
                         case "/reset":
@@ -86,18 +88,22 @@ public class ElevatorServer {
                             String lowerFloor = params[0].replaceFirst("lowerFloor=", "");
                             String higherFloor = params[1].replaceFirst("higherFloor=", "");
                             String cabinSize = params[2].replaceFirst("cabinSize=", "");
+                            String cabinCount = params[3].replaceFirst("cabinSize=", "");
 
                             BuildingDimension dimension = new BuildingDimension(Integer.parseInt(lowerFloor), Integer.parseInt(higherFloor));
-                            elevator = elevatorFactory.newElevator(dimension, Integer.parseInt(cabinSize));
+                            elevator = elevatorFactory.newElevator(dimension, Integer.parseInt(cabinSize), Integer.parseInt(cabinCount));
 
                             break;
 
                         case "/userHasEntered":
-                            elevator.userHasEntered();
+                            params = extractParameters(exchange);
+
+                            elevator.userHasEntered(cabin(params));
                             break;
 
                         case "/userHasExited":
-                            elevator.userHasExited();
+                            params = extractParameters(exchange);
+                            elevator.userHasExited(cabin(params));
                             break;
 
                         case "/call":
@@ -120,6 +126,10 @@ public class ElevatorServer {
                 out.close();
             }
         });
+    }
+
+    private int cabin(String[] params) {
+        return Integer.parseInt(params[0].replaceFirst("cabin=", ""));
     }
 
     private String[] extractParameters(HttpExchange exchange) {
