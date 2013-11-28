@@ -28,7 +28,7 @@ public class DrissElevator(initialFloor: Int = 0,
                 else -> updateReachedFloorAfter(groom.giveNextMoveCommand(calls))
             }
         }
-    }.fold("") { commands, command -> command + "\\n" + commands }
+    }.fold("") { commands, command -> command + "\n" + commands }
 
 
     private inline fun Cabin.updateReachedFloorAfter(chosenCommand: MoveCommand): String {

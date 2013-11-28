@@ -110,11 +110,11 @@ class DrissElevatorTests {
     }
 
     private inline fun DrissElevator.open_then_close <T>  (enclosed: () -> T): Unit {
-        assertThat(nextMove())!!.isEqualTo("OPEN\\n")
+        assertThat(nextMove())!!.isEqualTo("OPEN\n")
 
         enclosed.invoke()
 
-        assertThat(nextMove())!!.isEqualTo("CLOSE\\n")
+        assertThat(nextMove())!!.isEqualTo("CLOSE\n")
         this
     }
 
@@ -125,15 +125,15 @@ class DrissElevatorTests {
     }
 
     private inline fun DrissElevator.up() {
-        assertThat(nextMove())!!.isEqualTo("UP\\n")
+        assertThat(nextMove())!!.isEqualTo("UP\n")
     }
 
     private inline fun DrissElevator.down() {
-        assertThat(nextMove())!!.isEqualTo("DOWN\\n")
+        assertThat(nextMove())!!.isEqualTo("DOWN\n")
     }
 
     private inline fun DrissElevator.nothing() {
-        assertThat(nextMove())!!.isEqualTo("NOTHING\\n")
+        assertThat(nextMove())!!.isEqualTo("NOTHING\n")
     }
 
     private inline fun DrissElevator.firstCabinGoesTo(floor: Int) {
