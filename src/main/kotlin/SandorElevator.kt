@@ -52,7 +52,7 @@ class SandorElevator(public var cabins: Map<Int,Cabin> = hashMapOf(Pair(0, Cabin
 
     override fun reset() {
         users.clear()
-        cabins = Controller().resetCabins(cabinCount, cabinSize, dimension.getLowerFloor())
+        cabins = Controller().resetCabins(2, cabinSize, dimension.getLowerFloor())
     }
 
 
