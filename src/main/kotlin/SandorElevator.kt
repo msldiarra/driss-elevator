@@ -10,7 +10,7 @@ import fr.codestory.elevator.ElevatorServer
 import org.apache.log4j.Logger
 import fr.codestory.elevator.Elevator.Side
 
-class SandorElevator(public var cabins: Map<Int,Cabin> = hashMapOf(Pair(0, Cabin())), val dimension: BuildingDimension = BuildingDimension(0, 24), val cabinSize: Int = 2, val cabinCount: Int = 1) : Elevator {
+class SandorElevator(public var cabins: Map<Int,Cabin> = hashMapOf(Pair(0, Cabin())), val dimension: BuildingDimension = BuildingDimension(0, 24), val cabinSize: Int = 30, val cabinCount: Int = 2) : Elevator {
 
     private val LOG: Logger = Logger.getLogger(javaClass<SandorElevator>()) as Logger
 
