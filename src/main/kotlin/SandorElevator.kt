@@ -6,11 +6,11 @@ import java.util.HashSet
 import java.util.ArrayList
 import com.google.common.collect.Iterables
 import fr.codestory.elevator.hodor.HodorElevator.Command
-import fr.codestory.elevator.hodor.Door.State
 import fr.codestory.elevator.ElevatorServer
 import org.apache.log4j.Logger
+import fr.codestory.elevator.Elevator.Side
 
-class SandorElevator(public var currentFloor: Int = 0, val dimension: BuildingDimension = BuildingDimension(0, 24), val cabinSize: Int = 2, val cabinCount: Int = 1) : Elevator {
+class SandorElevator(public var cabins: Map<Int,Cabin> = hashMapOf(Pair(0, Cabin())), val dimension: BuildingDimension = BuildingDimension(0, 24), val cabinSize: Int = 2, val cabinCount: Int = 1) : Elevator {
 
     private val LOG: Logger = Logger.getLogger(javaClass<SandorElevator>()) as Logger
 
@@ -18,95 +18,73 @@ class SandorElevator(public var currentFloor: Int = 0, val dimension: BuildingDi
     val calls: ArrayList<CallRequest> =  ArrayList<CallRequest>()
     val gos: ArrayList<GoRequest> = ArrayList<GoRequest>()
     val controller = Controller(users)
-    val door = Door()
-    var floorToGo = currentFloor
+    var score = 0
+
 
 
     override fun nextMove(): String? {
 
-        users.forEach { u -> u.tick() }
+        users.forEach { u -> u.tick() }   // Controller will all cabins users
+        cabins.get(0)?.users?.forEach { u -> u.tick() }   // Controller will all cabins users
+        cabins.get(1)?.users?.forEach { u -> u.tick() }   // Controller will all cabins users
 
-        if(users.isEmpty() && door.state == State.OPEN) return door.close().name() + "\nNOTHING\n"
+        var firstCabinCommand = Command.NOTHING.name()
+        var secondCabinCommand = Command.NOTHING.name()
 
-        if(users.isEmpty() && door.state == State.CLOSED) return  Command.NOTHING.name() + "\nNOTHING\n"
+        // Method to manage response when no users
+       /* if(users.isEmpty() && door.state == State.OPEN) return door.close().name()
+        if(users.isEmpty() && door.state == State.CLOSED) return  Command.NOTHING.name()*/
 
+        val firstCabinDestination = controller.compute(cabins.get(0)!! as Cabin)
+        var secondCabinDestination: Int? = null
+        if(cabins.get(1) != null) secondCabinDestination = controller.compute(cabins.get(1)!! as Cabin)
 
-        floorToGo = controller.compute(currentFloor)
+        LOG?.info("Floor to Go" + firstCabinDestination)
 
-        LOG?.info("Floor to Go" + floorToGo)
-
-        return  when {
-
-            door.state == State.OPEN ->   door.close().name() + "\nNOTHING\n"
-
-            currentFloor.isAbove(floorToGo) -> { currentFloor--;Command.DOWN.name() + "\nNOTHING\n" }
-
-            currentFloor.isUnder(floorToGo) -> { currentFloor++;  Command.UP.name() + "\nNOTHING\n" }
-
-            currentFloor.isSameAs(floorToGo) ->   door.open().name() + "\nNOTHING\n"
-
-            else ->  Command.NOTHING.name() + "\nNOTHING\n"
+        firstCabinCommand = Controller().nextCommand(cabins.get(0) as Cabin, firstCabinDestination)
+        if(secondCabinDestination != null) {
+            secondCabinCommand = Controller().nextCommand(cabins.get(1) as Cabin, secondCabinDestination!!)
         }
 
+        return firstCabinCommand+"\n"+secondCabinCommand
     }
 
 
     override fun reset() {
         users.clear()
-        currentFloor = dimension.getLowerFloor()
-        floorToGo = 0
+        cabins = Controller().resetCabins(cabinCount, cabinSize, dimension.getLowerFloor())
     }
 
 
-    override fun go(to: Int) {
-        LOG.info(users.forEach{ u -> u.isTravelling() && u.destinationFloor == 1000 }.toString())
-        users.filter { u -> u.isTravelling() && u.destinationFloor == 1000 }.sortBy{ u -> u.waitingTicks }.last().destinationFloor = to
+    override fun go(cabin: Int, to: Int) {
+        Controller().go(cabins.get(cabin)!! as Cabin, to)
+        //users.filter { u -> u.isTravelling() && u.destinationFloor == 1000 }.sortBy{ u -> u.waitingTicks }.last().destinationFloor = to
     }
 
 
     override fun call(at: Int, side: Elevator.Side?) {
-        //calls.add(CallRequest(at, side))
-        users.add(User(at))
+        users.add(User(at, side as Side))
     }
 
 
-    override fun userHasEntered() {
-        /*if(users.isEmpty()) {
-            val user = User(calls.first().floor)
-            user.waitingTicks = Math.abs(user.callFloor - currentFloor)
-            users.add(user)
+    override fun userHasEntered(cabin: Int) {
+        Controller().takeIn(cabins.get(cabin)!! as Cabin, users)
+        //users.filter { u -> u.isWaiting()  && cabins.get(cabin)?.currentFloor == u.callFloor }.sortBy{ u -> u.waitingTicks }.last().state = User.State.TRAVELLING
+    }
+
+
+    override fun userHasExited(cabin:Int) {
+
+        //val userToExit =
+        Controller().leaveUserFrom(cabins.get(cabin)!! as Cabin)
+/*        if(userToExit!= null) {
+            score = score + Score().plus(userToExit)
+            users.remove(userToExit)
         }*/
-        users.filter { u -> u.isWaiting()  && currentFloor == u.callFloor }.sortBy{ u -> u.waitingTicks }.last().state = User.State.TRAVELLING
-
-    }
-
-
-    override fun userHasExited() {
-        //Iterables.removeIf(users, { user -> user?.destinationFloor == currentFloor && user?.state == User.State.TRAVELLING})
-
-        users.remove( users.find { user -> user?.destinationFloor == currentFloor && user?.state == User.State.TRAVELLING } )
     }
 }
 
-class Door {
 
-    var state = State.CLOSED
-
-    fun open() : Command {
-        state = State.OPEN
-        return Command.OPEN
-    }
-
-    fun close(): Command {
-        state = State.CLOSED
-        return Command.CLOSE
-    }
-
-    enum class State {
-        CLOSED
-        OPEN
-    }
-}
 
 
 fun Int.isAbove(callFloor: Int) : Boolean {

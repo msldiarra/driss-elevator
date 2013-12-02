@@ -49,7 +49,7 @@ public class DrissElevatorTest {
         assertThat(groom.nextMove()).isEqualTo("UP");
 
         assertThat(groom.nextMove()).isEqualTo("OPEN");
-        groom.go(3);
+        groom.go(0,3);
         assertThat(groom.nextMove()).isEqualTo("CLOSE");
 
         assertThat(groom.nextMove()).isEqualTo("UP");
@@ -69,7 +69,7 @@ public class DrissElevatorTest {
         assertThat(groom.nextMove()).isEqualTo("DOWN");
 
         assertThat(groom.nextMove()).isEqualTo("OPEN");
-        groom.go(1);
+        groom.go(0,1);
         assertThat(groom.nextMove()).isEqualTo("CLOSE");
 
         assertThat(groom.nextMove()).isEqualTo("DOWN");
@@ -90,7 +90,7 @@ public class DrissElevatorTest {
         assertThat(groom.nextMove()).isEqualTo("UP");
 
         assertThat(groom.nextMove()).isEqualTo("OPEN");
-        groom.go(1);
+        groom.go(0,1);
         assertThat(groom.nextMove()).isEqualTo("CLOSE");
         assertThat(groom.getCurrentFloor()).isEqualTo(4);
 
@@ -98,7 +98,7 @@ public class DrissElevatorTest {
         assertThat(groom.nextMove()).isEqualTo("DOWN");
         assertThat(groom.getCurrentFloor()).isEqualTo(2);
         assertThat(groom.nextMove()).isEqualTo("OPEN");
-        groom.go(1);
+        groom.go(0,1);
         assertThat(groom.nextMove()).isEqualTo("CLOSE");
 
         assertThat(groom.nextMove()).isEqualTo("DOWN");
@@ -113,7 +113,7 @@ public class DrissElevatorTest {
     public void should_take_someone_near() {
 
         DrissElevator groom = new DrissElevator(1, new BuildingDimension(0, 19), 5, 1);
-        groom.go(4);
+        groom.go(0,4);
 
         groom.call(0, Elevator.Side.UP);
         groom.call(4, Elevator.Side.DOWN);
@@ -122,7 +122,7 @@ public class DrissElevatorTest {
         Commands initialCommands = groom.getCommands();
 
         assertThat(groom.nextMove()).isEqualTo("OPEN");
-        groom.go(3);
+        groom.go(0,3);
         assertThat(groom.nextMove()).isEqualTo("CLOSE");
 
         assertThat(groom.getCurrentFloor()).isEqualTo(0);
@@ -141,7 +141,7 @@ public class DrissElevatorTest {
         assertThat(groom.getCommands()).isEqualTo(initialCommands);
 
         assertThat(groom.nextMove()).isEqualTo("OPEN");
-        groom.go(1);
+        groom.go(0,1);
         assertThat(groom.nextMove()).isEqualTo("CLOSE");
 
 

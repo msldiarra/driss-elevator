@@ -8,13 +8,13 @@ public interface Elevator {
 
     public void reset();
 
-    public void go(int to);
+    public void go(int cabin, int to);
 
     public void call(int at, Side side);
 
-    void userHasEntered();
+    void userHasEntered(int cabin);
 
-    void userHasExited();
+    void userHasExited(int cabin);
 
     public enum Side {UP, DOWN, UNKOWN}
 }

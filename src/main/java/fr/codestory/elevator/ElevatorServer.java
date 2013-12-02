@@ -82,7 +82,7 @@ public class ElevatorServer {
                             //String to = exchange.getRequestURI().getQuery().replaceFirst("floorToGo=", "");
                             String cabin = params[0].replaceFirst("cabin=", "");
                             String to = params[1].replaceFirst("floorToGo=", "");
-                            elevator.go(Integer.parseInt(to));
+                            elevator.go(Integer.parseInt(cabin), Integer.parseInt(to));
                             break;
 
                         case "/reset":
@@ -101,11 +101,13 @@ public class ElevatorServer {
                             break;
 
                         case "/userHasEntered":
-                            elevator.userHasEntered();
+                            String cabinEntered = exchange.getRequestURI().getQuery().replaceFirst("cabin=", "");
+                            elevator.userHasEntered(Integer.parseInt(cabinEntered));
                             break;
 
                         case "/userHasExited":
-                            elevator.userHasExited();
+                            String cabinExited = exchange.getRequestURI().getQuery().replaceFirst("cabin=", "");
+                            elevator.userHasExited(Integer.parseInt(cabinExited));
                             break;
 
                         case "/call":

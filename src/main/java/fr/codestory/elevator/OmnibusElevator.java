@@ -34,7 +34,7 @@ public class OmnibusElevator implements Elevator {
     }
 
     @Override
-    public void go(int to) {
+    public void go(int cabin, int to) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -44,12 +44,12 @@ public class OmnibusElevator implements Elevator {
     }
 
     @Override
-    public void userHasEntered() {
+    public void userHasEntered(int cabin) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public void userHasExited() {
+    public void userHasExited(int cabin) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 }

@@ -12,11 +12,11 @@ class DrissElevatorTests {
 
         val cabin = DrissElevator()
 
-        cabin.go(1)
+        cabin.go(0,1)
 
         assertThat(cabin.gos.at(1).number)!!.isEqualTo(1)
 
-        cabin.go(1)
+        cabin.go(0,1)
 
         assertThat(cabin.gos.at(1).number)!!.isEqualTo(2)
     }
@@ -26,7 +26,7 @@ class DrissElevatorTests {
 
         val cabin = DrissElevator()
 
-        cabin.go(1)
+        cabin.go(0,1)
 
         assertThat(cabin.gos.at(1).number)!!.isEqualTo(1)
         assertThat(cabin.gos.at(2).number)!!.isEqualTo(0)

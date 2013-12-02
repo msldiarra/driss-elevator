@@ -58,7 +58,7 @@ public class DrissElevator(public var currentFloor: Int = 0, val dimension: Buil
         currentFloor = dimension.getLowerFloor()
         commands = Commands.NONE
     }
-    public override fun go(to: Int): Unit {
+    public override fun go(cabin: Int,to: Int): Unit {
         val timestampedCounter: ElevatorRequest? = gos.at(to)
         if (timestampedCounter == ElevatorRequest.NONE)
         {
@@ -80,10 +80,10 @@ public class DrissElevator(public var currentFloor: Int = 0, val dimension: Buil
     }
 
 
-    override fun userHasEntered() {
+    override fun userHasEntered(cabin: Int) {
 
     }
-    override fun userHasExited() {
+    override fun userHasExited(cabin: Int) {
 
     }
 }

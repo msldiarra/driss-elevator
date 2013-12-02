@@ -1,7 +1,9 @@
 package fr.codestory.elevator.hodor
 
+import fr.codestory.elevator.Elevator.Side
 
-class User(val callFloor:Int, var destinationFloor: Int = 1000) {
+
+class User(val callFloor: Int, going: Side, var destinationFloor: Int = 1000) {
 
     var waitingTicks: Int = 0
     var travellingTicks: Int = 0

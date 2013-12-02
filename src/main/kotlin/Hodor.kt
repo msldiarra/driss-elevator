@@ -35,7 +35,7 @@ class HodorElevator(public var currentFloor: Int = 0, val dimension: BuildingDim
         moves.clear()
     }
 
-    override fun go(to: Int) {
+    override fun go(cabin: Int,to: Int) {
 
         var commandsForGo : Array<Command>? = null
 
@@ -112,13 +112,13 @@ class HodorElevator(public var currentFloor: Int = 0, val dimension: BuildingDim
         return moves.entrySet().iterator().drop(1) == null;
     }
 
-    override fun userHasEntered() {
+    override fun userHasEntered(cabin: Int) {
 
         usersInCabin++
 
     }
 
-    override fun userHasExited() {
+    override fun userHasExited(cabin: Int) {
 
         usersInCabin--
 
