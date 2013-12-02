@@ -114,8 +114,8 @@ public class ElevatorServer {
                             break;
                     }
                 } catch (Exception e) {
-                    LOG.error("elevatorEvent " + elevatorEvent + "" + e.getMessage(), e);
-                    nextMove = "NOTHING";
+                    LOG.error("elevatorEvent " + elevatorEvent + ": " + e.getMessage(), e);
+                    nextMove = "NOTHING\nNOTHING";
                 }
 
                 LOG.debug(elevatorEvent + ": " + nextMove);
