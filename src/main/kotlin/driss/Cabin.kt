@@ -26,7 +26,7 @@ open class Cabin(val gos: Signals<Go>, val capacity: Int, var currentFloor: Int 
 
         private var commands = Commands.NONE
 
-        public inline fun giveNextMoveCommand(calls: Signals<out List<Call>>): MoveCommand {
+        public inline fun    giveNextMoveCommand(calls: Signals<out List<Call>>): MoveCommand {
             if ( !commands.hasMoreElements()) commands = giveFollowingCommands(calls)
             return commands.nextElement()
         }

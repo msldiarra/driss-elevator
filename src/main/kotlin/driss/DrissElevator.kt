@@ -11,7 +11,7 @@ public class DrissElevator(initialFloor: Int = 0,
                            cabinNumber: Int) : Elevator {
 
 
-    val calls = signals(dimension, ArrayList<Call>() : MutableList<Call>)
+    val calls = signals(dimension, emptyImmutableArrayList as MutableList<Call>)
 
     val cabins = Array(cabinNumber) {
         Cabin(signals(dimension, Go(0)), cabinSize, initialFloor)
@@ -23,12 +23,12 @@ public class DrissElevator(initialFloor: Int = 0,
                 door.opened || groom.wantsTheDoorToOpen(calls) -> {
                     door.toggle {
                         gos.reached(currentFloor)
-                    }.name()
+                    }
                 }
                 else -> updateReachedFloorAfter(groom.giveNextMoveCommand(calls))
             }
         }
-    }.fold("") { commands, command -> command + "\n" + commands }
+    }.makeString("\n")
 
 
     private inline fun Cabin.updateReachedFloorAfter(chosenCommand: MoveCommand): String {

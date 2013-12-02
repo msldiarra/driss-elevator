@@ -4,8 +4,10 @@ import org.junit.Test as test
 import org.assertj.core.api.Assertions.assertThat
 import fr.codestory.elevator.Elevator.Side
 import fr.codestory.elevator.BuildingDimension
+import driss.DrissElevator.MoveCommand.*
 
-class DrissElevatorTests {
+
+class DrissElevatorOneCabinTests {
 
 
     test fun go_should_increment_number_of_request_at_floor() {
@@ -109,12 +111,29 @@ class DrissElevatorTests {
         }
     }
 
+    test public fun should_detect_invalid_calls_state_on_userHasEntered() {
+
+        with(DrissElevator(
+                initialFloor = 0,
+                dimension = BuildingDimension(0, 5),
+                cabinSize = 1,
+                cabinNumber = 1
+        )) {
+
+            assertThat(calls.at(cabins[0].currentFloor))!!.isEqualTo(calls.noneValue)
+            call(0, Side.UP)
+            open_then_close { goTo(1) }
+
+            assertThat(calls.at(0))!!.isEqualTo(calls.noneValue)
+        }
+    }
+
     private inline fun DrissElevator.open_then_close <T>  (enclosed: () -> T): Unit {
-        assertThat(nextMove())!!.isEqualTo("OPEN\n")
+        assertThat(nextMove())!!.startsWith("OPEN")
 
         enclosed.invoke()
 
-        assertThat(nextMove())!!.isEqualTo("CLOSE\n")
+        assertThat(nextMove())!!.startsWith("CLOSE")
         this
     }
 
@@ -125,18 +144,20 @@ class DrissElevatorTests {
     }
 
     private inline fun DrissElevator.up() {
-        assertThat(nextMove())!!.isEqualTo("UP\n")
+        assertThat(nextMove())!!.isEqualTo("UP")
     }
 
     private inline fun DrissElevator.down() {
-        assertThat(nextMove())!!.isEqualTo("DOWN\n")
+        assertThat(nextMove())!!.isEqualTo("DOWN")
     }
 
     private inline fun DrissElevator.nothing() {
-        assertThat(nextMove())!!.isEqualTo("NOTHING\n")
+        assertThat(nextMove())!!.isEqualTo("NOTHING")
     }
 
     private inline fun DrissElevator.firstCabinGoesTo(floor: Int) {
         go(0, floor)
     }
+
+
 }
