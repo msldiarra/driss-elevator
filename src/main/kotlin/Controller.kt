@@ -4,6 +4,7 @@ import java.lang.Math.abs
 import fr.codestory.elevator.hodor.HodorElevator.Command
 import fr.codestory.elevator.hodor.Cabin.Door.State
 import java.util.HashSet
+import java.util.HashMap
 
 class Controller(val users: HashSet<User> = hashSetOf<User>()) {
 
@@ -61,10 +62,14 @@ class Controller(val users: HashSet<User> = hashSetOf<User>()) {
         }
     }
 
-    fun resetCabins(cabinCount:Int, cabinSize: Int, initialFloor: Int) : Map<Int, Cabin>{
-        val cabins = hashMapOf(Pair(0, Cabin(initialFloor, cabinSize)))
-        if(cabinCount == 2) cabins.put(1, Cabin(initialFloor, cabinSize))
-        return cabins
+    fun resetCabins(cabinCount:Int, cabinSize: Int, initialFloor: Int) : Map<Int, Cabin> {
+
+        var cabin = hashMapOf<Int, Cabin>()
+
+        if(cabinCount == 1) cabin =  hashMapOf(Pair(0, Cabin(initialFloor, cabinSize)))
+        if(cabinCount == 2) cabin =  hashMapOf(Pair(0, Cabin(initialFloor, cabinSize)), Pair(1, Cabin(initialFloor, cabinSize)))
+
+        return cabin
     }
 
     fun takeIn(cabin: Cabin, usersToTake: HashSet<User>) {
