@@ -24,16 +24,12 @@ class SandorElevator(public var cabins: Map<Int,Cabin> = hashMapOf(Pair(0, Cabin
 
     override fun nextMove(): String? {
 
-        users.forEach { u -> u.tick() }   // Controller will all cabins users
-        cabins.get(0)?.users?.forEach { u -> u.tick() }   // Controller will all cabins users
-        cabins.get(1)?.users?.forEach { u -> u.tick() }   // Controller will all cabins users
+        users.forEach { u -> u.tick() }
+        cabins.get(0)?.users?.forEach { u -> u.tick() }
+        cabins.get(1)?.users?.forEach { u -> u.tick() }
 
         var firstCabinCommand = Command.NOTHING.name()
         var secondCabinCommand = Command.NOTHING.name()
-
-        // Method to manage response when no users
-       /* if(users.isEmpty() && door.state == State.OPEN) return door.close().name()
-        if(users.isEmpty() && door.state == State.CLOSED) return  Command.NOTHING.name()*/
 
         val firstCabinDestination = controller.compute(cabins.get(0)!! as Cabin)
         var secondCabinDestination: Int? = null
@@ -58,7 +54,6 @@ class SandorElevator(public var cabins: Map<Int,Cabin> = hashMapOf(Pair(0, Cabin
 
     override fun go(cabin: Int, to: Int) {
         Controller().go(cabins.get(cabin)!! as Cabin, to)
-        //users.filter { u -> u.isTravelling() && u.destinationFloor == 1000 }.sortBy{ u -> u.waitingTicks }.last().destinationFloor = to
     }
 
 
@@ -69,18 +64,11 @@ class SandorElevator(public var cabins: Map<Int,Cabin> = hashMapOf(Pair(0, Cabin
 
     override fun userHasEntered(cabin: Int) {
         Controller().takeIn(cabins.get(cabin)!! as Cabin, users)
-        //users.filter { u -> u.isWaiting()  && cabins.get(cabin)?.currentFloor == u.callFloor }.sortBy{ u -> u.waitingTicks }.last().state = User.State.TRAVELLING
     }
 
 
     override fun userHasExited(cabin:Int) {
-
-        //val userToExit =
         Controller().leaveUserFrom(cabins.get(cabin)!! as Cabin)
-/*        if(userToExit!= null) {
-            score = score + Score().plus(userToExit)
-            users.remove(userToExit)
-        }*/
     }
 }
 

@@ -66,8 +66,8 @@ class Controller(val users: HashSet<User> = hashSetOf<User>()) {
 
         var cabin = hashMapOf<Int, Cabin>()
 
-        if(cabinCount == 1) cabin =  hashMapOf(Pair(0, Cabin(initialFloor, cabinSize)))
-        if(cabinCount == 2) cabin =  hashMapOf(Pair(0, Cabin(initialFloor, cabinSize)), Pair(1, Cabin(initialFloor, cabinSize)))
+        if(cabinCount == 1) cabin =  hashMapOf(Pair(0, Cabin(cabinSize, initialFloor)))
+        if(cabinCount == 2) cabin =  hashMapOf(Pair(0, Cabin(cabinSize, initialFloor)), Pair(1, Cabin(cabinSize, initialFloor)))
 
         return cabin
     }
