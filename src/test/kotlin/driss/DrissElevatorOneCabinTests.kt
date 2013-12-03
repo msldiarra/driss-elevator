@@ -10,18 +10,6 @@ import driss.DrissElevator.MoveCommand.*
 class DrissElevatorOneCabinTests {
 
 
-    test fun go_should_increment_number_of_request_at_floor() {
-
-        with(DrissElevator(cabinNumber = 1, cabinSize = 2)) {
-            firstCabinGoesTo(1)
-            assertThat(cabins[0].gos.at(1).number)!!.isEqualTo(1)
-
-            firstCabinGoesTo(1)
-            assertThat(cabins[0].gos.at(1).number)!!.isEqualTo(2)
-        }
-    }
-
-
     test fun go_should_increment_only_request_at_its_floor() {
 
         with(DrissElevator(cabinNumber = 1, cabinSize = 2)) {
@@ -81,9 +69,58 @@ class DrissElevatorOneCabinTests {
         }
     }
 
+    test fun call_should_be_removed_when_user_has_entered() {
+
+        with(DrissElevator(initialFloor = 8, dimension = BuildingDimension(-3, 8), cabinSize = 1, cabinNumber = 1)) {
+
+            assertThat(calls.at(8))!!.isEmpty()
+
+            call(8, Side.DOWN)
+            assertThat(calls.at(8))!!.hasSize(1)
+
+            call(8, Side.DOWN)
+            assertThat(calls.at(8))!!.hasSize(2)
+
+            open_then_close {
+                userHasEntered(0)
+                userHasEntered(0)
+            }
+
+            assertThat(calls.at(8))!!.hasSize(0)
+            assertThat(calls.at(8))!!.isEqualTo(calls.noneValue)
+        }
+    }
+
+    test fun bug_last_floor_user_has_entered_tries_to_remove_unexisting_call() {
+
+        with(DrissElevator(initialFloor = 0, dimension = BuildingDimension(0, 1), cabinSize = 1, cabinNumber = 1)) {
+
+            call(0, Side.UP)
+            open_then_close {
+                userHasEntered(0)
+                go(0, 1)
+            }
+            call(1, Side.DOWN)
+            up()
+
+            open_then_close {
+                userHasExited(0)
+                userHasEntered(0)
+                go(0, 0)
+            }
+
+            down()
+
+            open_then_close {
+                userHasExited(0)
+            }
+        }
+    }
+
+
     test fun should_not_forget_someone_is_waiting() {
 
-        with(DrissElevator(initialFloor = 1, dimension = BuildingDimension(0, 1), cabinSize = 1, cabinNumber = 1)) {
+        with(DrissElevator(initialFloor = 1, dimension = BuildingDimension(0, 2), cabinSize = 1, cabinNumber = 1)) {
             call(1, Side.UP)
             call(1, Side.DOWN)
 
@@ -111,7 +148,7 @@ class DrissElevatorOneCabinTests {
         }
     }
 
-    test public fun should_detect_invalid_calls_state_on_userHasEntered() {
+    test public fun userHasEntered_should_detect_no_more_call_floor() {
 
         with(DrissElevator(
                 initialFloor = 0,
@@ -122,9 +159,23 @@ class DrissElevatorOneCabinTests {
 
             assertThat(calls.at(cabins[0].currentFloor))!!.isEqualTo(calls.noneValue)
             call(0, Side.UP)
-            open_then_close { goTo(1) }
 
-            assertThat(calls.at(0))!!.isEqualTo(calls.noneValue)
+            assertThat(calls.at(cabins[0].currentFloor))!!.hasSize(1)!!.isNotSameAs(calls.noneValue)
+
+            userHasEntered(0)
+
+            assertThat(calls.at(0))!!.isSameAs(calls.noneValue)
+        }
+    }
+
+    test fun whenever_door_is_open_nextmove_should_be_CLOSE() {
+        with(DrissElevator(
+                cabinSize = 1,
+                cabinNumber = 1
+        )) {
+
+            cabins[0].door.opened = true
+            close()
         }
     }
 
@@ -142,6 +193,16 @@ class DrissElevatorOneCabinTests {
         firstCabinGoesTo(floor)
         this
     }
+
+    private fun DrissElevator.open() {
+        assertThat(nextMove())!!.isEqualTo("OPEN")
+    }
+
+
+    private fun DrissElevator.close() {
+        assertThat(nextMove())!!.isEqualTo("CLOSE")
+    }
+
 
     private inline fun DrissElevator.up() {
         assertThat(nextMove())!!.isEqualTo("UP")

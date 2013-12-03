@@ -4,8 +4,17 @@ package driss
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test as test
 import fr.codestory.elevator.BuildingDimension
+import fr.codestory.elevator.Elevator.Side
 
 class SignalsTests {
+
+    test fun signals_should_compute_number_of_floors(): Unit =
+            with(signals(BuildingDimension(-1, 1), Unit.VALUE)) {
+
+                assertThat(this.count())!!.isEqualTo(3)
+                Unit.VALUE
+            }
+
 
     test public fun distanceToNearestFloor_with_two_positive_floor() {
 
@@ -71,5 +80,31 @@ class SignalsTests {
     test public fun nearest_should_give_itself_when_no_floor_registered() {
 
         assertThat(nearestFloorFrom(1, listOf()))!!.isEqualTo(1)
+    }
+
+
+    test fun going_should_give_calls_in_the_given_way_and_floor() {
+
+        with(signals(
+                BuildingDimension(0, 4),
+                emptyImmutableArrayList as MutableList<Call>
+        )) {
+
+            add(1, arrayListOf(Call(Side.UP, 1), Call(Side.UP, 1), Call(Side.DOWN, 1)))
+
+            assertThat(at(1).going(Side.UP))!!.hasSize(2)
+            assertThat(at(1).going(Side.DOWN))!!.hasSize(1)
+
+            assertThat(at(0).going(Side.UP))!!.hasSize(0)
+        }
+    }
+
+    test fun going() {
+
+        with(listOf(Call(Side.DOWN, 1), Call(Side.UP))) {
+
+            assertThat(going(Side.UP))!!.hasSize(1)
+            assertThat(going(Side.DOWN))!!.hasSize(1)
+        }
     }
 }

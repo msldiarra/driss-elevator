@@ -3,7 +3,6 @@ package driss
 import fr.codestory.elevator.Elevator.Side
 import fr.codestory.elevator.BuildingDimension
 import fr.codestory.elevator.Elevator
-import java.util.ArrayList
 
 public class DrissElevator(initialFloor: Int = 0,
                            val dimension: BuildingDimension = BuildingDimension(0, 19),
@@ -75,7 +74,15 @@ public class DrissElevator(initialFloor: Int = 0,
     override fun userHasEntered(cabinNumber: Int) {
         with(cabins[cabinNumber]) {
             userHasEntered()
-            if (calls.requestedAt(currentFloor)) calls.at(currentFloor).remove(0)
+
+            if (calls.requestedAt(currentFloor)){
+                calls.at(currentFloor).remove(0)
+
+                if (calls.at(currentFloor).size() == 0)
+                    calls.reached(currentFloor)
+            }
+
+
         }
     }
     override fun userHasExited(cabinNumber: Int) {
@@ -109,4 +116,27 @@ public class DrissElevator(initialFloor: Int = 0,
             else -> MoveCommand.NOTHING }
     }
 
+
+    override fun toString(): String? {
+
+        return with(StringBuilder()) {
+            append("DrissElevator state\n")
+            append("Calls ${calls.count()}:\n")
+            append("\t Signaled floors: ")
+            calls.signaledFloors().forEach { floor -> append("${floor} ") }
+            append("\n")
+
+            cabins.forEach { cabin ->
+
+                append("\n\nCabin____\n")
+                append("\tcurrentFloor ${cabin.currentFloor}\n")
+                append("\tGos: ")
+                cabin.gos.signaledFloors().forEach { floor -> append("${floor} ") }
+                append("\n")
+                append("\t${cabin.peopleInside} persons inside\n")
+            }
+
+            this
+        }.toString()
+    }
 }

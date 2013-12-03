@@ -112,9 +112,16 @@ public class ElevatorServer {
 
                             elevator.call(Integer.parseInt(at), Elevator.Side.valueOf(params[1].replaceFirst("to=", "")));
                             break;
+
+                        case "/print.state":
+
+                            nextMove = elevator.toString();
+
+                            break;
                     }
                 } catch (Exception e) {
                     LOG.error("elevatorEvent " + elevatorEvent + ": " + e.getMessage(), e);
+                    LOG.error("parameters was: " + exchange.getRequestURI().getQuery());
                     nextMove = "NOTHING\nNOTHING";
                 }
 
