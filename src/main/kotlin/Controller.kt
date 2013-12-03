@@ -64,12 +64,12 @@ class Controller(val users: HashSet<User> = hashSetOf<User>()) {
 
     fun resetCabins(cabinCount:Int, cabinSize: Int, initialFloor: Int) : Map<Int, Cabin> {
 
-        var cabin = hashMapOf<Int, Cabin>()
+        var cabins = hashMapOf<Int, Cabin>()
 
-        if(cabinCount == 1) cabin =  hashMapOf(Pair(0, Cabin(cabinSize, initialFloor)))
-        if(cabinCount == 2) cabin =  hashMapOf(Pair(0, Cabin(cabinSize, initialFloor)), Pair(1, Cabin(cabinSize, initialFloor)))
+        if(cabinCount == 1) cabins =  hashMapOf(Pair(0, Cabin(cabinSize, initialFloor)))
+        if(cabinCount == 2) cabins =  hashMapOf(Pair(0, Cabin(cabinSize, initialFloor)), Pair(1, Cabin(cabinSize, initialFloor)))
 
-        return cabin
+        return cabins
     }
 
     fun takeIn(cabin: Cabin, usersToTake: HashSet<User>) {

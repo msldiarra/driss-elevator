@@ -4,6 +4,7 @@ import com.google.common.base.Stopwatch;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
+import fr.codestory.elevator.hodor.SandorElevator;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
@@ -34,7 +35,7 @@ public class ElevatorServer {
     ElevatorServer(int port, ElevatorFactory elevatorFactory) throws IOException {
 
         this.elevatorFactory = elevatorFactory;
-        this.elevator = elevatorFactory.newElevator(new BuildingDimension(-5, 35), 30, 2); // if the the first request is not a reset...
+        this.elevator = new SandorElevator(new BuildingDimension(-5, 35), 30, 2); // if the the first request is not a reset...
 
         httpServer = HttpServer.create(new InetSocketAddress(port), 0);
         httpServer.setExecutor(new Executor() {
@@ -96,7 +97,7 @@ public class ElevatorServer {
                             String cabinCount = params[3].replaceFirst("cabinCount=", "");
 
                             BuildingDimension dimension = new BuildingDimension(Integer.parseInt(lowerFloor), Integer.parseInt(higherFloor));
-                            elevator = elevatorFactory.newElevator(dimension, Integer.parseInt(cabinSize), Integer.parseInt(cabinCount));
+                            elevator = new SandorElevator(dimension, Integer.parseInt(cabinSize), Integer.parseInt(cabinCount));
 
                             break;
 

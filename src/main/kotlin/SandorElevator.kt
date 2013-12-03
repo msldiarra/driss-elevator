@@ -10,7 +10,7 @@ import fr.codestory.elevator.ElevatorServer
 import org.apache.log4j.Logger
 import fr.codestory.elevator.Elevator.Side
 
-class SandorElevator(var cabins: Map<Int,Cabin> = hashMapOf(Pair(0, Cabin())), val dimension: BuildingDimension = BuildingDimension(0, 35), val cabinSize: Int = 30, val cabinCount: Int = 2) : Elevator {
+class SandorElevator(val dimension: BuildingDimension = BuildingDimension(0, 35), val cabinSize: Int = 30, val cabinCount: Int = 2) : Elevator {
 
     private val LOG: Logger = Logger.getLogger(javaClass<SandorElevator>()) as Logger
 
@@ -19,11 +19,10 @@ class SandorElevator(var cabins: Map<Int,Cabin> = hashMapOf(Pair(0, Cabin())), v
     val gos: ArrayList<GoRequest> = ArrayList<GoRequest>()
     val controller = Controller(users)
     var score = 0
+    var cabins: Map<Int,Cabin> = hashMapOf()
 
 
     override fun nextMove(): String? {
-
-        LOG.info("New elevator - cabinCount :" + cabinCount);
 
         users.forEach { u -> u.tick() }
         cabins.get(0)?.users?.forEach { u -> u.tick() }
@@ -49,7 +48,7 @@ class SandorElevator(var cabins: Map<Int,Cabin> = hashMapOf(Pair(0, Cabin())), v
 
     override fun reset() {
         users.clear()
-        cabins = Controller().resetCabins(cabinCount, cabinSize, dimension.getLowerFloor())
+        cabins = Controller().resetCabins(cabinCount, cabinSize, 0)
     }
 
 

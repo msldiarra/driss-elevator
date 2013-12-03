@@ -6,6 +6,8 @@ import fr.codestory.elevator.Elevator.Side
 import fr.codestory.elevator.hodor.HodorElevator.Command
 import fr.codestory.elevator.hodor.User.State
 import kotlin.test.assertTrue
+import fr.codestory.elevator.ElevatorFactory
+import fr.codestory.elevator.BuildingDimension
 
 class SandorElevatorTests {
 
@@ -31,6 +33,7 @@ class SandorElevatorTests {
     test fun call_to_n_floor_should_result_in_n_UPs_commands_from_ground_floor(){
 
         val elevator = SandorElevator()
+        elevator.cabins = hashMapOf(Pair(0,Cabin(40,0)))
         elevator.call(2, Side.UP)
 
         assertThat(elevator.nextMove())?.isEqualTo("UP\nNOTHING")
@@ -39,7 +42,8 @@ class SandorElevatorTests {
 
     test fun call_to_n_floor_should_result_in_n_DOWNs_commands_from_upper_floor(){
 
-        val elevator = SandorElevator(hashMapOf(Pair(0,Cabin(40,5))))
+        val elevator = SandorElevator()
+        elevator.cabins = hashMapOf(Pair(0,Cabin(40,5)))
         elevator.call(2, Side.UP)
 
         assertThat(elevator.nextMove())?.isEqualTo("DOWN\nNOTHING")
@@ -50,6 +54,7 @@ class SandorElevatorTests {
     test fun user_should_be_removed_when_at_destination(){
 
         val elevator = SandorElevator()
+        elevator.cabins = hashMapOf(Pair(0,Cabin(40,0)))
         elevator.call(0, Side.UP)
 
         assertThat(elevator.nextMove())?.isEqualTo("OPEN\nNOTHING")
@@ -85,6 +90,7 @@ class SandorElevatorTests {
         val second = User(4,Side.DOWN); second.waitingTicks = 10
 
         val elevator = SandorElevator();
+        elevator.cabins = hashMapOf(Pair(0,Cabin(40,0)))
         elevator.users.add(first)
         elevator.users.add(second)
 
@@ -100,6 +106,7 @@ class SandorElevatorTests {
 
 
         val elevator = SandorElevator();
+        elevator.cabins = hashMapOf(Pair(0,Cabin(40,0)))
 
         elevator.call(1,Side.UP)
         elevator.call(1,Side.UP)
@@ -129,7 +136,8 @@ class SandorElevatorTests {
 
     test fun when_going_to_upper_call_floor_should_take_call_at_lower_floor() {
 
-        val elevator = SandorElevator(hashMapOf(Pair(0,Cabin(40,4)), Pair(1,Cabin(40,4))))
+        val elevator = SandorElevator()
+        elevator.cabins = hashMapOf(Pair(0,Cabin(40,4)), Pair(1,Cabin(40,4)))
 
         elevator.call(12, Side.DOWN)
         assertThat(elevator.nextMove())?.isEqualTo("UP\nNOTHING")
@@ -137,38 +145,32 @@ class SandorElevatorTests {
         elevator.call(3, Side.UP)
         assertThat(elevator.nextMove())?.isEqualTo("UP\nDOWN")
         assertThat(elevator.nextMove())?.isEqualTo("UP\nOPEN")
-        /*assertThat(elevator.nextMove())?.isEqualTo("DOWN\nNOTHING")
-        assertThat(elevator.nextMove())?.isEqualTo("OPEN\nNOTHING")
-        elevator.userHasEntered(0)
-        elevator.go(0,4)
-        assertThat(elevator.nextMove())?.isEqualTo("CLOSE\nNOTHING")
-        assertThat(elevator.nextMove())?.isEqualTo("UP\nNOTHING")
-        assertThat(elevator.nextMove())?.isEqualTo("OPEN\nNOTHING")
-        elevator.userHasExited(0)
-        assertThat(elevator.nextMove())?.isEqualTo("CLOSE\nNOTHING")
-        assertThat(elevator.score)?.isEqualTo(18)
-        assertThat(elevator.nextMove())?.isEqualTo("UP\nNOTHING")
-        assertThat(elevator.nextMove())?.isEqualTo("UP\nNOTHING")
-        assertThat(elevator.nextMove())?.isEqualTo("UP\nNOTHING")
-        assertThat(elevator.nextMove())?.isEqualTo("UP\nNOTHING")
-        assertThat(elevator.nextMove())?.isEqualTo("UP\nNOTHING")
-        assertThat(elevator.nextMove())?.isEqualTo("UP\nNOTHING")
-        assertThat(elevator.nextMove())?.isEqualTo("UP\nNOTHING")
-        assertThat(elevator.nextMove())?.isEqualTo("UP\nNOTHING")
-        assertThat(elevator.nextMove())?.isEqualTo("OPEN\nNOTHING")
-        elevator.userHasExited(0)
-        assertThat(elevator.nextMove())?.isEqualTo("CLOSE\nNOTHING")
-        assertThat(elevator.score)?.isEqualTo(18)*/
 
     }
 
-    test fun first_call_should_not_return_nothing() {
+    /*test fun first_call_should_not_return_nothing() {
 
-        val elevator = SandorElevator()
-        elevator.reset()
+        val factory = ElevatorFactory { buildingDimension, cabinSize, cabinCount ->
+            SandorElevator(dimension = buildingDimension as BuildingDimension,
+                    cabinSize = cabinSize as Int, cabinCount = cabinCount as Int);
+        }
+
+        val elevator = factory.newElevator(BuildingDimension(-5, 35), 30, 2) as SandorElevator
+
+        //val elevator = SandorElevator()
         elevator.call(3, Side.DOWN)
 
         assertThat(elevator.nextMove())?.isEqualTo("UP\nNOTHING")
-    }
+        elevator.call(0, Side.DOWN)
+        assertThat(elevator.nextMove())?.isEqualTo("UP\nOPEN")
+        elevator.userHasEntered(1)
+        elevator.go(1,4)
+        assertThat(elevator.nextMove())?.isEqualTo("UP\nCLOSE")
+        assertThat(elevator.nextMove())?.isEqualTo("OPEN\nUP")
+        elevator.userHasEntered(0)
+        elevator.go(0, 0)
+        assertThat(elevator.nextMove())?.isEqualTo("CLOSE\nUP")
+
+    }*/
 
 }
