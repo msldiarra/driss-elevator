@@ -19,6 +19,12 @@ class Controller(val users: HashSet<User> = hashSetOf<User>()) {
 
         val floorToGo =  when {
 
+            cabin.users.size() == 30 -> {
+
+                cabin.users.filter {  u -> u.isTravelling()  }
+                    .sortBy { u -> (u.waitingTicks + 2 * abs(cabin.currentFloor - u.destinationFloor)) as Int}
+                    .first().destinationFloor }
+
             cabin.users.filterNot {  u -> u.isWaiting() }.count { u ->  Score().isPositiveForGo(u, cabin.currentFloor)  } > 0 ->{
 
                 cabin.users.filterNot {  u -> u.isWaiting() && !Score().isPositiveForGo(u, cabin.currentFloor) }
