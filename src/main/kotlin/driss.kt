@@ -1,3 +1,4 @@
+/*
 package fr.codestory.elevator.driss
 
 import fr.codestory.elevator.Elevator.Side
@@ -208,3 +209,4 @@ enum class MoveCommand {
 }
 
 
+*/

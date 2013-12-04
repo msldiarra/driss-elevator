@@ -1,3 +1,4 @@
+/*
 package fr.codestory.elevator.order
 
 import fr.codestory.elevator.Elevator
@@ -8,9 +9,11 @@ import java.util.SortedMap
 import fr.codestory.elevator.Elevator.Side
 import java.lang.Math.*
 
+*/
 /**
  * @author Miguel Basire
- */
+ *//*
+
 class Destinations<T>(private val destinations: SortedMap<Int, T>, private val noneValue: T) : Iterable<T> {
 
     public fun add(floor: Int, value: T): Unit  {  destinations.put(floor, value)  }
@@ -132,3 +135,4 @@ data class ElevatorRequest(var number: Int = 1,
     }
 }
 
+*/

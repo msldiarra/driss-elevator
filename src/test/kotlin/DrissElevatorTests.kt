@@ -1,3 +1,4 @@
+/*
 
 package fr.codestory.elevator;
 
@@ -32,3 +33,4 @@ class DrissElevatorTests {
         assertThat(cabin.gos.at(2).number)!!.isEqualTo(0)
     }
 }
+*/
