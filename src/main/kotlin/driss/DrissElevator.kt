@@ -50,24 +50,22 @@ public class DrissElevator(initialFloor: Int = 0,
         cabins.forEach { it.gos.clear() }
     }
     public override fun go(cabinNumber: Int, floor: Int): Unit {
-        val timestampedCounter: Signal? = cabins[cabinNumber].gos.at(floor)
-        if (timestampedCounter == cabins[cabinNumber].gos.noneValue)
-        {
-            cabins[cabinNumber].gos.add(floor, Go(1))
+        with(cabins[cabinNumber]) {
+            if (gos.requestedAt(floor))
+                gos.at(floor).increase()
+            else
+                gos.add(floor, Go(1))
+
         }
-        else
-        {
-            timestampedCounter?.increase()
-        }
+
     }
     public override fun call(floor: Int, side: Side): Unit {
 
-        val callsAtFloor = calls.at(floor)
-        when(callsAtFloor) {
-            calls.noneValue -> calls.add(floor, arrayListOf(Call(side, 1)))
-            else -> {
-                callsAtFloor.add(Call(side, 1))
-            }
+        if ( calls.requestedAt(floor)) {
+            calls.at(floor).add(Call(side, 1))
+        }
+        else {
+            calls.add(floor, arrayListOf(Call(side, 1)))
         }
     }
 
@@ -81,8 +79,6 @@ public class DrissElevator(initialFloor: Int = 0,
                 if (calls.at(currentFloor).size() == 0)
                     calls.reached(currentFloor)
             }
-
-
         }
     }
     override fun userHasExited(cabinNumber: Int) {

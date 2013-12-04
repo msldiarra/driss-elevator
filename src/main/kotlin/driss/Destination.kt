@@ -42,13 +42,13 @@ class Signals<T>(private val floors: SortedMap<Int, T>, val noneValue: T) : Iter
 
     public fun reached(floor: Int): T = floors.put(floor, noneValue) as T
 
-    public fun requestedAt(floor: Int): Boolean = floors.getOrElse(floor) { noneValue } != noneValue
+    public fun requestedAt(floor: Int): Boolean = !( floors.getOrElse(floor) { noneValue } identityEquals noneValue)
 
-    public fun isEmpty(): Boolean = floors.values().all { v -> v == noneValue }
+    public fun isEmpty(): Boolean = floors.values().all { v -> v identityEquals noneValue }
 
     public override fun iterator(): Iterator<T> = floors.values().iterator()
 
-    public inline fun  signaledFloors(): List<Int> = floors.keySet().filter { floors.get(it) != noneValue }
+    public fun  signaledFloors(): List<Int> = floors.keySet().filter { !(floors.get(it) identityEquals noneValue) }
 
     public fun distanceToFarthestFloorFrom(floor: Int): Int =
             if (isEmpty()) 0

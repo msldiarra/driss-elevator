@@ -107,4 +107,12 @@ class SignalsTests {
             assertThat(going(Side.DOWN))!!.hasSize(1)
         }
     }
+
+    test fun going_on_emptyList() {
+
+        with(emptyImmutableArrayList as MutableList<Call>) {
+
+            assertThat(going(Side.UP))!!.isEmpty()
+        }
+    }
 }
