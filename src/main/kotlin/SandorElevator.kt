@@ -53,7 +53,12 @@ class SandorElevator(val dimension: BuildingDimension = BuildingDimension(0, 35)
 
 
     override fun userHasEntered(cabin: Int) {
-        Controller().takeIn(cabins.get(cabin)!!, users)
+        val user = Controller().takeIn(cabins.get(cabin)!!, users)
+        var i = 0
+        do {
+            if(i != cabin) cabins.get(i)?.users?.remove(user)
+            i++
+        } while(i< cabinCount)
     }
 
 
@@ -74,7 +79,7 @@ fun Int.isUnder(callFloor: Int) : Boolean {
 }
 
 fun Int.isSameAs(floor: Int) : Boolean {
-    return this == floor
+    return this.identityEquals(floor)
 }
 
 fun Int.isNot(floor: Int) : Boolean {

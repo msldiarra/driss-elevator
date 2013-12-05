@@ -56,13 +56,32 @@ class Controller(val users: HashSet<User> = hashSetOf<User>()) {
 
             cabin.users.isEmpty() && cabin.door.state == State.CLOSED -> Command.NOTHING.name()
 
-            cabin.door.state == State.OPEN ->   cabin.door.close().name()
+            cabin.door.state.identityEquals(State.OPEN) ->   cabin.door.close().name()
 
-            cabin.currentFloor.isAbove(floorToGo) -> { cabin.currentFloorToLower(); Command.DOWN.name() }
+            cabin.currentFloor.isAbove(floorToGo) && cabin.users.filter { u -> u.destinationFloor == cabin.currentFloor }.count() == 0-> {
 
-            cabin.currentFloor.isUnder(floorToGo) -> { cabin.currentFloorToUpper(); Command.UP.name() }
+                cabin.currentFloorToLower(); Command.DOWN.name()
+            }
 
-            cabin.currentFloor.isSameAs(floorToGo) ->   cabin.door.open().name()
+            cabin.currentFloor.isAbove(floorToGo) && cabin.users.filter { u -> u.destinationFloor == cabin.currentFloor }.count() == 0-> {
+                cabin.users.filter{ u -> u.destinationFloor == floorToGo }.forEach { u -> u.state = User.State.ARRIVED }
+                Command.OPEN_DOWN.name()
+            }
+
+            cabin.currentFloor.isUnder(floorToGo) && cabin.users.filter { u -> u.destinationFloor == cabin.currentFloor }.count() == 0 -> {
+
+                cabin.currentFloorToUpper(); Command.UP.name()
+            }
+
+            cabin.currentFloor.isUnder(floorToGo) && cabin.users.filter { u -> u.destinationFloor == cabin.currentFloor }.count() > 0 -> {
+                cabin.users.filter{ u -> u.destinationFloor == floorToGo }.forEach { u -> u.state = User.State.ARRIVED }
+                Command.OPEN_UP.name()
+            }
+
+            cabin.currentFloor.isSameAs(floorToGo) ->   {
+                cabin.users.filter{ u -> u.destinationFloor == floorToGo }.forEach { u -> u.state = User.State.ARRIVED }
+                cabin.door.open().name()
+            }
 
             else ->  Command.NOTHING.name()
         }
@@ -80,7 +99,7 @@ class Controller(val users: HashSet<User> = hashSetOf<User>()) {
         return cabins
     }
 
-    fun takeIn(cabin: Cabin, usersToTake: HashSet<User>) {
+    fun takeIn(cabin: Cabin, usersToTake: HashSet<User>) : User {
 
         var users = usersToTake.filter { u -> u.isWaiting()  && cabin.currentFloor == u.callFloor }
 
@@ -91,6 +110,8 @@ class Controller(val users: HashSet<User> = hashSetOf<User>()) {
         user.state = User.State.TRAVELLING
 
         cabin.users.add(user)
+
+        return user
     }
 
     fun go(cabin: Cabin, to: Int) {
@@ -99,7 +120,7 @@ class Controller(val users: HashSet<User> = hashSetOf<User>()) {
     }
 
     fun leaveUserFrom(cabin: Cabin) {
-        val user = cabin.users.find { user -> user.destinationFloor == cabin.currentFloor && user.state == User.State.TRAVELLING }!!
+        val user = cabin.users.find { user ->  user.state.identityEquals(User.State.ARRIVED) }!!
         cabin.users.remove(user)
     }
 
