@@ -76,6 +76,7 @@ public class ElevatorServer {
 
                         case "/nextCommand":
                             nextMove = elevator.nextMove();
+                            LOG.info("nextMove = "+nextMove);
                             break;
 
                         case "/go":

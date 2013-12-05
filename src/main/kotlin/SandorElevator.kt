@@ -19,7 +19,7 @@ class SandorElevator(val dimension: BuildingDimension = BuildingDimension(0, 35)
     val gos: ArrayList<GoRequest> = ArrayList<GoRequest>()
     val controller = Controller(users)
     var score = 0
-    var cabins: Map<Int,Cabin> = hashMapOf(Pair(0, Cabin()), Pair(1, Cabin()))
+    var cabins: Map<Int,Cabin> = hashMapOf()
 
 
     override fun nextMove(): String? {
