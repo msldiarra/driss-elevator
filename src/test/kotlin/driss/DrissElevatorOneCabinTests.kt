@@ -13,7 +13,7 @@ class DrissElevatorOneCabinTests {
     test fun go_should_increment_only_request_at_its_floor() {
 
         with(DrissElevator(cabinNumber = 1, cabinSize = 2)) {
-            firstCabinGoesTo(1)
+            go(0, 1)
 
             assertThat(cabins[0].gos.at(1).number)!!.isEqualTo(1)
             assertThat(cabins[0].gos.at(2).number)!!.isEqualTo(0)
@@ -25,47 +25,47 @@ class DrissElevatorOneCabinTests {
         with(DrissElevator(cabinNumber = 1, cabinSize = 1)) {
 
             cabins[0].peopleInside = 1
-            firstCabinGoesTo(2)
+            go(0, 2)
 
             call(1, Side.UP)
 
-            up()
-            up()
-            open_then_close { userHasExited(0) }
-            down()
-            open_then_close { userHasEntered(0) }
+            UP()
+            UP()
+            OPEN_then_CLOSE { userHasExited(0) }
+            DOWN()
+            OPEN_then_CLOSE { userHasEntered(0) }
         }
     }
 
-    test fun should_not_go_beyond_building_limit_on_call() {
+    test fun should_not_move_beyond_building_limit_on_call() {
 
         with(DrissElevator(initialFloor = 0, dimension = BuildingDimension(0, 1), cabinSize = 1, cabinNumber = 1)) {
             call(1, Side.DOWN)
 
-            up()
-            open_then_close { userHasEntered(0) }
-            nothing()
+            UP()
+            OPEN_then_CLOSE { userHasEntered(0) }
+            NOTHING()
         }
     }
 
     test fun should_not_go_beyond_building_limit_on_go() {
 
         with(DrissElevator(initialFloor = 0, dimension = BuildingDimension(0, 1), cabinSize = 1, cabinNumber = 1)) {
-            firstCabinGoesTo(1)
+            go(0, 1)
 
-            up()
-            open_then_close { userHasExited(0) }
-            nothing()
+            UP()
+            OPEN_then_CLOSE { userHasExited(0) }
+            NOTHING()
         }
     }
 
-    test fun should_move_down_before_down() {
+    test fun should_move_to_the_nearest_call_first() {
 
         with(DrissElevator(initialFloor = 0, dimension = BuildingDimension(-3, 8), cabinSize = 1, cabinNumber = 1)) {
             call(-3, Side.UP)
             call(8, Side.DOWN)
 
-            down()
+            DOWN()
         }
     }
 
@@ -81,13 +81,16 @@ class DrissElevatorOneCabinTests {
             call(8, Side.DOWN)
             assertThat(calls.at(8))!!.hasSize(2)
 
-            open_then_close {
+            OPEN_then_CLOSE {
                 userHasEntered(0)
                 userHasEntered(0)
             }
 
             assertThat(calls.at(8))!!.hasSize(0)
-            assertThat(calls.at(8))!!.isEqualTo(calls.noneValue)
+            assertThat(calls.at(8))!!.isSameAs(calls.noneValue)
+
+            call(8, Side.DOWN)
+            assertThat(calls.at(8))!!.hasSize(1)
         }
     }
 
@@ -96,27 +99,28 @@ class DrissElevatorOneCabinTests {
         with(DrissElevator(initialFloor = 0, dimension = BuildingDimension(0, 1), cabinSize = 1, cabinNumber = 1)) {
 
             call(0, Side.UP)
-            open_then_close {
-                userHasEntered(0)
-                go(0, 1)
+            OPEN_then_CLOSE {
+                userHasEntered_and_go(1)
+                call(1, Side.DOWN)
             }
-            call(1, Side.DOWN)
-            up()
+            UP()
 
-            open_then_close {
+            assertThat(cabins[0].currentFloor)!!.isEqualTo(1)
+            OPEN_then_CLOSE {
                 userHasExited(0)
                 userHasEntered(0)
                 go(0, 0)
             }
 
-            down()
+            DOWN()
 
-            open_then_close {
+            assertThat(cabins[0].currentFloor)!!.isEqualTo(0)
+            OPEN_then_CLOSE {
                 userHasExited(0)
             }
+            assertThat(calls.signaledFloors())!!.isEmpty()
         }
     }
-
 
     test fun should_not_forget_someone_is_waiting() {
 
@@ -124,27 +128,28 @@ class DrissElevatorOneCabinTests {
             call(1, Side.UP)
             call(1, Side.DOWN)
 
-            open_then_close {
-                goTo(2)
+            OPEN_then_CLOSE {
+                userHasEntered_and_go(2)
             }
             assertThat(cabins[0].canAcceptSomeone())!!.isFalse()
 
-            up()
+            UP()
 
-            open_then_close {
+            OPEN_then_CLOSE {
                 userHasExited(0)
             }
 
             assertThat(cabins[0].canAcceptSomeone())!!.isTrue()
 
-            down()
+            DOWN()
 
-            open_then_close {
-                goTo(0)
+            OPEN_then_CLOSE {
+                userHasEntered_and_go(0)
             }
 
-            down()
-            open_then_close { }
+            DOWN()
+            OPEN_then_CLOSE { userHasEntered(0) }
+            NOTHING()
         }
     }
 
@@ -175,50 +180,44 @@ class DrissElevatorOneCabinTests {
         )) {
 
             cabins[0].door.opened = true
-            close()
+            CLOSE()
         }
     }
 
-    private inline fun DrissElevator.open_then_close <T>  (enclosed: () -> T): Unit {
-        assertThat(nextMove())!!.startsWith("OPEN")
+    private inline fun DrissElevator.OPEN_then_CLOSE <T>  (enclosed: () -> T): Unit {
+        OPEN()
 
         enclosed.invoke()
 
-        assertThat(nextMove())!!.startsWith("CLOSE")
+        CLOSE()
         this
     }
 
-    private inline fun DrissElevator.goTo(floor: Int) {
+    private inline fun DrissElevator.userHasEntered_and_go(floor: Int) {
         userHasEntered(0)
-        firstCabinGoesTo(floor)
+        go(0, floor)
         this
     }
 
-    private fun DrissElevator.open() {
+    private fun DrissElevator.OPEN() {
         assertThat(nextMove())!!.isEqualTo("OPEN")
     }
 
 
-    private fun DrissElevator.close() {
+    private fun DrissElevator.CLOSE() {
         assertThat(nextMove())!!.isEqualTo("CLOSE")
     }
 
 
-    private inline fun DrissElevator.up() {
+    private inline fun DrissElevator.UP() {
         assertThat(nextMove())!!.isEqualTo("UP")
     }
 
-    private inline fun DrissElevator.down() {
+    private inline fun DrissElevator.DOWN() {
         assertThat(nextMove())!!.isEqualTo("DOWN")
     }
 
-    private inline fun DrissElevator.nothing() {
+    private inline fun DrissElevator.NOTHING() {
         assertThat(nextMove())!!.isEqualTo("NOTHING")
     }
-
-    private inline fun DrissElevator.firstCabinGoesTo(floor: Int) {
-        go(0, floor)
-    }
-
-
 }

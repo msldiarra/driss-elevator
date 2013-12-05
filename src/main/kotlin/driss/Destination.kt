@@ -35,7 +35,7 @@ class Signals<T>(private val floors: SortedMap<Int, T>, val noneValue: T) : Iter
     public fun below(floor: Int): Signals<out T> = Signals<T>(floors.headMap(floor), noneValue)
 
     public fun at(floor: Int): T =
-            if (floor in floors.keySet().indices)
+            if (floors.keySet().contains(floor))
                 floors.get(floor) as T
             else
                 noneValue

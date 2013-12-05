@@ -5,6 +5,7 @@ import org.assertj.core.api.Assertions.assertThat
 import fr.codestory.elevator.Elevator.Side
 import fr.codestory.elevator.BuildingDimension
 import driss.DrissElevator.MoveCommand.*
+import driss.Door.Command.*
 
 
 class DrissElevatorMultiCabinTests {
@@ -46,12 +47,33 @@ class DrissElevatorMultiCabinTests {
             firstCabinGoesTo(4)
 
             moves(DOWN, NOTHING)
-            open_then_close { userHasExited(1) }
+            OPEN_then_CLOSE { userHasExited(1) }
+        }
+    }
+
+    test fun should_accept_call_at_lower_floor() {
+
+        with(DrissElevator(
+                dimension = BuildingDimension(-1, 48),
+                cabinSize = 30,
+                cabinNumber = 2)) {
+
+            call(-1, Side.UP)
+            moves(DOWN, DOWN)
+
+            moves(OPEN, OPEN)
+            userHasEntered(0)
+            go(0, 0)
+            moves(CLOSE, CLOSE)
+            moves(UP, NOTHING)
+            moves(OPEN, NOTHING)
+            userHasExited(0)
+            moves(CLOSE, NOTHING)
         }
     }
 
 
-    private inline fun DrissElevator.open_then_close <T>  (enclosed: () -> T): Unit {
+    private inline fun DrissElevator.OPEN_then_CLOSE <T>  (enclosed: () -> T): Unit {
         assertThat(nextMove())!!.startsWith("OPEN")
 
         enclosed.invoke()
@@ -66,7 +88,7 @@ class DrissElevatorMultiCabinTests {
         this
     }
 
-    private inline fun DrissElevator.moves(vararg commands: DrissElevator.MoveCommand) {
+    private inline fun DrissElevator.moves(vararg commands: Any) {
 
         assertThat(nextMove())!!.isEqualTo(commands.makeString(separator = "\n"))
 
