@@ -71,9 +71,11 @@ class Controller(val users: HashSet<User> = hashSetOf<User>()) {
     fun resetCabins(cabinCount:Int, cabinSize: Int, initialFloor: Int) : Map<Int, Cabin> {
 
         var cabins = hashMapOf<Int, Cabin>()
-
-        if(cabinCount == 1) cabins =  hashMapOf(Pair(0, Cabin(cabinSize, initialFloor)))
-        if(cabinCount == 2) cabins =  hashMapOf(Pair(0, Cabin(cabinSize, initialFloor)), Pair(1, Cabin(cabinSize, initialFloor)))
+        var i =0
+        do {
+            cabins.put(i, Cabin(cabinSize, initialFloor))
+            i++
+        } while(i< cabinCount)
 
         return cabins
     }
