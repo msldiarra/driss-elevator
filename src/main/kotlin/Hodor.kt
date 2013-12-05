@@ -354,6 +354,8 @@ class HodorElevator(public var currentFloor: Int = 0, val dimension: BuildingDim
         CLOSE
         OPEN
         NOTHING
+        OPEN_UP
+        OPEN_DOWN
     }
 
     enum class Going {

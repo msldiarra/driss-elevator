@@ -22,13 +22,13 @@ class Controller(val users: HashSet<User> = hashSetOf<User>()) {
             cabin.users.size() == 30 -> {
 
                 cabin.users.filter {  u -> u.isTravelling()  }
-                    .sortBy { u -> (u.waitingTicks + 2 * abs(cabin.currentFloor - u.destinationFloor)) as Int}
+                    .sortBy { u -> (u.waitingTicks + 2 * abs(cabin.currentFloor - u.destinationFloor))}
                     .first().destinationFloor }
 
             cabin.users.filterNot {  u -> u.isWaiting() }.count { u ->  Score().isPositiveForGo(u, cabin.currentFloor)  } > 0 ->{
 
                 cabin.users.filterNot {  u -> u.isWaiting() && !Score().isPositiveForGo(u, cabin.currentFloor) }
-                            .sortBy { u -> (u.waitingTicks + 2 * abs(cabin.currentFloor - u.destinationFloor)) as Int}
+                            .sortBy { u -> (u.waitingTicks + 2 * abs(cabin.currentFloor - u.destinationFloor))}
                             .first().destinationFloor
             }
 
@@ -84,7 +84,7 @@ class Controller(val users: HashSet<User> = hashSetOf<User>()) {
 
         if(users.isEmpty()) users = cabin.users.filter { u -> u.isWaiting()  && cabin.currentFloor == u.callFloor }
 
-        val user = users.sortBy{ u -> u.waitingTicks }.last() as User
+        val user = users.sortBy{ u -> u.waitingTicks }.last()
 
         user.state = User.State.TRAVELLING
 
@@ -97,7 +97,7 @@ class Controller(val users: HashSet<User> = hashSetOf<User>()) {
     }
 
     fun leaveUserFrom(cabin: Cabin) {
-        val user = cabin.users.find { user -> user.destinationFloor == cabin.currentFloor && user.state == User.State.TRAVELLING }!! as User
+        val user = cabin.users.find { user -> user.destinationFloor == cabin.currentFloor && user.state == User.State.TRAVELLING }!!
         cabin.users.remove(user)
     }
 

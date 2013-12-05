@@ -25,24 +25,14 @@ class SandorElevator(val dimension: BuildingDimension = BuildingDimension(0, 35)
     override fun nextMove(): String? {
 
         users.forEach { u -> u.tick() }
-        cabins.get(0)?.users?.forEach { u -> u.tick() }
-        cabins.get(1)?.users?.forEach { u -> u.tick() }
 
-        var firstCabinCommand = Command.NOTHING.name()
-        var secondCabinCommand = Command.NOTHING.name()
-
-        val firstCabinDestination = controller.compute(cabins.get(0)!! as Cabin)
-        var secondCabinDestination: Int? = null
-        if(cabins.get(1) != null) secondCabinDestination = controller.compute(cabins.get(1)!! as Cabin)
-
-        LOG?.info("Floor to Go" + firstCabinDestination)
-
-        firstCabinCommand = Controller().nextCommand(cabins.get(0) as Cabin, firstCabinDestination)
-        if(secondCabinDestination != null) {
-            secondCabinCommand = Controller().nextCommand(cabins.get(1) as Cabin, secondCabinDestination!!)
+        var command = ArrayList<String>()
+        for(cabin in cabins.values()) {
+            cabin.users.forEach { u -> u.tick() }
+            command.add(Controller().nextCommand(cabin, controller.compute(cabin)))
         }
 
-        return firstCabinCommand+"\n"+secondCabinCommand
+        return command.reduce { (x, y) -> x + "\n" +y }
     }
 
 
@@ -53,7 +43,7 @@ class SandorElevator(val dimension: BuildingDimension = BuildingDimension(0, 35)
 
 
     override fun go(cabin: Int, to: Int) {
-        Controller().go(cabins.get(cabin)!! as Cabin, to)
+        Controller().go(cabins.get(cabin)!!, to)
     }
 
 
@@ -63,12 +53,12 @@ class SandorElevator(val dimension: BuildingDimension = BuildingDimension(0, 35)
 
 
     override fun userHasEntered(cabin: Int) {
-        Controller().takeIn(cabins.get(cabin)!! as Cabin, users)
+        Controller().takeIn(cabins.get(cabin)!!, users)
     }
 
 
     override fun userHasExited(cabin:Int) {
-        Controller().leaveUserFrom(cabins.get(cabin)!! as Cabin)
+        Controller().leaveUserFrom(cabins.get(cabin)!!)
     }
 }
 

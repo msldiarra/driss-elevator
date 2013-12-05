@@ -33,7 +33,8 @@ class SandorElevatorTests {
     test fun call_to_n_floor_should_result_in_n_UPs_commands_from_ground_floor(){
 
         val elevator = SandorElevator()
-        elevator.cabins = hashMapOf(Pair(0,Cabin(40,0)))
+        elevator.reset()
+        //elevator.cabins = hashMapOf(Pair(0,Cabin(40,0)))
         elevator.call(2, Side.UP)
 
         assertThat(elevator.nextMove())?.isEqualTo("UP\nNOTHING")
@@ -43,8 +44,8 @@ class SandorElevatorTests {
     test fun call_to_n_floor_should_result_in_n_DOWNs_commands_from_upper_floor(){
 
         val elevator = SandorElevator()
-        elevator.cabins = hashMapOf(Pair(0,Cabin(40,5)))
-        elevator.call(2, Side.UP)
+        elevator.reset()
+        elevator.call(-3, Side.UP)
 
         assertThat(elevator.nextMove())?.isEqualTo("DOWN\nNOTHING")
         assertThat(elevator.nextMove())?.isEqualTo("DOWN\nNOTHING")
@@ -54,7 +55,7 @@ class SandorElevatorTests {
     test fun user_should_be_removed_when_at_destination(){
 
         val elevator = SandorElevator()
-        elevator.cabins = hashMapOf(Pair(0,Cabin(40,0)))
+        elevator.reset()
         elevator.call(0, Side.UP)
 
         assertThat(elevator.nextMove())?.isEqualTo("OPEN\nNOTHING")
@@ -90,7 +91,8 @@ class SandorElevatorTests {
         val second = User(4,Side.DOWN); second.waitingTicks = 10
 
         val elevator = SandorElevator();
-        elevator.cabins = hashMapOf(Pair(0,Cabin(40,0)))
+        elevator.reset()
+        //elevator.cabins = hashMapOf(Pair(0,Cabin(40,0)))
         elevator.users.add(first)
         elevator.users.add(second)
 
@@ -102,11 +104,12 @@ class SandorElevatorTests {
         assertThat(second.travellingTicks)?.isEqualTo(0)
     }
 
-    test fun should_go_to_nearest_with_most_point() {
+/*    test fun should_go_to_nearest_with_most_point() {
 
 
         val elevator = SandorElevator();
-        elevator.cabins = hashMapOf(Pair(0,Cabin(40,0)))
+        elevator.reset()
+        //elevator.cabins = hashMapOf(Pair(0,Cabin(40,0)))
 
         elevator.call(1,Side.UP)
         elevator.call(1,Side.UP)
@@ -132,17 +135,17 @@ class SandorElevatorTests {
         elevator.userHasExited(0)
         assertThat(elevator.nextMove())?.isEqualTo("CLOSE\nNOTHING")
 
-    }
+    }*/
 
     test fun when_going_to_upper_call_floor_should_take_call_at_lower_floor() {
 
         val elevator = SandorElevator()
-        elevator.cabins = hashMapOf(Pair(0,Cabin(40,4)), Pair(1,Cabin(40,4)))
+        elevator.reset()
 
-        elevator.call(12, Side.DOWN)
+        elevator.call(8, Side.DOWN)
         assertThat(elevator.nextMove())?.isEqualTo("UP\nNOTHING")
         assertThat(elevator.nextMove())?.isEqualTo("UP\nNOTHING")
-        elevator.call(3, Side.UP)
+        elevator.call(-1, Side.UP)
         assertThat(elevator.nextMove())?.isEqualTo("UP\nDOWN")
         assertThat(elevator.nextMove())?.isEqualTo("UP\nOPEN")
 

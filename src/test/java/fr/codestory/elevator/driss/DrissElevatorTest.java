@@ -1,3 +1,4 @@
+/*
 package fr.codestory.elevator.driss;
 
 import fr.codestory.elevator.BuildingDimension;
@@ -6,9 +7,11 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+*/
 /**
  * @author Miguel Basire
- */
+ *//*
+
 public class DrissElevatorTest {
 
     @Test
@@ -159,3 +162,4 @@ public class DrissElevatorTest {
     }
 
 }
+*/

@@ -35,7 +35,7 @@ public class ElevatorServer {
     ElevatorServer(int port, ElevatorFactory elevatorFactory) throws IOException {
 
         this.elevatorFactory = elevatorFactory;
-        this.elevator = elevatorFactory.newElevator(new BuildingDimension(-5, 35), 30, 2); // if the the first request is not a reset...
+        this.elevator = elevatorFactory.newElevator(new BuildingDimension(-5, 48), 30, 8); // if the the first request is not a reset...
 
         httpServer = HttpServer.create(new InetSocketAddress(port), 0);
         httpServer.setExecutor(new Executor() {
