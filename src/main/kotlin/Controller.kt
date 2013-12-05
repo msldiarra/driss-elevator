@@ -5,6 +5,7 @@ import fr.codestory.elevator.hodor.HodorElevator.Command
 import fr.codestory.elevator.hodor.Cabin.Door.State
 import java.util.HashSet
 import java.util.HashMap
+import fr.codestory.elevator.Elevator.Side
 
 class Controller(val users: HashSet<User> = hashSetOf<User>()) {
 
@@ -63,8 +64,14 @@ class Controller(val users: HashSet<User> = hashSetOf<User>()) {
                 cabin.currentFloorToLower(); Command.DOWN.name()
             }
 
-            cabin.currentFloor.isAbove(floorToGo) && cabin.users.filter { u -> u.destinationFloor == cabin.currentFloor }.count() == 0-> {
-                cabin.users.filter{ u -> u.destinationFloor == floorToGo }.forEach { u -> u.state = User.State.ARRIVED }
+            cabin.currentFloor.isAbove(floorToGo) && cabin.users.filter { u -> u.destinationFloor == cabin.currentFloor }.count() > 0
+            && cabin.door.state.identityEquals(State.CLOSED) ->  {
+                cabin.users.filter{ u -> u.destinationFloor == cabin.currentFloor }.forEach { u -> u.state = User.State.ARRIVED }
+                Command.OPEN_DOWN.name()
+            }
+
+            cabin.currentFloor.isAbove(floorToGo) && users.filter { u -> u.callFloor == cabin.currentFloor && u.going == Side.DOWN }.count() > 0
+            && cabin.door.state.identityEquals(State.CLOSED) ->  {
                 Command.OPEN_DOWN.name()
             }
 
@@ -73,8 +80,14 @@ class Controller(val users: HashSet<User> = hashSetOf<User>()) {
                 cabin.currentFloorToUpper(); Command.UP.name()
             }
 
-            cabin.currentFloor.isUnder(floorToGo) && cabin.users.filter { u -> u.destinationFloor == cabin.currentFloor }.count() > 0 -> {
+            cabin.currentFloor.isUnder(floorToGo) && cabin.users.filter { u -> u.destinationFloor == cabin.currentFloor }.count() > 0
+            && cabin.door.state.identityEquals(State.CLOSED) -> {
                 cabin.users.filter{ u -> u.destinationFloor == floorToGo }.forEach { u -> u.state = User.State.ARRIVED }
+                Command.OPEN_UP.name()
+            }
+
+            cabin.currentFloor.isUnder(floorToGo) && users.filter { u -> u.callFloor == cabin.currentFloor && u.going == Side.UP }.count() > 0
+            && cabin.door.state.identityEquals(State.CLOSED) ->  {
                 Command.OPEN_UP.name()
             }
 
@@ -101,15 +114,18 @@ class Controller(val users: HashSet<User> = hashSetOf<User>()) {
 
     fun takeIn(cabin: Cabin, usersToTake: HashSet<User>) : User {
 
-        var users = usersToTake.filter { u -> u.isWaiting()  && cabin.currentFloor == u.callFloor }
+        var users = cabin.users.filter { u -> u.isWaiting()  && cabin.currentFloor == u.callFloor }
+        val user : User
 
-        if(users.isEmpty()) users = cabin.users.filter { u -> u.isWaiting()  && cabin.currentFloor == u.callFloor }
-
-        val user = users.sortBy{ u -> u.waitingTicks }.last()
-
-        user.state = User.State.TRAVELLING
-
-        cabin.users.add(user)
+        if(!users.isEmpty()) {
+            user = users.sortBy{ u -> u.waitingTicks }.last()
+            user.state = User.State.TRAVELLING
+        }
+        else {
+            users = usersToTake.filter { u -> u.isWaiting()  && cabin.currentFloor == u.callFloor }
+            user = users.sortBy{ u -> u.waitingTicks }.last()
+            cabin.users.add(user)
+        }
 
         return user
     }
