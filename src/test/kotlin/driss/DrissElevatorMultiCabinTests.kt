@@ -66,12 +66,33 @@ class DrissElevatorMultiCabinTests {
             go(0, 0)
             moves(CLOSE, CLOSE)
             moves(UP, NOTHING)
-            moves(OPEN_UP, NOTHING)
+            moves(OPEN, NOTHING)
             userHasExited(0)
             moves(CLOSE, NOTHING)
         }
     }
 
+    test fun should_leave_someone_going_in_the_wrong_side() {
+
+        with(DrissElevator(
+                dimension = BuildingDimension(-1, 30),
+                cabinSize = 30,
+                cabinNumber = 2)) {
+
+            call(5, Side.UP)
+
+            moves(UP, UP)
+            call(3, Side.DOWN)
+            moves(UP, UP)
+            moves(UP, UP)
+            moves(UP, UP)
+            moves(UP, UP)
+
+            moves(OPEN, OPEN)
+            userHasEntered(0)
+            moves(CLOSE, CLOSE)
+        }
+    }
 
     private fun DrissElevator.OPEN_then_CLOSE <T>  (enclosed: () -> T): Unit {
         assertThat(nextMove())!!.startsWith("OPEN")

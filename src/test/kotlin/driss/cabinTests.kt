@@ -5,6 +5,7 @@ import org.junit.Test as test
 import org.assertj.core.api.Assertions.assertThat
 import fr.codestory.elevator.BuildingDimension
 import fr.codestory.elevator.Elevator.Side
+import driss.DrissElevator.MoveCommand.*
 
 
 class CabinTests {
@@ -61,7 +62,7 @@ class CabinTests {
         val cabin = cabin(1)
         cabin.door.opened = false
 
-        cabin.groom.commands = Commands(Side.UP, array())
+        cabin.groom.commands = Commands(Side.UP, array(UP))
         assertThat(cabin.groom.openTheDoor())!!.isEqualTo(Door.Command.OPEN_UP)
     }
 
@@ -70,7 +71,7 @@ class CabinTests {
         val cabin = cabin(1)
         cabin.door.opened = false
 
-        cabin.groom.commands = Commands(Side.DOWN, array())
+        cabin.groom.commands = Commands(Side.DOWN, array(DOWN))
         assertThat(cabin.groom.openTheDoor())!!.isEqualTo(Door.Command.OPEN_DOWN)
     }
 

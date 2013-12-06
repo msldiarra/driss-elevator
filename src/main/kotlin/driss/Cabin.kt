@@ -33,15 +33,13 @@ open class Cabin(val gos: Signals<Go>, val capacity: Int, var currentFloor: Int 
         }
 
         public fun wantsTheDoorToOpen(calls: Signals<out List<Call>>): Boolean = when {
-            gos.requestedAt(currentFloor) -> {
-                true
-            }
-            commands.isTwoSidesChargingAllowed() -> {
-                canAcceptSomeone() && (calls.requestedAt(currentFloor))
-            }
-            else -> {
+            gos.requestedAt(currentFloor) -> true
+            commands.hasMoreElements() -> {
                 canAcceptSomeone() &&
                 calls.at(currentFloor).going(commands.side).count() > 0
+            }
+            else -> {
+                canAcceptSomeone() && calls.requestedAt(currentFloor)
             }
         }
 
@@ -49,9 +47,8 @@ open class Cabin(val gos: Signals<Go>, val capacity: Int, var currentFloor: Int 
 
             gos.reached(currentFloor)
 
-            when(commands.side) {
-                Side.UP -> OPEN_UP
-                Side.DOWN -> OPEN_DOWN
+            when {
+                commands.hasMoreElements() -> if (commands.side == Side.DOWN)  OPEN_DOWN else OPEN_UP
                 else -> OPEN
             }
         }

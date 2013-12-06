@@ -31,11 +31,11 @@ class DrissElevatorOneCabinTests {
 
             UP()
             UP()
-            OPEN_UP()
+            OPEN()
             userHasExited(0)
             CLOSE()
             DOWN()
-            OPEN_DOWN()
+            OPEN()
             userHasEntered(0)
             CLOSE()
         }
@@ -152,7 +152,7 @@ class DrissElevatorOneCabinTests {
 
             DOWN()
 
-            OPEN_DOWN()
+            OPEN()
             userHasEntered_and_go(0)
             CLOSE()
 
