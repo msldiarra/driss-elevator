@@ -61,7 +61,7 @@ class DrissElevatorMultiCabinTests {
             call(-1, Side.UP)
             moves(DOWN, DOWN)
 
-            moves(OPEN_DOWN, OPEN_DOWN)
+            moves(OPEN, OPEN)
             userHasEntered(0)
             go(0, 0)
             moves(CLOSE, CLOSE)
@@ -73,7 +73,7 @@ class DrissElevatorMultiCabinTests {
     }
 
 
-    private inline fun DrissElevator.OPEN_then_CLOSE <T>  (enclosed: () -> T): Unit {
+    private fun DrissElevator.OPEN_then_CLOSE <T>  (enclosed: () -> T): Unit {
         assertThat(nextMove())!!.startsWith("OPEN")
 
         enclosed.invoke()
@@ -82,35 +82,35 @@ class DrissElevatorMultiCabinTests {
         this
     }
 
-    private inline fun DrissElevator.goTo(floor: Int) {
+    private  fun DrissElevator.goTo(floor: Int) {
         userHasEntered(0)
         firstCabinGoesTo(floor)
         this
     }
 
-    private inline fun DrissElevator.moves(vararg commands: Any) {
+    private fun DrissElevator.moves(vararg commands: Any) {
 
         assertThat(nextMove())!!.isEqualTo(commands.makeString(separator = "\n"))
 
     }
 
-    private inline fun DrissElevator.firstCabin() {
+    private fun DrissElevator.firstCabin() {
         cabins[0]
     }
 
-    private inline fun DrissElevator.up() {
+    private fun DrissElevator.up() {
         assertThat(nextMove())!!.isEqualTo("UP")
     }
 
-    private inline fun DrissElevator.down() {
+    private fun DrissElevator.down() {
         assertThat(nextMove())!!.isEqualTo("DOWN")
     }
 
-    private inline fun DrissElevator.nothing() {
+    private fun DrissElevator.nothing() {
         assertThat(nextMove())!!.isEqualTo("NOTHING")
     }
 
-    private inline fun DrissElevator.firstCabinGoesTo(floor: Int) {
+    private fun DrissElevator.firstCabinGoesTo(floor: Int) {
         go(0, floor)
     }
 

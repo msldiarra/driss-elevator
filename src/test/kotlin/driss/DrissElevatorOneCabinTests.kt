@@ -47,7 +47,7 @@ class DrissElevatorOneCabinTests {
             call(1, Side.DOWN)
 
             UP()
-            OPEN_UP()
+            OPEN()
             userHasEntered(0)
             CLOSE()
             NOTHING()
@@ -60,7 +60,7 @@ class DrissElevatorOneCabinTests {
             go(0, 1)
 
             UP()
-            OPEN_UP()
+            OPEN()
 
             userHasExited(0)
             CLOSE()
@@ -115,7 +115,7 @@ class DrissElevatorOneCabinTests {
             UP()
 
             assertThat(cabins[0].currentFloor)!!.isEqualTo(1)
-            OPEN_UP()
+            OPEN()
             userHasExited(0)
             userHasEntered(0)
             go(0, 0)
@@ -123,7 +123,7 @@ class DrissElevatorOneCabinTests {
             DOWN()
 
             assertThat(cabins[0].currentFloor)!!.isEqualTo(0)
-            OPEN_DOWN()
+            OPEN()
 
             userHasExited(0)
             CLOSE()
@@ -144,7 +144,7 @@ class DrissElevatorOneCabinTests {
 
             UP()
 
-            OPEN_UP()
+            OPEN()
             userHasExited(0)
             CLOSE()
 
@@ -157,7 +157,7 @@ class DrissElevatorOneCabinTests {
             CLOSE()
 
             DOWN()
-            OPEN_DOWN()
+            OPEN()
             userHasEntered(0)
             CLOSE()
             NOTHING()
@@ -195,7 +195,7 @@ class DrissElevatorOneCabinTests {
         }
     }
 
-    private inline fun DrissElevator.OPEN_then_CLOSE <T>  (enclosed: () -> T): Unit {
+    private fun DrissElevator.OPEN_then_CLOSE <T>  (enclosed: () -> T): Unit {
         OPEN()
 
         enclosed.invoke()
@@ -204,7 +204,7 @@ class DrissElevatorOneCabinTests {
         this
     }
 
-    private inline fun DrissElevator.userHasEntered_and_go(floor: Int) {
+    private fun DrissElevator.userHasEntered_and_go(floor: Int) {
         userHasEntered(0)
         go(0, floor)
         this
@@ -226,15 +226,15 @@ class DrissElevatorOneCabinTests {
     }
 
 
-    private inline fun DrissElevator.UP() {
+    private fun DrissElevator.UP() {
         assertThat(nextMove())!!.isEqualTo("UP")
     }
 
-    private inline fun DrissElevator.DOWN() {
+    private fun DrissElevator.DOWN() {
         assertThat(nextMove())!!.isEqualTo("DOWN")
     }
 
-    private inline fun DrissElevator.NOTHING() {
+    private fun DrissElevator.NOTHING() {
         assertThat(nextMove())!!.isEqualTo("NOTHING")
     }
 }

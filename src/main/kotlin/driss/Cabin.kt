@@ -27,12 +27,12 @@ open class Cabin(val gos: Signals<Go>, val capacity: Int, var currentFloor: Int 
 
         var commands = Commands.NONE
 
-        public inline fun    giveNextMoveCommand(calls: Signals<out List<Call>>): MoveCommand {
+        public fun    giveNextMoveCommand(calls: Signals<out List<Call>>): MoveCommand {
             if ( !commands.hasMoreElements()) commands = giveFollowingCommands(calls)
             return commands.nextElement()
         }
 
-        public inline fun wantsTheDoorToOpen(calls: Signals<out List<Call>>): Boolean = when {
+        public fun wantsTheDoorToOpen(calls: Signals<out List<Call>>): Boolean = when {
             gos.requestedAt(currentFloor) -> {
                 true
             }
@@ -58,7 +58,7 @@ open class Cabin(val gos: Signals<Go>, val capacity: Int, var currentFloor: Int 
 
         public fun closeTheDoor(): Door.Command = door.toggle()
 
-        private inline fun giveFollowingCommands(calls: Signals<out List<Call>>): Commands = with(this) {
+        private fun giveFollowingCommands(calls: Signals<out List<Call>>): Commands = with(this) {
 
             if ( calls.isEmpty() && gos.isEmpty() )
                 Commands.NONE
@@ -104,11 +104,11 @@ open class Cabin(val gos: Signals<Go>, val capacity: Int, var currentFloor: Int 
             }
         }
 
-        private inline fun sumOf(destinations: Iterable<Signal>) =
+        private fun sumOf(destinations: Iterable<Signal>) =
                 destinations.fold(0) { number, elevatorRequest -> number + elevatorRequest.number }
 
 
-        inline private fun invertFirst(command: MoveCommand) = {(i: Int) ->
+        private fun invertFirst(command: MoveCommand) = {(i: Int) ->
             when {
                 i == 0 -> command.switch()
                 else -> command

@@ -21,26 +21,23 @@ public class DrissElevator(initialFloor: Int = 0,
         with(it) {
             when {
                 door.opened -> groom.closeTheDoor()
-                groom.wantsTheDoorToOpen(calls) -> groom.openTheDoor()
+                groom.wantsTheDoorToOpen(calls) -> groom.openTheDoor().fixOpenAtLimitBuilding(currentFloor, dimension)
                 else -> updateReachedFloorAfter(groom.giveNextMoveCommand(calls))
             }
         }
     }.
     makeString("\n")
 
-    fun optimize_open_command(commands: Commands, doorCommand: Door.Command): Door.Command = when(doorCommand) {
-        OPEN -> {
-            when(commands.side) {
-                Side.UP -> OPEN_UP
-                Side.DOWN -> OPEN_DOWN
-                else -> OPEN
-            }
-        }
-        else -> CLOSE
+    private fun Door.Command.fixOpenAtLimitBuilding(currentFloor: Int, buildingDimension: BuildingDimension): Door.Command = when(this) {
+        OPEN_UP -> if (currentFloor.atLimit(buildingDimension)) OPEN else OPEN_UP
+        OPEN_DOWN -> if (currentFloor.atLimit(buildingDimension)) OPEN else OPEN_DOWN
+        else -> this
     }
 
+    private fun Int.atLimit(buildingDimmension: BuildingDimension) = this == buildingDimmension.getHigherFloor()
+    || this == buildingDimmension.getLowerFloor()
 
-    private inline fun Cabin.updateReachedFloorAfter(chosenCommand: MoveCommand): String {
+    private fun Cabin.updateReachedFloorAfter(chosenCommand: MoveCommand): String {
         when (chosenCommand) {
             MoveCommand.UP -> {
                 currentFloor++
@@ -116,7 +113,7 @@ public class DrissElevator(initialFloor: Int = 0,
         }
 
 
-        inline fun switch(): MoveCommand = when(this) {
+        fun switch(): MoveCommand = when(this) {
             MoveCommand.DOWN -> MoveCommand.UP
             MoveCommand.UP -> MoveCommand.DOWN
             else -> MoveCommand.NOTHING }

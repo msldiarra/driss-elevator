@@ -121,7 +121,7 @@ public class DrissElevatorTest {
 
         assertThat(elevator.nextMove()).isEqualTo("DOWN");
 
-        assertThat(elevator.nextMove()).isEqualTo("OPEN_UP");
+        assertThat(elevator.nextMove()).isEqualTo("OPEN");
         elevator.userHasEntered(0);
         elevator.go(0, 3);
         assertThat(elevator.nextMove()).isEqualTo("CLOSE");
