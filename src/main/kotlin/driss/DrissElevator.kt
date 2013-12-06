@@ -3,6 +3,7 @@ package driss
 import fr.codestory.elevator.Elevator.Side
 import fr.codestory.elevator.BuildingDimension
 import fr.codestory.elevator.Elevator
+import driss.Door.Command.*
 
 public class DrissElevator(initialFloor: Int = 0,
                            val dimension: BuildingDimension = BuildingDimension(0, 19),
@@ -19,15 +20,24 @@ public class DrissElevator(initialFloor: Int = 0,
     public override fun nextMove(): String = cabins.map {
         with(it) {
             when {
-                door.opened || groom.wantsTheDoorToOpen(calls) -> {
-                    door.toggle {
-                        gos.reached(currentFloor)
-                    }
-                }
+                door.opened -> groom.closeTheDoor()
+                groom.wantsTheDoorToOpen(calls) -> groom.openTheDoor()
                 else -> updateReachedFloorAfter(groom.giveNextMoveCommand(calls))
             }
         }
-    }.makeString("\n")
+    }.
+    makeString("\n")
+
+    fun optimize_open_command(commands: Commands, doorCommand: Door.Command): Door.Command = when(doorCommand) {
+        OPEN -> {
+            when(commands.side) {
+                Side.UP -> OPEN_UP
+                Side.DOWN -> OPEN_DOWN
+                else -> OPEN
+            }
+        }
+        else -> CLOSE
+    }
 
 
     private inline fun Cabin.updateReachedFloorAfter(chosenCommand: MoveCommand): String {

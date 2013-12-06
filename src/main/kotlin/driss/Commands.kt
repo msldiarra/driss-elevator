@@ -19,6 +19,6 @@ class Commands(val side: Side,
     public fun isTwoSidesChargingAllowed(): Boolean = remainingCommands < 1 || commands.all { command -> commands[0] != command }
 
     class object {
-        public val NONE: Commands = Commands(Side.UP, array())
+        public val NONE: Commands = Commands(Side.UNKOWN, array())
     }
 }

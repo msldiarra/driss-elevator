@@ -2,16 +2,15 @@ package driss
 
 class Door(var opened: Boolean = false){
 
-    enum class Command{ OPEN  CLOSE
+    enum class Command{ OPEN  CLOSE OPEN_UP OPEN_DOWN
     }
 
-    inline fun toggle(onOpen: (() -> Unit)?) = if (opened) {
+    inline fun toggle(onChange: ((Door.Command) -> Door.Command) = { it }) = if (opened) {
         opened = false
-        Command.CLOSE
+        onChange(Command.CLOSE)
     }
     else {
         opened = true
-        onOpen?.invoke()
-        Command.OPEN
+        onChange(Command.OPEN)
     }
 }

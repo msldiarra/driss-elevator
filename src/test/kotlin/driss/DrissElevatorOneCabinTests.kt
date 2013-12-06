@@ -31,9 +31,13 @@ class DrissElevatorOneCabinTests {
 
             UP()
             UP()
-            OPEN_then_CLOSE { userHasExited(0) }
+            OPEN_UP()
+            userHasExited(0)
+            CLOSE()
             DOWN()
-            OPEN_then_CLOSE { userHasEntered(0) }
+            OPEN_DOWN()
+            userHasEntered(0)
+            CLOSE()
         }
     }
 
@@ -43,7 +47,9 @@ class DrissElevatorOneCabinTests {
             call(1, Side.DOWN)
 
             UP()
-            OPEN_then_CLOSE { userHasEntered(0) }
+            OPEN_UP()
+            userHasEntered(0)
+            CLOSE()
             NOTHING()
         }
     }
@@ -54,7 +60,10 @@ class DrissElevatorOneCabinTests {
             go(0, 1)
 
             UP()
-            OPEN_then_CLOSE { userHasExited(0) }
+            OPEN_UP()
+
+            userHasExited(0)
+            CLOSE()
             NOTHING()
         }
     }
@@ -99,25 +108,25 @@ class DrissElevatorOneCabinTests {
         with(DrissElevator(initialFloor = 0, dimension = BuildingDimension(0, 1), cabinSize = 1, cabinNumber = 1)) {
 
             call(0, Side.UP)
-            OPEN_then_CLOSE {
-                userHasEntered_and_go(1)
-                call(1, Side.DOWN)
-            }
+            OPEN()
+            userHasEntered_and_go(1)
+            call(1, Side.DOWN)
+            CLOSE()
             UP()
 
             assertThat(cabins[0].currentFloor)!!.isEqualTo(1)
-            OPEN_then_CLOSE {
-                userHasExited(0)
-                userHasEntered(0)
-                go(0, 0)
-            }
-
+            OPEN_UP()
+            userHasExited(0)
+            userHasEntered(0)
+            go(0, 0)
+            CLOSE()
             DOWN()
 
             assertThat(cabins[0].currentFloor)!!.isEqualTo(0)
-            OPEN_then_CLOSE {
-                userHasExited(0)
-            }
+            OPEN_DOWN()
+
+            userHasExited(0)
+            CLOSE()
             assertThat(calls.signaledFloors())!!.isEmpty()
         }
     }
@@ -135,20 +144,22 @@ class DrissElevatorOneCabinTests {
 
             UP()
 
-            OPEN_then_CLOSE {
-                userHasExited(0)
-            }
+            OPEN_UP()
+            userHasExited(0)
+            CLOSE()
 
             assertThat(cabins[0].canAcceptSomeone())!!.isTrue()
 
             DOWN()
 
-            OPEN_then_CLOSE {
-                userHasEntered_and_go(0)
-            }
+            OPEN_DOWN()
+            userHasEntered_and_go(0)
+            CLOSE()
 
             DOWN()
-            OPEN_then_CLOSE { userHasEntered(0) }
+            OPEN_DOWN()
+            userHasEntered(0)
+            CLOSE()
             NOTHING()
         }
     }
@@ -201,6 +212,12 @@ class DrissElevatorOneCabinTests {
 
     private fun DrissElevator.OPEN() {
         assertThat(nextMove())!!.isEqualTo("OPEN")
+    }
+    private fun DrissElevator.OPEN_UP() {
+        assertThat(nextMove())!!.isEqualTo("OPEN_UP")
+    }
+    private fun DrissElevator.OPEN_DOWN() {
+        assertThat(nextMove())!!.isEqualTo("OPEN_DOWN")
     }
 
 

@@ -4,6 +4,7 @@ package driss
 import org.junit.Test as test
 import org.assertj.core.api.Assertions.assertThat
 import fr.codestory.elevator.BuildingDimension
+import fr.codestory.elevator.Elevator.Side
 
 
 class CabinTests {
@@ -44,6 +45,41 @@ class CabinTests {
         cabin.peopleInside = 1
 
         assertThat(cabin.canAcceptSomeone())!!.isFalse()
+    }
+
+    test fun openTheDoor_when_no_move_command() {
+
+        val cabin = cabin(1)
+        cabin.door.opened = false
+
+        assertThat(cabin.groom.commands.side)!!.isEqualTo(Side.UNKOWN)
+        assertThat(cabin.groom.openTheDoor())!!.isEqualTo(Door.Command.OPEN)
+    }
+
+    test fun openTheDoor_when_side_is_up() {
+
+        val cabin = cabin(1)
+        cabin.door.opened = false
+
+        cabin.groom.commands = Commands(Side.UP, array())
+        assertThat(cabin.groom.openTheDoor())!!.isEqualTo(Door.Command.OPEN_UP)
+    }
+
+    test fun openTheDoor_when_side_is_down() {
+
+        val cabin = cabin(1)
+        cabin.door.opened = false
+
+        cabin.groom.commands = Commands(Side.DOWN, array())
+        assertThat(cabin.groom.openTheDoor())!!.isEqualTo(Door.Command.OPEN_DOWN)
+    }
+
+    test fun should_closeTheDoor() {
+
+        val cabin = cabin(1)
+        cabin.door.opened = true
+
+        assertThat(cabin.groom.closeTheDoor())!!.isEqualTo(Door.Command.CLOSE)
     }
 
 

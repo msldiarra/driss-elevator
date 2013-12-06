@@ -61,12 +61,12 @@ class DrissElevatorMultiCabinTests {
             call(-1, Side.UP)
             moves(DOWN, DOWN)
 
-            moves(OPEN, OPEN)
+            moves(OPEN_DOWN, OPEN_DOWN)
             userHasEntered(0)
             go(0, 0)
             moves(CLOSE, CLOSE)
             moves(UP, NOTHING)
-            moves(OPEN, NOTHING)
+            moves(OPEN_UP, NOTHING)
             userHasExited(0)
             moves(CLOSE, NOTHING)
         }

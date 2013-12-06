@@ -33,7 +33,7 @@ public class DrissElevatorTest {
 
         assertThat(elevator.nextMove()).isEqualTo("UP");
         assertThat(elevator.nextMove()).isEqualTo("UP");
-        assertThat(elevator.nextMove()).isEqualTo("OPEN");
+        assertThat(elevator.nextMove()).isEqualTo("OPEN_UP");
         elevator.userHasEntered(0);
         assertThat(elevator.nextMove()).isEqualTo("CLOSE");
 
@@ -50,13 +50,13 @@ public class DrissElevatorTest {
         assertThat(elevator.nextMove()).isEqualTo("UP");
         assertThat(elevator.nextMove()).isEqualTo("UP");
 
-        assertThat(elevator.nextMove()).isEqualTo("OPEN");
+        assertThat(elevator.nextMove()).isEqualTo("OPEN_UP");
         elevator.userHasEntered(0);
         elevator.go(0, 3);
         assertThat(elevator.nextMove()).isEqualTo("CLOSE");
 
         assertThat(elevator.nextMove()).isEqualTo("UP");
-        assertThat(elevator.nextMove()).isEqualTo("OPEN");
+        assertThat(elevator.nextMove()).isEqualTo("OPEN_UP");
         assertThat(elevator.nextMove()).isEqualTo("CLOSE");
 
         assertThat(elevator.nextMove()).isEqualTo("NOTHING");
@@ -71,13 +71,13 @@ public class DrissElevatorTest {
 
         assertThat(elevator.nextMove()).isEqualTo("DOWN");
 
-        assertThat(elevator.nextMove()).isEqualTo("OPEN");
+        assertThat(elevator.nextMove()).isEqualTo("OPEN_DOWN");
         elevator.userHasEntered(0);
         elevator.go(0, 1);
         assertThat(elevator.nextMove()).isEqualTo("CLOSE");
 
         assertThat(elevator.nextMove()).isEqualTo("DOWN");
-        assertThat(elevator.nextMove()).isEqualTo("OPEN");
+        assertThat(elevator.nextMove()).isEqualTo("OPEN_DOWN");
         assertThat(elevator.nextMove()).isEqualTo("CLOSE");
 
         assertThat(elevator.nextMove()).isEqualTo("NOTHING");
@@ -93,7 +93,7 @@ public class DrissElevatorTest {
 
         assertThat(elevator.nextMove()).isEqualTo("UP");
 
-        assertThat(elevator.nextMove()).isEqualTo("OPEN");
+        assertThat(elevator.nextMove()).isEqualTo("OPEN_UP");
         elevator.userHasEntered(0);
         elevator.go(0, 1);
         assertThat(elevator.nextMove()).isEqualTo("CLOSE");
@@ -103,7 +103,7 @@ public class DrissElevatorTest {
         assertThat(elevator.nextMove()).isEqualTo("DOWN");
         assertThat(elevator.nextMove()).isEqualTo("DOWN");
         assertThat(elevator.getCabins()[0].getCurrentFloor()).isEqualTo(1);
-        assertThat(elevator.nextMove()).isEqualTo("OPEN");
+        assertThat(elevator.nextMove()).isEqualTo("OPEN_DOWN");
         elevator.userHasEntered(0);
         assertThat(elevator.nextMove()).isEqualTo("CLOSE");
 
@@ -121,7 +121,7 @@ public class DrissElevatorTest {
 
         assertThat(elevator.nextMove()).isEqualTo("DOWN");
 
-        assertThat(elevator.nextMove()).isEqualTo("OPEN");
+        assertThat(elevator.nextMove()).isEqualTo("OPEN_UP");
         elevator.userHasEntered(0);
         elevator.go(0, 3);
         assertThat(elevator.nextMove()).isEqualTo("CLOSE");
@@ -134,13 +134,13 @@ public class DrissElevatorTest {
 
         assertThat(elevator.getCabins()[0].getCurrentFloor()).isEqualTo(3);
 
-        assertThat(elevator.nextMove()).isEqualTo("OPEN");
+        assertThat(elevator.nextMove()).isEqualTo("OPEN_UP");
         assertThat(elevator.nextMove()).isEqualTo("CLOSE");
         assertThat(elevator.nextMove()).isEqualTo("UP");
 
         assertThat(elevator.getCabins()[0].getCurrentFloor()).isEqualTo(4);
 
-        assertThat(elevator.nextMove()).isEqualTo("OPEN");
+        assertThat(elevator.nextMove()).isEqualTo("OPEN_UP");
         elevator.userHasEntered(0);
         elevator.go(0, 1);
         assertThat(elevator.nextMove()).isEqualTo("CLOSE");
@@ -150,7 +150,7 @@ public class DrissElevatorTest {
         assertThat(elevator.nextMove()).isEqualTo("DOWN");
         assertThat(elevator.nextMove()).isEqualTo("DOWN");
 
-        assertThat(elevator.nextMove()).isEqualTo("OPEN");
+        assertThat(elevator.nextMove()).isEqualTo("OPEN_DOWN");
         assertThat(elevator.nextMove()).isEqualTo("CLOSE");
 
         assertThat(elevator.nextMove()).isEqualTo("NOTHING");

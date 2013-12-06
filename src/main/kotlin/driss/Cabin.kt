@@ -2,6 +2,7 @@ package driss
 
 import driss.DrissElevator.MoveCommand
 import fr.codestory.elevator.Elevator.Side
+import driss.Door.Command.*
 
 import java.lang.Math.abs
 
@@ -24,7 +25,7 @@ open class Cabin(val gos: Signals<Go>, val capacity: Int, var currentFloor: Int 
 
     inner class Groom() {
 
-        private var commands = Commands.NONE
+        var commands = Commands.NONE
 
         public inline fun    giveNextMoveCommand(calls: Signals<out List<Call>>): MoveCommand {
             if ( !commands.hasMoreElements()) commands = giveFollowingCommands(calls)
@@ -43,6 +44,19 @@ open class Cabin(val gos: Signals<Go>, val capacity: Int, var currentFloor: Int 
                 calls.at(currentFloor).going(commands.side).count() > 0
             }
         }
+
+        public fun openTheDoor(): Door.Command = door.toggle {
+
+            gos.reached(currentFloor)
+
+            when(commands.side) {
+                Side.UP -> OPEN_UP
+                Side.DOWN -> OPEN_DOWN
+                else -> OPEN
+            }
+        }
+
+        public fun closeTheDoor(): Door.Command = door.toggle()
 
         private inline fun giveFollowingCommands(calls: Signals<out List<Call>>): Commands = with(this) {
 
