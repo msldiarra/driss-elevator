@@ -1,8 +1,8 @@
 package driss
 
 import fr.codestory.elevator.Elevator.Side
-import driss.DrissElevator.MoveCommand
 import java.util.Enumeration
+import driss.Cabin.MoveCommand
 
 
 class Commands(val side: Side,

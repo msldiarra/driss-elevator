@@ -2,18 +2,21 @@ package driss
 
 import org.junit.Test as test
 import org.assertj.core.api.Assertions.assertThat
+
 import fr.codestory.elevator.Elevator.Side
 import fr.codestory.elevator.BuildingDimension
-import driss.DrissElevator.MoveCommand.*
+
+import driss.assertions.*
 
 
 class DrissElevatorOneCabinTests {
 
+    val firstCabin = 0
 
     test fun go_should_increment_only_request_at_its_floor() {
 
         with(DrissElevator(cabinNumber = 1, cabinSize = 2)) {
-            go(0, 1)
+            go(firstCabin, 1)
 
             assertThat(cabins[0].gos.at(1).number)!!.isEqualTo(1)
             assertThat(cabins[0].gos.at(2).number)!!.isEqualTo(0)
@@ -24,19 +27,19 @@ class DrissElevatorOneCabinTests {
 
         with(DrissElevator(cabinNumber = 1, cabinSize = 1)) {
 
-            cabins[0].peopleInside = 1
-            go(0, 2)
+            cabins[firstCabin].peopleInside = 1
+            go(firstCabin, 2)
 
             call(1, Side.UP)
 
             UP()
             UP()
             OPEN()
-            userHasExited(0)
+            userHasExited(firstCabin)
             CLOSE()
             DOWN()
             OPEN()
-            userHasEntered(0)
+            userHasEntered(firstCabin)
             CLOSE()
         }
     }
@@ -48,7 +51,7 @@ class DrissElevatorOneCabinTests {
 
             UP()
             OPEN()
-            userHasEntered(0)
+            userHasEntered(firstCabin)
             CLOSE()
             NOTHING()
         }
@@ -57,12 +60,12 @@ class DrissElevatorOneCabinTests {
     test fun should_not_go_beyond_building_limit_on_go() {
 
         with(DrissElevator(initialFloor = 0, dimension = BuildingDimension(0, 1), cabinSize = 1, cabinNumber = 1)) {
-            go(0, 1)
+            go(firstCabin, 1)
 
             UP()
             OPEN()
 
-            userHasExited(0)
+            userHasExited(firstCabin)
             CLOSE()
             NOTHING()
         }
@@ -91,8 +94,8 @@ class DrissElevatorOneCabinTests {
             assertThat(calls.at(8))!!.hasSize(2)
 
             OPEN_then_CLOSE {
-                userHasEntered(0)
-                userHasEntered(0)
+                userHasEntered(firstCabin)
+                userHasEntered(firstCabin)
             }
 
             assertThat(calls.at(8))!!.hasSize(0)
@@ -109,20 +112,21 @@ class DrissElevatorOneCabinTests {
 
             call(0, Side.UP)
             OPEN()
-            userHasEntered_and_go(1)
+            userHasEntered(firstCabin)
+            go(firstCabin, 1)
             call(1, Side.DOWN)
             CLOSE()
             UP()
 
-            assertThat(cabins[0].currentFloor)!!.isEqualTo(1)
+            assertThat(cabins[firstCabin].currentFloor)!!.isEqualTo(1)
             OPEN()
-            userHasExited(0)
-            userHasEntered(0)
-            go(0, 0)
+            userHasExited(firstCabin)
+            userHasEntered(firstCabin)
+            go(firstCabin, 0)
             CLOSE()
             DOWN()
 
-            assertThat(cabins[0].currentFloor)!!.isEqualTo(0)
+            assertThat(cabins[firstCabin].currentFloor)!!.isEqualTo(0)
             OPEN()
 
             userHasExited(0)
@@ -138,29 +142,58 @@ class DrissElevatorOneCabinTests {
             call(1, Side.DOWN)
 
             OPEN_then_CLOSE {
-                userHasEntered_and_go(2)
+                userHasEntered(firstCabin)
+                go(firstCabin, 2)
             }
-            assertThat(cabins[0].canAcceptSomeone())!!.isFalse()
+            assertThat(cabins[firstCabin].canAcceptSomeone())!!.isFalse()
 
             UP()
 
             OPEN()
-            userHasExited(0)
+            userHasExited(firstCabin)
             CLOSE()
 
-            assertThat(cabins[0].canAcceptSomeone())!!.isTrue()
+            assertThat(cabins[firstCabin].canAcceptSomeone())!!.isTrue()
 
             DOWN()
 
             OPEN()
-            userHasEntered_and_go(0)
+            userHasEntered(firstCabin)
+            go(firstCabin, 0)
             CLOSE()
 
             DOWN()
             OPEN()
-            userHasEntered(0)
+            userHasEntered(firstCabin)
             CLOSE()
             NOTHING()
+        }
+    }
+
+
+    test fun userHasEntered_should_decrease_calls_at_floor() {
+
+        with(DrissElevator(
+                dimension = BuildingDimension(-1, 30),
+                cabinSize = 30,
+                cabinNumber = 1,
+                initialFloor = 0)) {
+
+            call(0, Side.UP)
+            call(0, Side.UP)
+
+            assertThat(calls.signaledFloors())!!.hasSize(1)
+            assertThat(calls.at(0))!!.hasSize(2)
+
+            userHasEntered(firstCabin)
+
+            assertThat(calls.signaledFloors())!!.hasSize(1)
+            assertThat(calls.at(0))!!.hasSize(1)
+
+            userHasEntered(firstCabin)
+
+            assertThat(calls.signaledFloors())!!.hasSize(0)
+            assertThat(calls.at(0))!!.hasSize(0)
         }
     }
 
@@ -178,7 +211,7 @@ class DrissElevatorOneCabinTests {
 
             assertThat(calls.at(cabins[0].currentFloor))!!.hasSize(1)!!.isNotSameAs(calls.noneValue)
 
-            userHasEntered(0)
+            userHasEntered(firstCabin)
 
             assertThat(calls.at(0))!!.isSameAs(calls.noneValue)
         }
@@ -190,51 +223,62 @@ class DrissElevatorOneCabinTests {
                 cabinNumber = 1
         )) {
 
-            cabins[0].door.opened = true
+            cabins[firstCabin].door.opened = true
             CLOSE()
         }
     }
 
-    private fun DrissElevator.OPEN_then_CLOSE <T>  (enclosed: () -> T): Unit {
-        OPEN()
+    test fun a_go_should_not_allow_someone_going_the_wrong_way_to_enter() {
+        with(DrissElevator(
+                cabinSize = 1,
+                cabinNumber = 1,
+                dimension = BuildingDimension(0, 30),
+                initialFloor = 0
 
-        enclosed.invoke()
+        )) {
 
-        CLOSE()
-        this
+            cabins[firstCabin].door.opened = false
+
+            userHasEntered(0)
+            go(0, 2)
+            call(1, Side.DOWN)
+
+            UP()
+            UP()
+            OPEN()
+            userHasExited(firstCabin)
+            CLOSE()
+            DOWN()
+            OPEN()
+            userHasEntered(firstCabin)
+            go(0, 0)
+            CLOSE()
+            DOWN()
+        }
     }
 
-    private fun DrissElevator.userHasEntered_and_go(floor: Int) {
-        userHasEntered(0)
-        go(0, floor)
-        this
+    test fun only_upside_call_should_be_removed_after_OPEN_UP() {
+        with(DrissElevator(
+                cabinSize = 2,
+                cabinNumber = 1,
+                dimension = BuildingDimension(0, 30),
+                initialFloor = 0
+
+        )) {
+
+            userHasEntered(firstCabin)
+            go(firstCabin, 2)
+
+            call(1, Side.DOWN)
+            call(1, Side.UP)
+
+            UP()
+            OPEN_UP()
+            userHasEntered(firstCabin)
+
+            assertThat(calls.at(1).going(Side.UP))!!.hasSize(0)
+            assertThat(calls.at(1).going(Side.DOWN))!!.hasSize(1)
+        }
     }
 
-    private fun DrissElevator.OPEN() {
-        assertThat(nextMove())!!.isEqualTo("OPEN")
-    }
-    private fun DrissElevator.OPEN_UP() {
-        assertThat(nextMove())!!.isEqualTo("OPEN_UP")
-    }
-    private fun DrissElevator.OPEN_DOWN() {
-        assertThat(nextMove())!!.isEqualTo("OPEN_DOWN")
-    }
-
-
-    private fun DrissElevator.CLOSE() {
-        assertThat(nextMove())!!.isEqualTo("CLOSE")
-    }
-
-
-    private fun DrissElevator.UP() {
-        assertThat(nextMove())!!.isEqualTo("UP")
-    }
-
-    private fun DrissElevator.DOWN() {
-        assertThat(nextMove())!!.isEqualTo("DOWN")
-    }
-
-    private fun DrissElevator.NOTHING() {
-        assertThat(nextMove())!!.isEqualTo("NOTHING")
-    }
 }

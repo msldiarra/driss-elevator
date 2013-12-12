@@ -109,5 +109,5 @@ class Call(val side: Side = Side.UNKOWN, number: Int = 1) : Signal {
     override var timestamp: Date = Date()
 }
 
-public fun List<Call>.going(side: Side): List<Call> = this.filter { it.side == side }
+public fun List<Call>.going(side: Side): List<Call> = this.filter { side == Side.UNKOWN || it.side == side }
 

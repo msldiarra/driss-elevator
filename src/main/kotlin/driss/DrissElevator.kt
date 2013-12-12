@@ -21,35 +21,14 @@ public class DrissElevator(initialFloor: Int = 0,
         with(it) {
             when {
                 door.opened -> groom.closeTheDoor()
-                groom.wantsTheDoorToOpen(calls) -> groom.openTheDoor().fixOpenAtLimitBuilding(currentFloor, dimension)
-                else -> updateReachedFloorAfter(groom.giveNextMoveCommand(calls))
+                groom.wantsTheDoorToOpen(calls) -> groom.openTheDoor(dimension)
+
+                else -> groom.giveNextMoveCommand(calls)
             }
         }
     }.
     makeString("\n")
 
-    private fun Door.Command.fixOpenAtLimitBuilding(currentFloor: Int, buildingDimension: BuildingDimension): Door.Command = when(this) {
-        OPEN_UP -> if (currentFloor.atLimit(buildingDimension)) OPEN else OPEN_UP
-        OPEN_DOWN -> if (currentFloor.atLimit(buildingDimension)) OPEN else OPEN_DOWN
-        else -> this
-    }
-
-    private fun Int.atLimit(buildingDimmension: BuildingDimension) = this == buildingDimmension.getHigherFloor()
-    || this == buildingDimmension.getLowerFloor()
-
-    private fun Cabin.updateReachedFloorAfter(chosenCommand: MoveCommand): String {
-        when (chosenCommand) {
-            MoveCommand.UP -> {
-                currentFloor++
-            }
-            MoveCommand.DOWN -> {
-                currentFloor--
-            }
-            MoveCommand.NOTHING -> {
-            }
-        }
-        return chosenCommand.name()
-    }
 
     public override fun reset(): Unit {
 
@@ -81,13 +60,21 @@ public class DrissElevator(initialFloor: Int = 0,
             userHasEntered()
 
             if (calls.requestedAt(currentFloor)){
-                calls.at(currentFloor).remove(0)
+                val firstCall = calls.at(currentFloor).going(
+                        when(lastOpenCommand) {
+                            OPEN_UP -> Side.UP
+                            OPEN_DOWN -> Side.DOWN
+                            else -> Side.UNKOWN
+                        }).first
+
+                calls.at(currentFloor).remove(firstCall)
 
                 if (calls.at(currentFloor).size() == 0)
                     calls.reached(currentFloor)
             }
         }
     }
+
     override fun userHasExited(cabinNumber: Int) {
         cabins[cabinNumber].userHasExited()
     }
@@ -101,22 +88,6 @@ public class DrissElevator(initialFloor: Int = 0,
     }
     override fun userHasExited() {
         throw UnsupportedOperationException()
-    }
-
-    enum class MoveCommand {
-
-        UP
-        DOWN
-        NOTHING
-        fun times(number: Int): Array<MoveCommand> {
-            return Array(number) { this }
-        }
-
-
-        fun switch(): MoveCommand = when(this) {
-            MoveCommand.DOWN -> MoveCommand.UP
-            MoveCommand.UP -> MoveCommand.DOWN
-            else -> MoveCommand.NOTHING }
     }
 
 
